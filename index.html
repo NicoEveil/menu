@@ -19,29 +19,6 @@
         <main>
             <!-- Onglet Menu -->
             <section id="menu" class="tab-content active">
-                <div class="recettes-header">
-                    <h2>Mes Recettes</h2>
-                    <button id="add-recipe-btn" class="btn btn-primary">
-                        <span>+</span> Ajouter une recette
-                    </button>
-                </div>
-                
-                <div class="search-bar">
-                    <input type="text" id="recipe-search" placeholder="Rechercher une recette...">
-                    <select id="recipe-filter">
-                        <option value="all">Toutes</option>
-                        <option value="lien">Liens</option>
-                        <option value="texte">Recettes écrites</option>
-                    </select>
-                </div>
-
-                <div id="recipes-list" class="recipes-grid">
-                    <!-- Les recettes seront ajoutées ici dynamiquement -->
-                </div>
-            </section>
-
-            <!-- Onglet Recettes -->
-            <section id="recettes" class="tab-content">
                 <div class="menu-header">
                     <h2>Menu de la semaine</h2>
                     <div class="week-nav">
@@ -198,6 +175,29 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Onglet Recettes -->
+            <section id="recettes" class="tab-content">
+                <div class="recettes-header">
+                    <h2>Mes Recettes</h2>
+                    <button id="add-recipe-btn" class="btn btn-primary">
+                        <span>+</span> Ajouter une recette
+                    </button>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="recipe-search" placeholder="Rechercher une recette...">
+                    <select id="recipe-filter">
+                        <option value="all">Toutes</option>
+                        <option value="lien">Liens</option>
+                        <option value="texte">Recettes écrites</option>
+                    </select>
+                </div>
+
+                <div id="recipes-list" class="recipes-grid">
+                    <!-- Les recettes seront ajoutées ici dynamiquement -->
                 </div>
             </section>
         </main>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Menu Hebdomadaire</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mon Menu Hebdomadaire</h1>
+            <nav class="tabs">
+                <button class="tab-btn active" data-tab="recettes">Mes Recettes</button>
+                <button class="tab-btn" data-tab="menu">Mon Menu</button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Onglet Recettes -->
+            <section id="recettes" class="tab-content active">
+                <div class="recettes-header">
+                    <h2>Mes Recettes</h2>
+                    <button id="add-recipe-btn" class="btn btn-primary">
+                        <span>+</span> Ajouter une recette
+                    </button>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="recipe-search" placeholder="Rechercher une recette...">
+                    <select id="recipe-filter">
+                        <option value="all">Toutes</option>
+                        <option value="lien">Liens</option>
+                        <option value="texte">Recettes écrites</option>
+                    </select>
+                </div>
+
+                <div id="recipes-list" class="recipes-grid">
+                    <!-- Les recettes seront ajoutées ici dynamiquement -->
+                </div>
+            </section>
+
+            <!-- Onglet Menu -->
+            <section id="menu" class="tab-content">
+                <div class="menu-header">
+                    <h2>Menu de la semaine</h2>
+                    <div class="week-nav">
+                        <button id="prev-week" class="btn-icon">←</button>
+                        <span id="week-display">Semaine du <span id="week-start"></span></span>
+                        <button id="next-week" class="btn-icon">→</button>
+                    </div>
+                </div>
+
+                <div class="week-grid">
+                    <div class="day-card" data-day="lundi">
+                        <h3>Lundi</h3>
+                        <div class="day-date" data-date></div>
+                        <div class="meal-slot" data-meal="dejeuner">
+                            <span class="meal-label">Déjeuner</span>
+                            <div class="recipe-select" data-day="lundi" data-meal="dejeuner"></div>
+                        </div>
+                        <div class="meal-slot" data-meal="diner">
+                            <span class="meal-label">Dîner</span>
+                            <div class="recipe-select" data-day="lundi" data-meal="diner"></div>
+                        </div>
+                    </div>
+
+                    <div class="day-card" data-day="mardi">
+                        <h3>Mardi</h3>
+                        <div class="day-date" data-date></div>
+                        <div class="meal-slot" data-meal="dejeuner">
+                            <span class="meal-label">Déjeuner</span>
+                            <div class="recipe-select" data-day="mardi" data-meal="dejeuner"></div>
+                        </div>
+                        <div class="meal-slot" data-meal="diner">
+                            <span class="meal-label">Dîner</span>
+                            <div class="recipe-select" data-day="mardi" data-meal="diner"></div>
+                        </div>
+                    </div>
+
+                    <div class="day-card" data-day="mercredi">
+                        <h3>Mercredi</h3>
+                        <div class="day-date" data-date></div>
+                        <div class="meal-slot" data-meal="dejeuner">
+                            <span class="meal-label">Déjeuner</span>
+                            <div class="recipe-select" data-day="mercredi" data-meal="dejeuner"></div>
+                        </div>
+                        <div class="meal-slot" data-meal="diner">
+                            <span class="meal-label">Dîner</span>
+                            <div class="recipe-select" data-day="mercredi" data-meal="diner"></div>
+                        </div>
+                    </div>
+
+                    <div class="day-card" data-day="jeudi">
+                        <h3>Jeudi</h3>
+                        <div class="day-date" data-date></div>
+                        <div class="meal-slot" data-meal="dejeuner">
+                            <span class="meal-label">Déjeuner</span>
+                            <div class="recipe-select" data-day="jeudi" data-meal="dejeuner"></div>
+                        </div>
+                        <div class="meal-slot" data-meal="diner">
+                            <span class="meal-label">Dîner</span>
+                            <div class="recipe-select" data-day="jeudi" data-meal="diner"></div>
+                        </div>
+                    </div>
+
+                    <div class="day-card" data-day="vendredi">
+                        <h3>Vendredi</h3>
+                        <div class="day-date" data-date></div>
+                        <div class="meal-slot" data-meal="dejeuner">
+                            <span class="meal-label">Déjeuner</span>
+                            <div class="recipe-select" data-day="vendredi" data-meal="dejeuner"></div>
+                        </div>
+                        <div class="meal-slot" data-meal="diner">
+                            <span class="meal-label">Dîner</span>
+                            <div class="recipe-select" data-day="vendredi" data-meal="diner"></div>
+                        </div>
+                    </div>
+
+                    <div class="day-card" data-day="samedi">
+                        <h3>Samedi</h3>
+                        <div class="day-date" data-date></div>
+                        <div class="meal-slot" data-meal="dejeuner">
+                            <span class="meal-label">Déjeuner</span>
+                            <div class="recipe-select" data-day="samedi" data-meal="dejeuner"></div>
+                        </div>
+                        <div class="meal-slot" data-meal="diner">
+                            <span class="meal-label">Dîner</span>
+                            <div class="recipe-select" data-day="samedi" data-meal="diner"></div>
+                        </div>
+                    </div>
+
+                    <div class="day-card" data-day="dimanche">
+                        <h3>Dimanche</h3>
+                        <div class="day-date" data-date></div>
+                        <div class="meal-slot" data-meal="dejeuner">
+                            <span class="meal-label">Déjeuner</span>
+                            <div class="recipe-select" data-day="dimanche" data-meal="dejeuner"></div>
+                        </div>
+                        <div class="meal-slot" data-meal="diner">
+                            <span class="meal-label">Dîner</span>
+                            <div class="recipe-select" data-day="dimanche" data-meal="diner"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal pour ajouter/modifier une recette -->
+    <div id="recipe-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Ajouter une recette</h2>
+                <button class="btn-close">&times;</button>
+            </div>
+            <form id="recipe-form">
+                <div class="form-group">
+                    <label for="recipe-name">Nom de la recette *</label>
+                    <input type="text" id="recipe-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="recipe-type">Type</label>
+                    <select id="recipe-type" required>
+                        <option value="lien">Lien vers une recette</option>
+                        <option value="texte">Recette écrite</option>
+                    </select>
+                </div>
+                <div class="form-group" id="url-group">
+                    <label for="recipe-url">URL *</label>
+                    <input type="url" id="recipe-url" placeholder="https://...">
+                </div>
+                <div class="form-group hidden" id="text-group">
+                    <label for="recipe-text">Recette *</label>
+                    <textarea id="recipe-text" rows="5" placeholder="Écrivez votre recette ici..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recipe-category">Catégorie</label>
+                    <input type="text" id="recipe-category" placeholder="Ex: Plat principal, Dessert, Entrée...">
+                </div>
+                <div class="form-group">
+                    <label for="recipe-tags">Tags (séparés par des virgules)</label>
+                    <input type="text" id="recipe-tags" placeholder="Ex: végétarien, rapide, été...">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Annuler</button>
+                    <button type="submit" class="btn btn-primary" id="save-btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pour voir une recette -->
+    <div id="view-recipe-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="view-recipe-title"></h2>
+                <button class="btn-close">&times;</button>
+            </div>
+            <div id="view-recipe-content">
+                <div id="view-recipe-category" class="recipe-meta"></div>
+                <div id="view-recipe-tags" class="recipe-meta"></div>
+                <div id="view-recipe-type"></div>
+                <div id="view-recipe-url" class="recipe-url"></div>
+                <div id="view-recipe-text" class="recipe-text"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-close-view">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -437,7 +437,7 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
 }
 
 function renderDays() {
-    const daysList = document.querySelector('.days-grid');
+    const daysList = document.querySelector('.days-grid') || document.querySelector('.days-list');
     if (!daysList) return;
     
     const today = new Date();

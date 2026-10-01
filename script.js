@@ -542,7 +542,9 @@ function attachDayEvents() {
         box.addEventListener('dragleave', dragLeave);
         box.addEventListener('drop', (ev) => {
             const data = ev.dataTransfer.getData('text/plain');
-            if (data.includes('|') || draggedMeal) {
+            if (data && data.includes('|')) {
+                dropMeal(ev);
+            } else if (draggedMeal) {
                 dropMeal(ev);
             } else {
                 dropRecipe(ev);

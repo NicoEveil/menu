@@ -9,36 +9,29 @@
 <body>
     <div class="container">
         <header>
-            <h1>Mon Menu</h1>
-            <nav class="tabs">
-                <button class="tab-btn active" data-tab="menu">Mon Menu</button>
-                <button class="tab-btn" data-tab="recettes">Mes Recettes</button>
-            </nav>
+            <h1>Mon Menu Hebdomadaire</h1>
         </header>
 
-        <main>
-            <!-- Onglet Menu -->
-            <section id="menu" class="tab-content active">
-                <div class="menu-header">
-                    <h2>Menu à venir</h2>
-                </div>
-
-                <div class="days-grid">
-                    <!-- Les jours seront générés dynamiquement par JavaScript -->
+        <div class="main-layout">
+            <!-- Colonne Menu -->
+            <section class="menu-section">
+                <h2>Mon Menu</h2>
+                <div class="days-list">
+                    <!-- Les jours seront générés dynamiquement -->
                 </div>
             </section>
 
-            <!-- Onglet Recettes -->
-            <section id="recettes" class="tab-content">
-                <div class="recettes-header">
+            <!-- Colonne Recettes -->
+            <section class="recipes-section">
+                <div class="recipes-header">
                     <h2>Mes Recettes</h2>
                     <button id="add-recipe-btn" class="btn btn-primary">
-                        <span>+</span> Ajouter une recette
+                        <span>+</span> Ajouter
                     </button>
                 </div>
                 
                 <div class="search-bar">
-                    <input type="text" id="recipe-search" placeholder="Rechercher une recette...">
+                    <input type="text" id="recipe-search" placeholder="Rechercher...">
                     <select id="recipe-filter">
                         <option value="all">Toutes</option>
                         <option value="lien">Liens</option>
@@ -47,10 +40,10 @@
                 </div>
 
                 <div id="recipes-list" class="recipes-grid">
-                    <!-- Les recettes seront ajoutées ici dynamiquement -->
+                    <!-- Les recettes seront ajoutées ici -->
                 </div>
             </section>
-        </main>
+        </div>
     </div>
 
     <!-- Modal pour ajouter/modifier une recette -->
@@ -82,11 +75,11 @@
                 </div>
                 <div class="form-group">
                     <label for="recipe-category">Catégorie</label>
-                    <input type="text" id="recipe-category" placeholder="Ex: Plat principal, Dessert, Entrée...">
+                    <input type="text" id="recipe-category" placeholder="Ex: Plat principal, Dessert...">
                 </div>
                 <div class="form-group">
                     <label for="recipe-tags">Tags (séparés par des virgules)</label>
-                    <input type="text" id="recipe-tags" placeholder="Ex: végétarien, rapide, été...">
+                    <input type="text" id="recipe-tags" placeholder="Ex: végétarien, rapide...">
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancel-btn">Annuler</button>

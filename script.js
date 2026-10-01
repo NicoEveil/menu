@@ -49,7 +49,6 @@ function loadData() {
 // Obtenir les 8 jours à afficher (aujourd'hui + 7 suivants)
 function getDaysToShow(today) {
     const days = [];
-    const todayIndex = today.getDay(); // 0=dimanche, 1=lundi, etc.
     
     // Commencer par aujourd'hui
     for (let i = 0; i < 8; i++) {
@@ -62,15 +61,9 @@ function getDaysToShow(today) {
     return days;
 }
 
-// Obtenir le nom du jour en français
-function getFrenchDayName(date) {
-    const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-    return days[date.getDay()];
-}
-
 // Obtenir le nom du jour avec date (ex: "Lundi 15")
 function getDayLabel(date) {
-    const options = { weekday: 'long', day: 'numeric' };
+    const options = { weekday: 'long', day: 'numeric', month: 'short' };
     return date.toLocaleDateString('fr-FR', options);
 }
 
@@ -83,11 +76,6 @@ function saveData() {
 
 // Configuration des écouteurs d'événements
 function setupEventListeners() {
-    // Navigation par onglets
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-    });
-
     // Bouton ajouter une recette
     const addRecipeBtn = document.getElementById('add-recipe-btn');
     if (addRecipeBtn) {
@@ -147,17 +135,6 @@ function setupEventListeners() {
     }
 }
 
-// Changer d'onglet
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
-    });
-    
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.toggle('active', content.id === tabId);
-    });
-}
-
 // Afficher la modal de sélection de recette pour un jour/repas
 function showRecipeSelectionForMeal(day, meal) {
     // Stocker les infos pour la sélection
@@ -167,11 +144,8 @@ function showRecipeSelectionForMeal(day, meal) {
     // Afficher toutes les recettes avec la possibilité de sélection
     renderRecipes(true, day, meal);
     
-    // Passer à l'onglet recettes
-    switchTab('recettes');
-    
-    // Scroll vers le haut
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Passer à l'onglet recettes (scroll vers la section)
+    document.querySelector('.recipes-section').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Sélectionner une recette pour un jour/repas
@@ -348,6 +322,7 @@ function deleteRecipe(recipeId) {
             for (const meal in menu[day]) {
                 if (menu[day][meal] === recipeId) {
                     menu[day][meal] = null;
+                    manualEntries[day][meal] = '';
                 }
             }
         }
@@ -446,9 +421,6 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
                 
                 // Fermer le mode sélection
                 closeModal(document.getElementById('recipe-modal'));
-                
-                // Retourner à l'onglet menu
-                switchTab('menu');
             } else {
                 showRecipeDetails(recipe.id);
             }
@@ -460,13 +432,13 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
 
 // Rendre les jours avec leurs repas
 function renderDays() {
-    const daysGrid = document.querySelector('.days-grid');
-    if (!daysGrid) return;
+    const daysList = document.querySelector('.days-list');
+    if (!daysList) return;
     
     const today = new Date();
     const daysToShow = getDaysToShow(today);
     
-    daysGrid.innerHTML = '';
+    daysList.innerHTML = '';
     
     daysToShow.forEach((dayName, index) => {
         const dayCard = document.createElement('div');
@@ -480,43 +452,34 @@ function renderDays() {
         
         // Mettre en évidence le jour actuel
         const isToday = index === 0;
-        if (isToday) {
-            dayCard.classList.add('today');
-        }
         
         dayCard.innerHTML = `
             <h3>${dayLabel}</h3>
             <div class="day-meals">
                 <div class="meal-slot" data-meal="dejeuner">
                     <span class="meal-label">Déjeuner</span>
-                    <div class="meal-box" data-day="${dayName}" data-meal="dejeuner">
-                        <input type="text" class="meal-input" data-day="${dayName}" data-meal="dejeuner" 
-                               placeholder="Cliquez pour entrer le repas..." 
-                               value="${manualEntries[dayName]?.dejeuner || ''}">
+                    <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayName]?.dejeuner ? 'has-value' : ''}" 
+                         data-day="${dayName}" data-meal="dejeuner">
+                        <span class="meal-box-text ${manualEntries[dayName]?.dejeuner ? '' : 'empty'}">
+                            ${manualEntries[dayName]?.dejeuner || 'Cliquez pour ajouter'}
+                        </span>
                         <div class="meal-box-select-btn" data-day="${dayName}" data-meal="dejeuner">+</div>
                     </div>
                 </div>
                 <div class="meal-slot" data-meal="diner">
                     <span class="meal-label">Dîner</span>
-                    <div class="meal-box" data-day="${dayName}" data-meal="diner">
-                        <input type="text" class="meal-input" data-day="${dayName}" data-meal="diner" 
-                               placeholder="Cliquez pour entrer le repas..." 
-                               value="${manualEntries[dayName]?.diner || ''}">
+                    <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayName]?.diner ? 'has-value' : ''}" 
+                         data-day="${dayName}" data-meal="diner">
+                        <span class="meal-box-text ${manualEntries[dayName]?.diner ? '' : 'empty'}">
+                            ${manualEntries[dayName]?.diner || 'Cliquez pour ajouter'}
+                        </span>
                         <div class="meal-box-select-btn" data-day="${dayName}" data-meal="diner">+</div>
-                    </div>
-                </div>
-                <div class="other-slot">
-                    <span class="meal-label">Autre</span>
-                    <div class="meal-box" data-day="${dayName}" data-meal="autre">
-                        <input type="text" class="meal-input" data-day="${dayName}" data-meal="autre" 
-                               placeholder="Préparation, dessert..." 
-                               value="${manualEntries[dayName]?.autre || ''}">
                     </div>
                 </div>
             </div>
         `;
         
-        daysGrid.appendChild(dayCard);
+        daysList.appendChild(dayCard);
     });
     
     // Attacher les événements
@@ -535,26 +498,49 @@ function attachDayEvents() {
         });
     });
     
-    // Champs de repas
-    document.querySelectorAll('.meal-input').forEach(input => {
-        input.addEventListener('input', (e) => {
-            const day = input.dataset.day;
-            const meal = input.dataset.meal;
-            manualEntries[day][meal] = input.value;
-            input.parentElement.classList.toggle('has-value', !!input.value);
-            saveData();
+    // Cases de repas (clic pour éditer)
+    document.querySelectorAll('.meal-box').forEach(box => {
+        box.addEventListener('click', (e) => {
+            // Ne pas déclencher si on a cliqué sur le bouton +
+            if (e.target.classList.contains('meal-box-select-btn')) return;
+            
+            const day = box.dataset.day;
+            const meal = box.dataset.meal;
+            
+            // Créer un input temporaire pour l'édition
+            const currentText = manualEntries[day][meal] || '';
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.className = 'meal-edit-input';
+            input.style.width = '100%';
+            input.style.padding = '8px';
+            input.style.border = '2px solid var(--primary-color)';
+            input.style.borderRadius = '4px';
+            
+            // Remplacer le contenu par l'input
+            const textSpan = box.querySelector('.meal-box-text');
+            const oldText = textSpan.textContent;
+            textSpan.textContent = '';
+            textSpan.appendChild(input);
+            input.focus();
+            
+            // Sauvegarder à la validation
+            const saveEdit = () => {
+                manualEntries[day][meal] = input.value;
+                box.classList.toggle('has-value', !!input.value);
+                saveData();
+                renderDays();
+            };
+            
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveEdit();
+                }
+            });
         });
-        
-        input.addEventListener('focus', (e) => {
-            input.parentElement.classList.add('focused');
-        });
-        
-        input.addEventListener('blur', (e) => {
-            input.parentElement.classList.remove('focused');
-        });
-        
-        // Mettre à jour l'état has-value au chargement
-        input.parentElement.classList.toggle('has-value', !!input.value);
     });
 }
 

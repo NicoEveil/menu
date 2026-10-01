@@ -256,19 +256,11 @@ header h1 {
     color: var(--text-color);
 }
 
-/* Grille des jours */
-.week-grid {
+/* Grille des jours - 4 par ligne */
+.days-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.day-card {
-    background-color: var(--card-color);
-    border-radius: var(--border-radius);
-    padding: 20px;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
 }
 
 .day-card:hover {
@@ -277,14 +269,11 @@ header h1 {
 
 .day-card h3 {
     color: var(--primary-color);
-    margin-bottom: 5px;
-    font-size: 1.2rem;
-}
-
-.day-date {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-light);
 }
 
 .meal-slot {
@@ -295,8 +284,8 @@ header h1 {
     display: block;
     font-weight: bold;
     color: var(--text-color);
-    margin-bottom: 6px;
-    font-size: 0.9rem;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
 }
 
 .recipe-select {
@@ -345,54 +334,74 @@ header h1 {
     text-transform: uppercase;
 }
 
-/* Conteneur pour le champ de repas + bouton */
-.recipe-input-container {
-    display: flex;
-    gap: 6px;
-    margin-top: 6px;
-}
-
-/* Champ de repas principal */
-.meal-input {
-    flex: 1;
-    padding: 8px 12px;
+/* Case de repas (cliquable) */
+.meal-box {
+    padding: 10px 12px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
-    font-size: 0.9rem;
+    background-color: var(--card-color);
+    cursor: pointer;
     transition: var(--transition);
+    font-size: 0.95rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    position: relative;
 }
 
-.meal-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
-
-.meal-input.has-value {
+.meal-box:hover {
     border-color: var(--primary-color);
     background-color: #F0F8F0;
 }
 
-/* Bouton + pour ajouter une recette */
-.recipe-select-btn {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
+.meal-box.has-value {
+    border-color: var(--primary-color);
+    background-color: #F0F8F0;
+    font-weight: bold;
+}
+
+.meal-box input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 0.95rem;
+    padding: 0;
+    outline: none;
+}
+
+.meal-box input:focus {
+    outline: none;
+}
+
+/* Bouton + intégré dans la case */
+.meal-box-select-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1rem;
     transition: var(--transition);
-    flex-shrink: 0;
+    opacity: 0;
 }
 
-.recipe-select-btn:hover {
+.meal-box:hover .meal-box-select-btn {
+    opacity: 1;
+}
+
+.meal-box-select-btn:hover {
     background-color: var(--primary-dark);
-    transform: scale(1.05);
+    transform: translateY(-50%) scale(1.1);
 }
 
 /* Slot "Autre" */
@@ -411,7 +420,8 @@ header h1 {
 .day-meals {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 /* Boutons */

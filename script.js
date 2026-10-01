@@ -136,8 +136,8 @@ function dropRecipe(ev) {
         renderRecipes();
     }
     
-    draggedRecipe = null;
     hideDragIndicator();
+    draggedRecipe = null;
 }
 
 function dropMeal(ev) {
@@ -180,9 +180,9 @@ function dropMeal(ev) {
         renderDays();
     }
     
-    draggedMeal = null;
     hideDragIndicator();
-}
+    draggedMeal = null;
+
 
 function startRecipeDrag(ev, recipeId) {
     ev.dataTransfer.setData('text/plain', recipeId);
@@ -194,7 +194,6 @@ function startRecipeDrag(ev, recipeId) {
 
 function endRecipeDrag(ev) {
     ev.target.classList.remove('dragging');
-    draggedRecipe = null;
     hideDragIndicator();
 }
 
@@ -210,7 +209,6 @@ function startMealDrag(ev, day, meal) {
 
 function endMealDrag(ev) {
     ev.target.classList.remove('dragging');
-    draggedMeal = null;
     hideDragIndicator();
 }
 
@@ -520,6 +518,7 @@ function attachDayEvents() {
             input.type = 'text';
             input.value = currentText;
             input.className = 'meal-edit-input';
+            input.id = `edit-${day}-${meal}-${Date.now()}`;
             input.style.width = '100%';
             input.style.padding = '6px';
             input.style.border = '2px solid var(--primary-dark)';
@@ -541,6 +540,9 @@ function attachDayEvents() {
             input.addEventListener('blur', saveEdit);
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') { e.preventDefault(); saveEdit(); }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') { e.preventDefault(); textSpan.textContent = currentText; }
             });
         });
         

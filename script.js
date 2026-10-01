@@ -1,6 +1,7 @@
 // Données des recettes et du menu
 let recipes = [];
 let menu = {};
+let manualEntries = {};
 let currentWeekStart = new Date();
 
 // Initialisation
@@ -16,6 +17,7 @@ function init() {
 function loadData() {
     const savedRecipes = localStorage.getItem('menuRecipes');
     const savedMenu = localStorage.getItem('menuPlanning');
+    const savedManualEntries = localStorage.getItem('menuManualEntries');
     
     if (savedRecipes) {
         recipes = JSON.parse(savedRecipes);
@@ -23,6 +25,10 @@ function loadData() {
     
     if (savedMenu) {
         menu = JSON.parse(savedMenu);
+    }
+    
+    if (savedManualEntries) {
+        manualEntries = JSON.parse(savedManualEntries);
     }
     
     // Initialiser le menu si vide
@@ -35,12 +41,25 @@ function loadData() {
             };
         });
     }
+    
+    // Initialiser les entrées manuelles si vide
+    if (Object.keys(manualEntries).length === 0) {
+        const days = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+        days.forEach(day => {
+            manualEntries[day] = {
+                déjeuner: '',
+                diner: '',
+                autre: ''
+            };
+        });
+    }
 }
 
 // Sauvegarde des données dans localStorage
 function saveData() {
     localStorage.setItem('menuRecipes', JSON.stringify(recipes));
     localStorage.setItem('menuPlanning', JSON.stringify(menu));
+    localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
 }
 
 // Configuration des écouteurs d'événements
@@ -479,6 +498,24 @@ function renderMenu() {
                 selectEl.innerHTML = '+ Ajouter une recette';
             }
         });
+        
+        // Remplir les champs manuels
+        const manualInputDejeuner = document.querySelector(`.manual-recipe-input[data-day="${day}"][data-meal="dejeuner"]`);
+        const manualInputDiner = document.querySelector(`.manual-recipe-input[data-day="${day}"][data-meal="diner"]`);
+        const manualInputAutre = document.querySelector(`.manual-recipe-input[data-day="${day}"][data-meal="autre"]`);
+        
+        if (manualInputDejeuner) {
+            manualInputDejeuner.value = manualEntries[day]?.dejeuner || '';
+            manualInputDejeuner.classList.toggle('has-value', !!manualEntries[day]?.dejeuner);
+        }
+        if (manualInputDiner) {
+            manualInputDiner.value = manualEntries[day]?.diner || '';
+            manualInputDiner.classList.toggle('has-value', !!manualEntries[day]?.diner);
+        }
+        if (manualInputAutre) {
+            manualInputAutre.value = manualEntries[day]?.autre || '';
+            manualInputAutre.classList.toggle('has-value', !!manualEntries[day]?.autre);
+        }
     });
     
     // Réattacher les événements aux sélecteurs
@@ -495,6 +532,17 @@ function renderMenu() {
                 renderMenu();
             }
         };
+    });
+    
+    // Réattacher les événements aux champs manuels
+    document.querySelectorAll('.manual-recipe-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const day = input.dataset.day;
+            const meal = input.dataset.meal;
+            manualEntries[day][meal] = input.value;
+            input.classList.toggle('has-value', !!input.value);
+            saveData();
+        });
     });
 }
 

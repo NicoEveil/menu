@@ -288,20 +288,20 @@ header h1 {
 }
 
 .meal-slot {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .meal-label {
     display: block;
     font-weight: bold;
     color: var(--text-color);
-    margin-bottom: 8px;
-    font-size: 0.95rem;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
 }
 
 .recipe-select {
-    min-height: 40px;
-    padding: 10px;
+    min-height: 36px;
+    padding: 8px 12px;
     border: 2px dashed var(--border-color);
     border-radius: var(--border-radius);
     background-color: var(--background-color);
@@ -312,6 +312,8 @@ header h1 {
     justify-content: center;
     color: var(--text-light);
     text-align: center;
+    font-size: 0.9rem;
+    margin-top: 6px;
 }
 
 .recipe-select:hover {
@@ -326,7 +328,8 @@ header h1 {
     background-color: var(--card-color);
     color: var(--text-color);
     text-align: left;
-    padding: 8px 12px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
 }
 
 .recipe-select .recipe-name {
@@ -335,11 +338,55 @@ header h1 {
 
 .recipe-select .recipe-type {
     margin-left: 8px;
-    padding: 2px 6px;
+    padding: 2px 5px;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: bold;
     text-transform: uppercase;
+}
+
+/* Champs texte pour recettes manuelles */
+.manual-recipe-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    transition: var(--transition);
+    margin-top: 4px;
+}
+
+.manual-recipe-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.manual-recipe-input.has-value {
+    border-color: var(--primary-color);
+    background-color: #F0F8F0;
+}
+
+/* Slot "Autre" */
+.other-slot {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.other-slot .meal-label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.other-input {
+    margin-top: 6px;
+}
+
+/* Conteneur des repas d'un jour */
+.day-meals {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 /* Boutons */

@@ -11,14 +11,14 @@
         <header>
             <h1>Mon Menu Hebdomadaire</h1>
             <nav class="tabs">
-                <button class="tab-btn active" data-tab="recettes">Mes Recettes</button>
-                <button class="tab-btn" data-tab="menu">Mon Menu</button>
+                <button class="tab-btn active" data-tab="menu">Mon Menu</button>
+                <button class="tab-btn" data-tab="recettes">Mes Recettes</button>
             </nav>
         </header>
 
         <main>
-            <!-- Onglet Recettes -->
-            <section id="recettes" class="tab-content active">
+            <!-- Onglet Menu -->
+            <section id="menu" class="tab-content active">
                 <div class="recettes-header">
                     <h2>Mes Recettes</h2>
                     <button id="add-recipe-btn" class="btn btn-primary">
@@ -40,8 +40,8 @@
                 </div>
             </section>
 
-            <!-- Onglet Menu -->
-            <section id="menu" class="tab-content">
+            <!-- Onglet Recettes -->
+            <section id="recettes" class="tab-content">
                 <div class="menu-header">
                     <h2>Menu de la semaine</h2>
                     <div class="week-nav">
@@ -55,91 +55,147 @@
                     <div class="day-card" data-day="lundi">
                         <h3>Lundi</h3>
                         <div class="day-date" data-date></div>
-                        <div class="meal-slot" data-meal="dejeuner">
-                            <span class="meal-label">Déjeuner</span>
-                            <div class="recipe-select" data-day="lundi" data-meal="dejeuner"></div>
-                        </div>
-                        <div class="meal-slot" data-meal="diner">
-                            <span class="meal-label">Dîner</span>
-                            <div class="recipe-select" data-day="lundi" data-meal="diner"></div>
+                        <div class="day-meals">
+                            <div class="meal-slot" data-meal="dejeuner">
+                                <span class="meal-label">Déjeuner</span>
+                                <input type="text" class="manual-recipe-input" data-day="lundi" data-meal="dejeuner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="lundi" data-meal="dejeuner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="meal-slot" data-meal="diner">
+                                <span class="meal-label">Dîner</span>
+                                <input type="text" class="manual-recipe-input" data-day="lundi" data-meal="diner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="lundi" data-meal="diner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="other-slot">
+                                <span class="meal-label">Autre (préparation, dessert...)</span>
+                                <input type="text" class="manual-recipe-input other-input" data-day="lundi" data-meal="autre" placeholder="Préparation pour demain, dessert, etc...">
+                            </div>
                         </div>
                     </div>
 
                     <div class="day-card" data-day="mardi">
                         <h3>Mardi</h3>
                         <div class="day-date" data-date></div>
-                        <div class="meal-slot" data-meal="dejeuner">
-                            <span class="meal-label">Déjeuner</span>
-                            <div class="recipe-select" data-day="mardi" data-meal="dejeuner"></div>
-                        </div>
-                        <div class="meal-slot" data-meal="diner">
-                            <span class="meal-label">Dîner</span>
-                            <div class="recipe-select" data-day="mardi" data-meal="diner"></div>
+                        <div class="day-meals">
+                            <div class="meal-slot" data-meal="dejeuner">
+                                <span class="meal-label">Déjeuner</span>
+                                <input type="text" class="manual-recipe-input" data-day="mardi" data-meal="dejeuner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="mardi" data-meal="dejeuner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="meal-slot" data-meal="diner">
+                                <span class="meal-label">Dîner</span>
+                                <input type="text" class="manual-recipe-input" data-day="mardi" data-meal="diner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="mardi" data-meal="diner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="other-slot">
+                                <span class="meal-label">Autre (préparation, dessert...)</span>
+                                <input type="text" class="manual-recipe-input other-input" data-day="mardi" data-meal="autre" placeholder="Préparation pour demain, dessert, etc...">
+                            </div>
                         </div>
                     </div>
 
                     <div class="day-card" data-day="mercredi">
                         <h3>Mercredi</h3>
                         <div class="day-date" data-date></div>
-                        <div class="meal-slot" data-meal="dejeuner">
-                            <span class="meal-label">Déjeuner</span>
-                            <div class="recipe-select" data-day="mercredi" data-meal="dejeuner"></div>
-                        </div>
-                        <div class="meal-slot" data-meal="diner">
-                            <span class="meal-label">Dîner</span>
-                            <div class="recipe-select" data-day="mercredi" data-meal="diner"></div>
+                        <div class="day-meals">
+                            <div class="meal-slot" data-meal="dejeuner">
+                                <span class="meal-label">Déjeuner</span>
+                                <input type="text" class="manual-recipe-input" data-day="mercredi" data-meal="dejeuner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="mercredi" data-meal="dejeuner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="meal-slot" data-meal="diner">
+                                <span class="meal-label">Dîner</span>
+                                <input type="text" class="manual-recipe-input" data-day="mercredi" data-meal="diner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="mercredi" data-meal="diner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="other-slot">
+                                <span class="meal-label">Autre (préparation, dessert...)</span>
+                                <input type="text" class="manual-recipe-input other-input" data-day="mercredi" data-meal="autre" placeholder="Préparation pour demain, dessert, etc...">
+                            </div>
                         </div>
                     </div>
 
                     <div class="day-card" data-day="jeudi">
                         <h3>Jeudi</h3>
                         <div class="day-date" data-date></div>
-                        <div class="meal-slot" data-meal="dejeuner">
-                            <span class="meal-label">Déjeuner</span>
-                            <div class="recipe-select" data-day="jeudi" data-meal="dejeuner"></div>
-                        </div>
-                        <div class="meal-slot" data-meal="diner">
-                            <span class="meal-label">Dîner</span>
-                            <div class="recipe-select" data-day="jeudi" data-meal="diner"></div>
+                        <div class="day-meals">
+                            <div class="meal-slot" data-meal="dejeuner">
+                                <span class="meal-label">Déjeuner</span>
+                                <input type="text" class="manual-recipe-input" data-day="jeudi" data-meal="dejeuner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="jeudi" data-meal="dejeuner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="meal-slot" data-meal="diner">
+                                <span class="meal-label">Dîner</span>
+                                <input type="text" class="manual-recipe-input" data-day="jeudi" data-meal="diner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="jeudi" data-meal="diner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="other-slot">
+                                <span class="meal-label">Autre (préparation, dessert...)</span>
+                                <input type="text" class="manual-recipe-input other-input" data-day="jeudi" data-meal="autre" placeholder="Préparation pour demain, dessert, etc...">
+                            </div>
                         </div>
                     </div>
 
                     <div class="day-card" data-day="vendredi">
                         <h3>Vendredi</h3>
                         <div class="day-date" data-date></div>
-                        <div class="meal-slot" data-meal="dejeuner">
-                            <span class="meal-label">Déjeuner</span>
-                            <div class="recipe-select" data-day="vendredi" data-meal="dejeuner"></div>
-                        </div>
-                        <div class="meal-slot" data-meal="diner">
-                            <span class="meal-label">Dîner</span>
-                            <div class="recipe-select" data-day="vendredi" data-meal="diner"></div>
+                        <div class="day-meals">
+                            <div class="meal-slot" data-meal="dejeuner">
+                                <span class="meal-label">Déjeuner</span>
+                                <input type="text" class="manual-recipe-input" data-day="vendredi" data-meal="dejeuner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="vendredi" data-meal="dejeuner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="meal-slot" data-meal="diner">
+                                <span class="meal-label">Dîner</span>
+                                <input type="text" class="manual-recipe-input" data-day="vendredi" data-meal="diner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="vendredi" data-meal="diner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="other-slot">
+                                <span class="meal-label">Autre (préparation, dessert...)</span>
+                                <input type="text" class="manual-recipe-input other-input" data-day="vendredi" data-meal="autre" placeholder="Préparation pour demain, dessert, etc...">
+                            </div>
                         </div>
                     </div>
 
                     <div class="day-card" data-day="samedi">
                         <h3>Samedi</h3>
                         <div class="day-date" data-date></div>
-                        <div class="meal-slot" data-meal="dejeuner">
-                            <span class="meal-label">Déjeuner</span>
-                            <div class="recipe-select" data-day="samedi" data-meal="dejeuner"></div>
-                        </div>
-                        <div class="meal-slot" data-meal="diner">
-                            <span class="meal-label">Dîner</span>
-                            <div class="recipe-select" data-day="samedi" data-meal="diner"></div>
+                        <div class="day-meals">
+                            <div class="meal-slot" data-meal="dejeuner">
+                                <span class="meal-label">Déjeuner</span>
+                                <input type="text" class="manual-recipe-input" data-day="samedi" data-meal="dejeuner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="samedi" data-meal="dejeuner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="meal-slot" data-meal="diner">
+                                <span class="meal-label">Dîner</span>
+                                <input type="text" class="manual-recipe-input" data-day="samedi" data-meal="diner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="samedi" data-meal="diner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="other-slot">
+                                <span class="meal-label">Autre (préparation, dessert...)</span>
+                                <input type="text" class="manual-recipe-input other-input" data-day="samedi" data-meal="autre" placeholder="Préparation pour demain, dessert, etc...">
+                            </div>
                         </div>
                     </div>
 
                     <div class="day-card" data-day="dimanche">
                         <h3>Dimanche</h3>
                         <div class="day-date" data-date></div>
-                        <div class="meal-slot" data-meal="dejeuner">
-                            <span class="meal-label">Déjeuner</span>
-                            <div class="recipe-select" data-day="dimanche" data-meal="dejeuner"></div>
-                        </div>
-                        <div class="meal-slot" data-meal="diner">
-                            <span class="meal-label">Dîner</span>
-                            <div class="recipe-select" data-day="dimanche" data-meal="diner"></div>
+                        <div class="day-meals">
+                            <div class="meal-slot" data-meal="dejeuner">
+                                <span class="meal-label">Déjeuner</span>
+                                <input type="text" class="manual-recipe-input" data-day="dimanche" data-meal="dejeuner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="dimanche" data-meal="dejeuner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="meal-slot" data-meal="diner">
+                                <span class="meal-label">Dîner</span>
+                                <input type="text" class="manual-recipe-input" data-day="dimanche" data-meal="diner" placeholder="Nom de la recette...">
+                                <div class="recipe-select" data-day="dimanche" data-meal="diner">+ Ajouter depuis mes recettes</div>
+                            </div>
+                            <div class="other-slot">
+                                <span class="meal-label">Autre (préparation, dessert...)</span>
+                                <input type="text" class="manual-recipe-input other-input" data-day="dimanche" data-meal="autre" placeholder="Préparation pour demain, dessert, etc...">
+                            </div>
                         </div>
                     </div>
                 </div>

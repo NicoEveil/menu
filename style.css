@@ -345,25 +345,54 @@ header h1 {
     text-transform: uppercase;
 }
 
-/* Champs texte pour recettes manuelles */
-.manual-recipe-input {
-    width: 100%;
+/* Conteneur pour le champ de repas + bouton */
+.recipe-input-container {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+/* Champ de repas principal */
+.meal-input {
+    flex: 1;
     padding: 8px 12px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 0.9rem;
     transition: var(--transition);
-    margin-top: 4px;
 }
 
-.manual-recipe-input:focus {
+.meal-input:focus {
     outline: none;
     border-color: var(--primary-color);
 }
 
-.manual-recipe-input.has-value {
+.meal-input.has-value {
     border-color: var(--primary-color);
     background-color: #F0F8F0;
+}
+
+/* Bouton + pour ajouter une recette */
+.recipe-select-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.recipe-select-btn:hover {
+    background-color: var(--primary-dark);
+    transform: scale(1.05);
 }
 
 /* Slot "Autre" */
@@ -376,10 +405,6 @@ header h1 {
 .other-slot .meal-label {
     font-size: 0.85rem;
     color: var(--text-light);
-}
-
-.other-input {
-    margin-top: 6px;
 }
 
 /* Conteneur des repas d'un jour */

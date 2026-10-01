@@ -119,19 +119,28 @@ function setupEventListeners() {
         closeModal(document.getElementById('view-recipe-modal'));
     });
 
-    // Gestion des clics sur les sélecteurs de recettes dans le menu
-    document.querySelectorAll('.recipe-select').forEach(select => {
-        select.addEventListener('click', (e) => {
-            if (!select.classList.contains('has-recipe')) {
-                showRecipeSelection(e.target.closest('.recipe-select'));
-            } else {
-                // Si on clique sur une recette déjà sélectionnée, on peut la retirer
-                const day = select.dataset.day;
-                const meal = select.dataset.meal;
-                menu[day][meal] = null;
-                saveData();
-                renderMenu();
-            }
+    // Gestion des clics sur les boutons + pour ajouter une recette
+    document.querySelectorAll('.recipe-select-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const day = btn.dataset.day;
+            const meal = btn.dataset.meal;
+            showRecipeSelectionForMeal(day, meal);
+        });
+    });
+    
+    // Gestion des entrées manuelles
+    document.querySelectorAll('.meal-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const day = input.dataset.day;
+            const meal = input.dataset.meal;
+            manualEntries[day][meal] = input.value;
+            input.classList.toggle('has-value', !!input.value);
+            saveData();
+        });
+        
+        input.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
     });
 }
@@ -148,16 +157,13 @@ function switchTab(tabId) {
 }
 
 // Afficher la modal de sélection de recette pour un jour/repas
-function showRecipeSelection(selectElement) {
-    const day = selectElement.dataset.day;
-    const meal = selectElement.dataset.meal;
-    
-    // Stocker les infos du jour/repas dans la modal
-    selectElement.dataset.selectingForDay = day;
-    selectElement.dataset.selectingForMeal = meal;
+function showRecipeSelectionForMeal(day, meal) {
+    // Stocker les infos du jour/repas pour la sélection
+    const selectingForDay = day;
+    const selectingForMeal = meal;
     
     // Afficher toutes les recettes avec la possibilité de sélection
-    renderRecipes(true);
+    renderRecipes(true, day, meal);
     
     // Passer à l'onglet recettes
     switchTab('recettes');
@@ -168,7 +174,12 @@ function showRecipeSelection(selectElement) {
 
 // Sélectionner une recette pour un jour/repas
 function selectRecipeForMenu(recipeId, day, meal) {
-    menu[day][meal] = recipeId;
+    const recipe = recipes.find(r => r.id === recipeId);
+    if (recipe) {
+        // Remplir le champ manuel avec le nom de la recette
+        manualEntries[day][meal] = recipe.name;
+        menu[day][meal] = recipeId;
+    }
     saveData();
     renderMenu();
     renderRecipes();
@@ -345,7 +356,7 @@ function deleteRecipe(recipeId) {
 }
 
 // Rendre la liste des recettes
-function renderRecipes(forSelection = false) {
+function renderRecipes(forSelection = false, dayParam = null, mealParam = null) {
     const listEl = document.getElementById('recipes-list');
     const searchTerm = document.getElementById('recipe-search').value.toLowerCase();
     const filterType = document.getElementById('recipe-filter').value;
@@ -372,8 +383,16 @@ function renderRecipes(forSelection = false) {
     }
     
     // Vérifier si on est en mode sélection pour le menu
-    const selectingForDay = document.querySelector('.recipe-select[data-selecting-for-day]');
-    const isSelecting = selectingForDay !== null;
+    let isSelecting = false;
+    let currentSelectingDay = null;
+    let currentSelectingMeal = null;
+    
+    // Vérifier si on a des paramètres de sélection
+    if (forSelection && dayParam && mealParam) {
+        isSelecting = true;
+        currentSelectingDay = dayParam;
+        currentSelectingMeal = mealParam;
+    }
     
     filteredRecipes.forEach(recipe => {
         const card = document.createElement('div');
@@ -381,10 +400,8 @@ function renderRecipes(forSelection = false) {
         card.dataset.recipeId = recipe.id;
         
         // Vérifier si cette recette est sélectionnée pour le menu
-        if (isSelecting) {
-            const day = selectingForDay.dataset.selectingForDay;
-            const meal = selectingForDay.dataset.selectingForMeal;
-            if (menu[day][meal] === recipe.id) {
+        if (isSelecting && currentSelectingDay && currentSelectingMeal) {
+            if (menu[currentSelectingDay][currentSelectingMeal] === recipe.id) {
                 card.classList.add('selected');
             }
         }
@@ -423,22 +440,15 @@ function renderRecipes(forSelection = false) {
         // Événement pour la sélection
         card.addEventListener('click', () => {
             if (isSelecting) {
-                const day = selectingForDay.dataset.selectingForDay;
-                const meal = selectingForDay.dataset.selectingForMeal;
-                
                 // Retirer la sélection précédente
                 document.querySelectorAll('.recipe-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
                 
                 // Sélectionner cette recette
-                selectRecipeForMenu(recipe.id, day, meal);
+                selectRecipeForMenu(recipe.id, currentSelectingDay, currentSelectingMeal);
                 
                 // Fermer le mode sélection
                 closeModal(document.getElementById('recipe-modal'));
-                document.querySelectorAll('.recipe-select').forEach(select => {
-                    delete select.dataset.selectingForDay;
-                    delete select.dataset.selectingForMeal;
-                });
                 
                 // Retourner à l'onglet menu
                 switchTab('menu');
@@ -500,9 +510,9 @@ function renderMenu() {
         });
         
         // Remplir les champs manuels
-        const manualInputDejeuner = document.querySelector(`.manual-recipe-input[data-day="${day}"][data-meal="dejeuner"]`);
-        const manualInputDiner = document.querySelector(`.manual-recipe-input[data-day="${day}"][data-meal="diner"]`);
-        const manualInputAutre = document.querySelector(`.manual-recipe-input[data-day="${day}"][data-meal="autre"]`);
+        const manualInputDejeuner = document.querySelector(`.meal-input[data-day="${day}"][data-meal="dejeuner"]`);
+        const manualInputDiner = document.querySelector(`.meal-input[data-day="${day}"][data-meal="diner"]`);
+        const manualInputAutre = document.querySelector(`.meal-input[data-day="${day}"][data-meal="autre"]`);
         
         if (manualInputDejeuner) {
             manualInputDejeuner.value = manualEntries[day]?.dejeuner || '';
@@ -518,24 +528,8 @@ function renderMenu() {
         }
     });
     
-    // Réattacher les événements aux sélecteurs
-    document.querySelectorAll('.recipe-select').forEach(select => {
-        select.onclick = (e) => {
-            if (!select.classList.contains('has-recipe')) {
-                showRecipeSelection(select);
-            } else {
-                // Si on clique sur une recette déjà sélectionnée, on peut la retirer
-                const day = select.dataset.day;
-                const meal = select.dataset.meal;
-                menu[day][meal] = null;
-                saveData();
-                renderMenu();
-            }
-        };
-    });
-    
     // Réattacher les événements aux champs manuels
-    document.querySelectorAll('.manual-recipe-input').forEach(input => {
+    document.querySelectorAll('.meal-input').forEach(input => {
         input.addEventListener('input', (e) => {
             const day = input.dataset.day;
             const meal = input.dataset.meal;

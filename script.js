@@ -143,8 +143,16 @@ function dropMeal(ev) {
     ev.stopPropagation();
     document.querySelectorAll('.meal-box, .day-card').forEach(el => el.classList.remove('drag-over'));
     
+    let sourceDay, sourceMeal;
     const data = ev.dataTransfer.getData('text/plain');
-    const [sourceDay, sourceMeal] = data.split('|');
+    
+    if (data && data.includes('|')) {
+        [sourceDay, sourceMeal] = data.split('|');
+    } else if (draggedMeal) {
+        sourceDay = draggedMeal.day;
+        sourceMeal = draggedMeal.meal;
+    }
+    
     if (!sourceDay || !sourceMeal) return;
     
     const target = ev.target.closest('.meal-box');
@@ -192,8 +200,8 @@ function startMealDrag(ev, day, meal) {
 
 function endMealDrag(ev) {
     ev.target.classList.remove('dragging');
-    draggedMeal = null;
     hideDragIndicator();
+    // Ne pas réinitialiser draggedMeal ici - il sera réinitialisé dans dropMeal
 }
 
 function showDragIndicator() {

@@ -97,13 +97,14 @@ function allowDrop(ev) {
     ev.stopPropagation();
     const target = ev.target.closest('.meal-box, .day-card');
     if (target) target.classList.add('drag-over');
-    ev.dataTransfer.dropEffect = 'copy';
+    ev.dataTransfer.dropEffect = ev.dataTransfer.effectAllowed === 'move' ? 'move' : 'copy';
 }
 
 function dragLeave(ev) {
     ev.preventDefault();
     ev.stopPropagation();
-    document.querySelectorAll('.meal-box, .day-card').forEach(el => el.classList.remove('drag-over'));
+    const target = ev.target.closest('.meal-box, .day-card');
+    if (target) target.classList.remove('drag-over');
 }
 
 function dropRecipe(ev) {

@@ -77,10 +77,10 @@ header h1 {
     border-bottom: 2px solid var(--primary-light);
 }
 
-/* Grille des jours - 4 par ligne */
+/* Grille des jours - 1 colonne */
 .days-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1fr;
     gap: 8px;
 }
 
@@ -653,7 +653,7 @@ header h1 {
     }
     
     .days-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: 1fr;
     }
 }
 
@@ -672,7 +672,7 @@ header h1 {
     }
     
     .days-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
     }
     
     .day-card {

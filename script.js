@@ -97,6 +97,7 @@ function allowDrop(ev) {
     ev.stopPropagation();
     const target = ev.target.closest('.meal-box, .day-card');
     if (target) target.classList.add('drag-over');
+    console.log('allowDrop called, effectAllowed:', ev.dataTransfer.effectAllowed);
     ev.dataTransfer.dropEffect = ev.dataTransfer.effectAllowed === 'move' ? 'move' : 'copy';
 }
 
@@ -198,12 +199,13 @@ function endRecipeDrag(ev) {
 }
 
 function startMealDrag(ev, day, meal) {
+    console.log('startMealDrag called with:', day, meal);
     ev.dataTransfer.setData('text/plain', `${day}|${meal}`);
     ev.dataTransfer.effectAllowed = 'move';
     ev.target.classList.add('dragging');
     draggedMeal = { day, meal };
     setTimeout(showDragIndicator, 200);
-    console.log('startMealDrag:', day, meal, ev.dataTransfer.getData('text/plain'));
+    console.log('startMealDrag: data set to:', ev.dataTransfer.getData('text/plain'));
 }
 
 function endMealDrag(ev) {

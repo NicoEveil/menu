@@ -97,15 +97,13 @@ function allowDrop(ev) {
     ev.stopPropagation();
     const target = ev.target.closest('.meal-box, .day-card');
     if (target) target.classList.add('drag-over');
-    console.log('allowDrop called, effectAllowed:', ev.dataTransfer.effectAllowed);
-    ev.dataTransfer.dropEffect = ev.dataTransfer.effectAllowed === 'move' ? 'move' : 'copy';
+    ev.dataTransfer.dropEffect = 'copy';
 }
 
 function dragLeave(ev) {
     ev.preventDefault();
     ev.stopPropagation();
-    const target = ev.target.closest('.meal-box, .day-card');
-    if (target) target.classList.remove('drag-over');
+    document.querySelectorAll('.meal-box, .day-card').forEach(el => el.classList.remove('drag-over'));
 }
 
 function dropRecipe(ev) {
@@ -136,8 +134,8 @@ function dropRecipe(ev) {
         renderRecipes();
     }
     
-    hideDragIndicator();
     draggedRecipe = null;
+    hideDragIndicator();
 }
 
 function dropMeal(ev) {
@@ -145,23 +143,9 @@ function dropMeal(ev) {
     ev.stopPropagation();
     document.querySelectorAll('.meal-box, .day-card').forEach(el => el.classList.remove('drag-over'));
     
-    let data = ev.dataTransfer.getData('text/plain');
-    let sourceDay, sourceMeal;
-    
-    console.log('dropMeal data:', data, 'draggedMeal:', draggedMeal);
-    
-    if (data && data.includes('|')) {
-        [sourceDay, sourceMeal] = data.split('|');
-    } else if (draggedMeal) {
-        sourceDay = draggedMeal.day;
-        sourceMeal = draggedMeal.meal;
-    }
-    
-    if (!sourceDay || !sourceMeal) {
-        console.log('dropMeal: no source found, returning');
-        return;
-    }
-    console.log('dropMeal: sourceDay:', sourceDay, 'sourceMeal:', sourceMeal);
+    const data = ev.dataTransfer.getData('text/plain');
+    const [sourceDay, sourceMeal] = data.split('|');
+    if (!sourceDay || !sourceMeal) return;
     
     const target = ev.target.closest('.meal-box');
     if (target) {
@@ -180,9 +164,9 @@ function dropMeal(ev) {
         renderDays();
     }
     
-    hideDragIndicator();
     draggedMeal = null;
-
+    hideDragIndicator();
+}
 
 function startRecipeDrag(ev, recipeId) {
     ev.dataTransfer.setData('text/plain', recipeId);
@@ -194,21 +178,21 @@ function startRecipeDrag(ev, recipeId) {
 
 function endRecipeDrag(ev) {
     ev.target.classList.remove('dragging');
+    draggedRecipe = null;
     hideDragIndicator();
 }
 
 function startMealDrag(ev, day, meal) {
-    console.log('startMealDrag called with:', day, meal);
     ev.dataTransfer.setData('text/plain', `${day}|${meal}`);
     ev.dataTransfer.effectAllowed = 'move';
     ev.target.classList.add('dragging');
     draggedMeal = { day, meal };
     setTimeout(showDragIndicator, 200);
-    console.log('startMealDrag: data set to:', ev.dataTransfer.getData('text/plain'));
 }
 
 function endMealDrag(ev) {
     ev.target.classList.remove('dragging');
+    draggedMeal = null;
     hideDragIndicator();
 }
 
@@ -518,7 +502,6 @@ function attachDayEvents() {
             input.type = 'text';
             input.value = currentText;
             input.className = 'meal-edit-input';
-            input.id = `edit-${day}-${meal}-${Date.now()}`;
             input.style.width = '100%';
             input.style.padding = '6px';
             input.style.border = '2px solid var(--primary-dark)';
@@ -541,9 +524,6 @@ function attachDayEvents() {
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') { e.preventDefault(); saveEdit(); }
             });
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') { e.preventDefault(); textSpan.textContent = currentText; }
-            });
         });
         
         // Drag & Drop pour les repas
@@ -554,15 +534,9 @@ function attachDayEvents() {
         box.addEventListener('dragleave', dragLeave);
         box.addEventListener('drop', (ev) => {
             const data = ev.dataTransfer.getData('text/plain');
-            console.log('drop handler: data=', data, 'draggedMeal=', draggedMeal);
-            if (data && data.includes('|')) {
-                console.log('calling dropMeal from data format');
-                dropMeal(ev);
-            } else if (draggedMeal) {
-                console.log('calling dropMeal from draggedMeal');
+            if (data.includes('|')) {
                 dropMeal(ev);
             } else {
-                console.log('calling dropRecipe');
                 dropRecipe(ev);
             }
         });

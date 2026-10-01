@@ -117,6 +117,9 @@ function dropRecipe(ev) {
     }
     if (!recipeId) return;
     
+    // Si c'est un drag de repas (format day|meal), on ignore
+    if (recipeId.includes('|')) return;
+    
     const recipe = recipes.find(r => r.id === recipeId);
     if (!recipe) return;
     
@@ -531,8 +534,8 @@ function attachDayEvents() {
         box.addEventListener('dragend', (ev) => endMealDrag(ev));
         box.addEventListener('dragover', allowDrop);
         box.addEventListener('dragleave', dragLeave);
-        box.addEventListener('drop', dropRecipe);
         box.addEventListener('drop', dropMeal);
+        box.addEventListener('drop', dropRecipe);
     });
 }
 

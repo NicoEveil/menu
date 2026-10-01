@@ -107,10 +107,6 @@ function dragLeave(ev) {
 }
 
 function dropRecipe(ev) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    document.querySelectorAll('.meal-box, .day-card, .recipes-grid').forEach(el => el.classList.remove('drag-over'));
-    
     let recipeId = ev.dataTransfer.getData('text/plain');
     if (!recipeId && draggedRecipe) {
         recipeId = draggedRecipe;
@@ -119,6 +115,10 @@ function dropRecipe(ev) {
     
     // Si c'est un drag de repas (format day|meal), on ignore
     if (recipeId.includes('|')) return;
+    
+    ev.preventDefault();
+    ev.stopPropagation();
+    document.querySelectorAll('.meal-box, .day-card, .recipes-grid').forEach(el => el.classList.remove('drag-over'));
     
     const recipe = recipes.find(r => r.id === recipeId);
     if (!recipe) return;

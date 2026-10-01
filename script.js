@@ -146,6 +146,8 @@ function dropMeal(ev) {
     let data = ev.dataTransfer.getData('text/plain');
     let sourceDay, sourceMeal;
     
+    console.log('dropMeal data:', data, 'draggedMeal:', draggedMeal);
+    
     if (data && data.includes('|')) {
         [sourceDay, sourceMeal] = data.split('|');
     } else if (draggedMeal) {
@@ -153,7 +155,11 @@ function dropMeal(ev) {
         sourceMeal = draggedMeal.meal;
     }
     
-    if (!sourceDay || !sourceMeal) return;
+    if (!sourceDay || !sourceMeal) {
+        console.log('dropMeal: no source found, returning');
+        return;
+    }
+    console.log('dropMeal: sourceDay:', sourceDay, 'sourceMeal:', sourceMeal);
     
     const target = ev.target.closest('.meal-box');
     if (target) {
@@ -196,6 +202,7 @@ function startMealDrag(ev, day, meal) {
     ev.target.classList.add('dragging');
     draggedMeal = { day, meal };
     setTimeout(showDragIndicator, 200);
+    console.log('startMealDrag:', day, meal, ev.dataTransfer.getData('text/plain'));
 }
 
 function endMealDrag(ev) {
@@ -542,11 +549,15 @@ function attachDayEvents() {
         box.addEventListener('dragleave', dragLeave);
         box.addEventListener('drop', (ev) => {
             const data = ev.dataTransfer.getData('text/plain');
+            console.log('drop handler: data=', data, 'draggedMeal=', draggedMeal);
             if (data && data.includes('|')) {
+                console.log('calling dropMeal from data format');
                 dropMeal(ev);
             } else if (draggedMeal) {
+                console.log('calling dropMeal from draggedMeal');
                 dropMeal(ev);
             } else {
+                console.log('calling dropRecipe');
                 dropRecipe(ev);
             }
         });

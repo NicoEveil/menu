@@ -97,6 +97,7 @@ function allowDrop(ev) {
     ev.stopPropagation();
     const target = ev.target.closest('.meal-box, .day-card');
     if (target) target.classList.add('drag-over');
+    ev.dataTransfer.dropEffect = 'copy';
 }
 
 function dragLeave(ev) {
@@ -110,7 +111,10 @@ function dropRecipe(ev) {
     ev.stopPropagation();
     document.querySelectorAll('.meal-box, .day-card, .recipes-grid').forEach(el => el.classList.remove('drag-over'));
     
-    const recipeId = ev.dataTransfer.getData('text/plain');
+    let recipeId = ev.dataTransfer.getData('text/plain');
+    if (!recipeId && draggedRecipe) {
+        recipeId = draggedRecipe;
+    }
     if (!recipeId) return;
     
     const recipe = recipes.find(r => r.id === recipeId);
@@ -430,7 +434,7 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
 }
 
 function renderDays() {
-    const daysList = document.querySelector('.days-list');
+    const daysList = document.querySelector('.days-grid');
     if (!daysList) return;
     
     const today = new Date();
@@ -527,6 +531,7 @@ function attachDayEvents() {
         box.addEventListener('dragend', (ev) => endMealDrag(ev));
         box.addEventListener('dragover', allowDrop);
         box.addEventListener('dragleave', dragLeave);
+        box.addEventListener('drop', dropRecipe);
         box.addEventListener('drop', dropMeal);
     });
 }

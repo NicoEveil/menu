@@ -5,15 +5,15 @@
     --primary-dark: #F9A825;
     --primary-strong: #FFC107;
     --secondary-color: #FF9800;
-    --background-color: #FFF9C4;
+    --background-color: #FFFFFF;
     --card-color: #FFFFFF;
     --text-color: #333333;
     --text-light: #757575;
-    --border-color: #FFE0B2;
+    --border-color: #E0E0E0;
     --danger-color: #F44336;
     --success-color: #4CAF50;
     --warning-color: #FF9800;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     --border-radius: 4px;
     --transition: all 0.2s ease;
 }
@@ -61,6 +61,7 @@ header h1 {
 /* Section Menu */
 .menu-section {
     background-color: var(--card-color);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 12px;
     box-shadow: var(--shadow);
@@ -72,14 +73,14 @@ header h1 {
     color: var(--primary-dark);
     margin-bottom: 12px;
     font-size: 1.1rem;
-    padding-bottom: 6px;
+    padding-bottom: 8px;
     border-bottom: 2px solid var(--primary-light);
 }
 
-/* Liste des jours */
-.days-list {
-    display: flex;
-    flex-direction: column;
+/* Grille des jours - 4 par ligne */
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
 }
 
@@ -104,7 +105,7 @@ header h1 {
 .day-card h3 {
     color: var(--primary-dark);
     margin-bottom: 6px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     padding-bottom: 4px;
     border-bottom: 1px solid var(--border-color);
 }
@@ -126,7 +127,7 @@ header h1 {
 .meal-label {
     font-weight: bold;
     color: var(--text-light);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
 }
 
 /* Case de repas */
@@ -135,14 +136,14 @@ header h1 {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     background-color: var(--card-color);
-    min-height: 32px;
+    min-height: 30px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
     transition: var(--transition);
     position: relative;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .meal-box:hover {
@@ -167,7 +168,7 @@ header h1 {
 
 .meal-box-text {
     flex: 1;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -177,13 +178,13 @@ header h1 {
 .meal-box-text.empty {
     color: var(--text-light);
     font-style: italic;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
 }
 
 .meal-box-select-btn {
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -192,7 +193,7 @@ header h1 {
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     transition: var(--transition);
     font-weight: bold;
 }
@@ -205,6 +206,7 @@ header h1 {
 /* Section Recettes */
 .recipes-section {
     background-color: var(--card-color);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 12px;
     box-shadow: var(--shadow);
@@ -236,7 +238,7 @@ header h1 {
     padding: 8px 10px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     transition: var(--transition);
 }
 
@@ -249,7 +251,7 @@ header h1 {
     padding: 8px 10px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     background-color: var(--card-color);
 }
@@ -257,7 +259,7 @@ header h1 {
 /* Grille des recettes */
 .recipes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 8px;
 }
 
@@ -269,7 +271,7 @@ header h1 {
     transition: var(--transition);
     cursor: grab;
     border: 1px solid var(--border-color);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .recipe-card:hover {
@@ -293,14 +295,14 @@ header h1 {
 .recipe-card h3 {
     color: var(--primary-dark);
     margin-bottom: 6px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .recipe-card .recipe-meta {
     display: flex;
     gap: 8px;
     margin-bottom: 6px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-light);
 }
 
@@ -649,6 +651,10 @@ header h1 {
     .recipes-section {
         max-height: 45vh;
     }
+    
+    .days-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
@@ -665,8 +671,8 @@ header h1 {
         font-size: 1.1rem;
     }
     
-    .days-list {
-        gap: 6px;
+    .days-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
     
     .day-card {
@@ -674,7 +680,7 @@ header h1 {
     }
     
     .day-card h3 {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
     
     .recipes-grid {
@@ -687,7 +693,7 @@ header h1 {
     }
     
     .meal-box-text {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
 }
 
@@ -704,5 +710,9 @@ header h1 {
     .btn {
         width: 100%;
         justify-content: center;
+    }
+    
+    .days-grid {
+        grid-template-columns: 1fr;
     }
 }

@@ -502,6 +502,7 @@ function attachDayEvents() {
             input.type = 'text';
             input.value = currentText;
             input.className = 'meal-edit-input';
+            input.id = `edit-${day}-${meal}`;
             input.style.width = '100%';
             input.style.padding = '6px';
             input.style.border = '2px solid var(--primary-dark)';
@@ -534,7 +535,7 @@ function attachDayEvents() {
         box.addEventListener('dragleave', dragLeave);
         box.addEventListener('drop', (ev) => {
             const data = ev.dataTransfer.getData('text/plain');
-            if (data.includes('|')) {
+            if (data && data.includes('|')) {
                 dropMeal(ev);
             } else {
                 dropRecipe(ev);

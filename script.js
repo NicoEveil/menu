@@ -146,7 +146,7 @@ function dropMeal(ev) {
     let data = ev.dataTransfer.getData('text/plain');
     let sourceDay, sourceMeal;
     
-    if (data.includes('|')) {
+    if (data && data.includes('|')) {
         [sourceDay, sourceMeal] = data.split('|');
     } else if (draggedMeal) {
         sourceDay = draggedMeal.day;

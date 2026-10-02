@@ -645,14 +645,14 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         
         card.innerHTML = `
             ${recipe.imageUrl ? `<div class="recipe-image"><img src="${recipe.imageUrl}" alt="${recipe.name}" loading="lazy"></div>` : ''}
-            <h3>${recipe.name}</h3>
+            <div class="recipe-title-row">
+                <h3>${recipe.name}</h3>
+                <button class="btn-icon delete-recipe" title="Supprimer">🗑️</button>
+            </div>
             <div class="recipe-meta">
                 ${recipe.category ? `<span>${recipe.category}</span>` : ''}
                 ${recipe.tags && recipe.tags.length > 0 ? 
                     `<div class="recipe-tags">${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
-            </div>
-            <div class="recipe-actions">
-                <button class="btn-icon delete-recipe" title="Supprimer">🗑️</button>
             </div>
         `;
         

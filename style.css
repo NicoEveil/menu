@@ -1,20 +1,20 @@
-/* Reset et variables - Thème Google Keep */
+/* Reset et variables */
 :root {
-    --primary-color: #F9A825;
-    --primary-light: #FFD54F;
-    --primary-dark: #E69500;
-    --secondary-color: #FFC107;
-    --background-color: #FFFFFF;
+    --primary-color: #4CAF50;
+    --primary-light: #8BC34A;
+    --primary-dark: #388E3C;
+    --secondary-color: #2196F3;
+    --background-color: #F5F5F5;
     --card-color: #FFFFFF;
     --text-color: #333333;
-    --text-light: #757575;
+    --text-light: #666666;
     --border-color: #E0E0E0;
     --danger-color: #F44336;
     --success-color: #4CAF50;
     --warning-color: #FF9800;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    --border-radius: 4px;
-    --transition: all 0.2s ease;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
 }
 
 * {
@@ -24,7 +24,7 @@
 }
 
 body {
-    font-family: 'Roboto', 'Product Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
@@ -59,13 +59,10 @@ header h1 {
 
 /* Section Menu */
 .menu-section {
-    background: var(--card-color);
+    background-color: var(--card-color);
     border-radius: var(--border-radius);
-    padding: 8px;
+    padding: 20px;
     box-shadow: var(--shadow);
-    overflow-y: auto;
-    max-height: 100%;
-    border: 1px solid var(--border-color);
 }
 
 .menu-section h2 {
@@ -85,12 +82,11 @@ header h1 {
 
 /* Carte d'un jour */
 .day-card {
-    background: var(--card-color);
-    border-radius: var(--border-radius);
-    padding: 6px;
-    margin-bottom: 4px;
-    box-shadow: var(--shadow);
+    background-color: var(--card-color);
     border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    transition: var(--transition);
 }
 
 .day-card:hover {
@@ -98,11 +94,11 @@ header h1 {
 }
 
 .day-card h3 {
-    color: var(--primary-dark);
-    margin-bottom: 4px;
-    padding-bottom: 2px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.85rem;
 }
 
 /* Repas d'un jour */
@@ -121,24 +117,22 @@ header h1 {
 .meal-label {
     font-weight: bold;
     color: var(--text-light);
-    font-size: 0.7rem;
-    display: block;
-    margin-bottom: 2px;
+    font-size: 0.85rem;
 }
 
 /* Case de repas (affichage clair) */
 .meal-box {
-    padding: 6px 8px;
-    border: 1px solid var(--border-color);
+    padding: 10px 12px;
+    border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
-    background: var(--card-color);
-    margin-bottom: 4px;
+    background-color: var(--card-color);
+    min-height: 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
     transition: var(--transition);
-    font-size: 0.8rem;
+    position: relative;
 }
 
 .meal-box:hover {
@@ -193,13 +187,10 @@ header h1 {
 
 /* Section Recettes */
 .recipes-section {
-    background: var(--card-color);
+    background-color: var(--card-color);
     border-radius: var(--border-radius);
-    padding: 8px;
+    padding: 20px;
     box-shadow: var(--shadow);
-    overflow-y: auto;
-    max-height: 100%;
-    border: 1px solid var(--border-color);
 }
 
 .recipes-header {
@@ -648,14 +639,9 @@ header h1 {
     
     .menu-section,
     .recipes-section {
-    background: var(--card-color);
-    border-radius: var(--border-radius);
-    padding: 8px;
-    box-shadow: var(--shadow);
-    overflow-y: auto;
-    max-height: 100%;
-    border: 1px solid var(--border-color);
-}
+        max-height: 50vh;
+        overflow-y: auto;
+    }
 }
 
 @media (max-width: 768px) {
@@ -677,21 +663,12 @@ header h1 {
     }
     
     .day-card {
-    background: var(--card-color);
-    border-radius: var(--border-radius);
-    padding: 6px;
-    margin-bottom: 4px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border-color);
-}
+        padding: 10px;
+    }
     
     .day-card h3 {
-    color: var(--primary-dark);
-    margin-bottom: 4px;
-    padding-bottom: 2px;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.85rem;
-}
+        font-size: 1rem;
+    }
     
     .recipes-grid {
         grid-template-columns: 1fr;
@@ -712,32 +689,4 @@ header h1 {
         width: 100%;
         justify-content: center;
     }
-}
-
-
-/* Bouton de suppression */
-.meal-box-delete-btn {
-    width: 18px;
-    height: 18px;
-    min-width: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent;
-    color: var(--text-light);
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: var(--transition);
-    font-weight: bold;
-    margin-left: 4px;
-    padding: 0;
-    line-height: 1;
-}
-
-.meal-box-delete-btn:hover {
-    background-color: var(--primary-light);
-    color: var(--primary-dark);
-    border-color: var(--primary-color);
 }

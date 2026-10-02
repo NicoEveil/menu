@@ -1,8 +1,8 @@
 /* Reset et variables - Thème Google Keep */
 :root {
-    --primary-color: #FFD54F;
-    --primary-light: #FFF176;
-    --primary-dark: #F9A825;
+    --primary-color: #F9A825;
+    --primary-light: #FFD54F;
+    --primary-dark: #E69500;
     --secondary-color: #FFC107;
     --background-color: #FFFFFF;
     --card-color: #FFFFFF;
@@ -24,7 +24,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', 'Product Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;

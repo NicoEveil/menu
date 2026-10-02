@@ -38,12 +38,12 @@ function loadData() {
     const today = new Date();
     const daysToShow = getDaysToShow(today);
     
-    daysToShow.forEach(dayName => {
-        if (!menu[dayName]) {
-            menu[dayName] = { dejeuner: null, diner: null };
+    daysToShow.forEach(dayInfo => {
+        if (!menu[dayInfo.dateKey]) {
+            menu[dayInfo.dateKey] = { dejeuner: null, diner: null };
         }
-        if (!manualEntries[dayName]) {
-            manualEntries[dayName] = { dejeuner: '', diner: '', autre: '' };
+        if (!manualEntries[dayInfo.dateKey]) {
+            manualEntries[dayInfo.dateKey] = { dejeuner: '', diner: '', autre: '' };
         }
     });
 }
@@ -55,8 +55,12 @@ function getDaysToShow(today) {
     for (let i = 0; i < 8; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
-        const dayIndex = date.getDay();
-        days.push(DAYS_OF_WEEK[dayIndex]);
+        const dateKey = date.toISOString().split('T')[0];
+        days.push({
+            dateKey: dateKey,
+            dayName: DAYS_OF_WEEK[date.getDay()],
+            dateObj: date
+        });
     }
     
     return days;
@@ -64,8 +68,7 @@ function getDaysToShow(today) {
 
 // Obtenir le nom du jour avec date
 function getDayLabel(date) {
-    const options = { weekday: 'long', day: 'numeric', month: 'short' };
-    return date.toLocaleDateString('fr-FR', options);
+    return DAYS_OF_WEEK[date.getDay()];
 }
 
 // Sauvegarde des données dans localStorage
@@ -596,14 +599,12 @@ function renderDays() {
     
     daysList.innerHTML = '';
     
-    daysToShow.forEach((dayName, index) => {
+    daysToShow.forEach((dayInfo, index) => {
         const dayCard = document.createElement('div');
         dayCard.className = 'day-card';
-        dayCard.dataset.day = dayName;
+        dayCard.dataset.day = dayInfo.dateKey;
         
-        const date = new Date(today);
-        date.setDate(today.getDate() + index);
-        const dayLabel = getDayLabel(date);
+        const dayLabel = dayInfo.dayName;
         const isToday = index === 0;
         
         if (isToday) {
@@ -615,22 +616,22 @@ function renderDays() {
             <div class="day-meals">
                 <div class="meal-slot" data-meal="dejeuner">
                     <span class="meal-label">Déjeuner</span>
-                    <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayName]?.dejeuner ? 'has-value' : ''}" 
-                         data-day="${dayName}" data-meal="dejeuner">
-                        <span class="meal-box-text ${manualEntries[dayName]?.dejeuner ? '' : 'empty'}">
-                            ${manualEntries[dayName]?.dejeuner || 'Vide'}
+                    <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayInfo.dateKey]?.dejeuner ? 'has-value' : ''}" 
+                         data-day="${dayInfo.dateKey}" data-meal="dejeuner">
+                        <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.dejeuner ? '' : 'empty'}">
+                            ${manualEntries[dayInfo.dateKey]?.dejeuner || 'Vide'}
                         </span>
-                        <div class="meal-box-select-btn" data-day="${dayName}" data-meal="dejeuner">+</div>
+                        <div class="meal-box-select-btn" data-day="${dayInfo.dateKey}" data-meal="dejeuner">+</div>
                     </div>
                 </div>
                 <div class="meal-slot" data-meal="diner">
                     <span class="meal-label">Dîner</span>
-                    <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayName]?.diner ? 'has-value' : ''}" 
-                         data-day="${dayName}" data-meal="diner">
-                        <span class="meal-box-text ${manualEntries[dayName]?.diner ? '' : 'empty'}">
-                            ${manualEntries[dayName]?.diner || 'Vide'}
+                    <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayInfo.dateKey]?.diner ? 'has-value' : ''}" 
+                         data-day="${dayInfo.dateKey}" data-meal="diner">
+                        <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.diner ? '' : 'empty'}">
+                            ${manualEntries[dayInfo.dateKey]?.diner || 'Vide'}
                         </span>
-                        <div class="meal-box-select-btn" data-day="${dayName}" data-meal="diner">+</div>
+                        <div class="meal-box-select-btn" data-day="${dayInfo.dateKey}" data-meal="diner">+</div>
                     </div>
                 </div>
             </div>

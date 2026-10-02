@@ -530,7 +530,7 @@ function handleRecipeForm(e) {
 // Récupérer l'image d'une recette de type lien via l'API Microlink
 async function fetchRecipeImage(url, recipeId) {
     try {
-        const response = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url) + '&embed=image.url');
+        const response = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url));
         const json = await response.json();
         if (json.status === 'success' && json.data && json.data.image && json.data.image.url) {
             const imageUrl = json.data.image.url;

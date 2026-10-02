@@ -8,6 +8,7 @@ let draggedMeal = null;
 // Firebase
 let db = null;
 let cloudReady = false;
+let lastExportMonth = null;
 
 function setSyncStatus(text, title) {
     const el = document.getElementById('sync-status');
@@ -82,6 +83,7 @@ async function loadData() {
             if (data.recipes) recipes = data.recipes;
             if (data.menu) menu = data.menu;
             if (data.manualEntries) manualEntries = data.manualEntries;
+            if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
         } else if (savedRecipes || savedMenu || savedManualEntries) {
             // Première fois : migrer les données locales vers le cloud
             await setDoc(docRef, {
@@ -101,9 +103,10 @@ async function loadData() {
                 const currentData = JSON.stringify({ recipes, menu, manualEntries });
                 const cloudData = JSON.stringify({ recipes: data.recipes || [], menu: data.menu || {}, manualEntries: data.manualEntries || {} });
                 if (currentData !== cloudData) {
-                    if (data.recipes) recipes = data.recipes;
+                        if (data.recipes) recipes = data.recipes;
                     if (data.menu) menu = data.menu;
                     if (data.manualEntries) manualEntries = data.manualEntries;
+                    if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
                     renderRecipes();
                     renderDays();
                 }
@@ -119,6 +122,7 @@ async function loadData() {
         
         renderRecipes();
         renderDays();
+        checkMonthlyExport();
     } catch (error) {
         console.warn('Cloud indisponible, utilisation du mode local :', error);
         setSyncStatus('⚠️ hors ligne', 'Erreur cloud : ' + (error && error.message ? error.message : error));
@@ -162,6 +166,52 @@ function getDayLabel(date) {
     return date.toLocaleDateString('fr-FR', options);
 }
 
+// Exporter les recettes en fichier texte
+function exportRecipesToFile() {
+    const lines = [];
+    lines.push('Mes recettes - Ma Cuisine');
+    lines.push('Export du ' + new Date().toLocaleDateString('fr-FR'));
+    lines.push('');
+    
+    const sorted = [...recipes].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    sorted.forEach(recipe => {
+        lines.push('=== ' + recipe.name + ' ===');
+        if (recipe.url) {
+            lines.push('Lien: ' + recipe.url);
+        }
+        if (recipe.text) {
+            lines.push('Notes: ' + recipe.text);
+        }
+        lines.push('');
+    });
+    
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mes-recettes-' + new Date().toISOString().split('T')[0] + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    lastExportMonth = new Date().toISOString().slice(0, 7);
+    saveData();
+}
+
+// Proposer l'export automatique une fois par mois
+function checkMonthlyExport() {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    if (lastExportMonth !== currentMonth && recipes.length > 0) {
+        if (confirm("C'est le moment de faire votre sauvegarde mensuelle !\n\nVoulez-vous télécharger vos recettes en fichier texte ?")) {
+            exportRecipesToFile();
+        } else {
+            lastExportMonth = currentMonth;
+            saveData();
+        }
+    }
+}
+
 // Sauvegarde des données dans localStorage
 async function saveData() {
     if (cloudReady && db) {
@@ -170,7 +220,8 @@ async function saveData() {
         await setDoc(doc(db, 'spaces', 'default'), {
             recipes: recipes,
             menu: menu,
-            manualEntries: manualEntries
+            manualEntries: manualEntries,
+            lastExportMonth: lastExportMonth
         });
     } else {
         // Fallback : localStorage si le cloud est indisponible
@@ -188,6 +239,11 @@ function setupEventListeners() {
         addRecipeBtn.addEventListener('click', () => {
             showRecipeModal(null);
         });
+    }
+    
+    const exportRecipesBtn = document.getElementById('export-recipes-btn');
+    if (exportRecipesBtn) {
+        exportRecipesBtn.addEventListener('click', exportRecipesToFile);
     }
 
     // Recherche et filtre des recettes

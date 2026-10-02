@@ -9,6 +9,7 @@ let draggedMeal = null;
 let db = null;
 let cloudReady = false;
 let lastExportMonth = null;
+let pendingOfflineChange = false;
 
 function setSyncStatus(text, title) {
     const el = document.getElementById('sync-status');
@@ -77,13 +78,27 @@ async function loadData() {
         setSyncStatus('⏳ connexion...');
         const docSnap = await getDoc(docRef);
         
-        if (docSnap.exists()) {
+        const pendingFlag = localStorage.getItem('menuPendingSync') === 'true';
+        
+        if (docSnap.exists() && !pendingFlag) {
             // Le cloud a des données : elles font foi
             const data = docSnap.data();
             if (data.recipes) recipes = data.recipes;
             if (data.menu) menu = data.menu;
             if (data.manualEntries) manualEntries = data.manualEntries;
             if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
+        } else if (docSnap.exists() && pendingFlag) {
+            // Des modifications hors ligne sont en attente : elles écrasent le cloud
+            localStorage.setItem('menuRecipes', JSON.stringify(recipes));
+            localStorage.setItem('menuPlanning', JSON.stringify(menu));
+            localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
+            await setDoc(docRef, {
+                recipes: recipes,
+                menu: menu,
+                manualEntries: manualEntries,
+                lastExportMonth: lastExportMonth
+            });
+            localStorage.setItem('menuPendingSync', 'false');
         } else if (savedRecipes || savedMenu || savedManualEntries) {
             // Première fois : migrer les données locales vers le cloud
             await setDoc(docRef, {
@@ -94,7 +109,13 @@ async function loadData() {
         }
         
         cloudReady = true;
-        setSyncStatus('☁️ synchronisé', 'Données synchronisées via Firebase');
+        
+        if (localStorage.getItem('menuPendingSync') === 'true') {
+            // Des modifications hors ligne étaient en attente : les renvoyer maintenant
+            await saveData();
+        } else {
+            setSyncStatus('☁️ synchronisé', 'Données synchronisées via Firebase');
+        }
         
         // Synchronisation temps réel : mettre à jour si le cloud change
         onSnapshot(docRef, (snap) => {
@@ -214,25 +235,45 @@ function checkMonthlyExport() {
 
 // Sauvegarde des données dans localStorage
 async function saveData() {
+    // Toujours garder une copie locale (cache + file d'attente hors ligne)
+    localStorage.setItem('menuRecipes', JSON.stringify(recipes));
+    localStorage.setItem('menuPlanning', JSON.stringify(menu));
+    localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
+    
     if (cloudReady && db) {
-        // Sauvegarde dans le cloud (source de vérité)
-        const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js');
-        await setDoc(doc(db, 'spaces', 'default'), {
-            recipes: recipes,
-            menu: menu,
-            manualEntries: manualEntries,
-            lastExportMonth: lastExportMonth
-        });
+        try {
+            const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js');
+            await setDoc(doc(db, 'spaces', 'default'), {
+                recipes: recipes,
+                menu: menu,
+                manualEntries: manualEntries,
+                lastExportMonth: lastExportMonth
+            });
+            localStorage.setItem('menuPendingSync', 'false');
+            pendingOfflineChange = false;
+            setSyncStatus('☁️ synchronisé', 'Données synchronisées via Firebase');
+        } catch (error) {
+            // Cloud inaccessible : garder la modification en attente
+            pendingOfflineChange = true;
+            localStorage.setItem('menuPendingSync', 'true');
+            setSyncStatus('📴 en attente', 'Hors connexion : modification enregistrée localement, envoi au retour du réseau');
+        }
     } else {
-        // Fallback : localStorage si le cloud est indisponible
-        localStorage.setItem('menuRecipes', JSON.stringify(recipes));
-        localStorage.setItem('menuPlanning', JSON.stringify(menu));
-        localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
+        pendingOfflineChange = true;
+        localStorage.setItem('menuPendingSync', 'true');
+        setSyncStatus('📴 en attente', 'Hors connexion : modification enregistrée localement, envoi au retour du réseau');
     }
 }
 
 // Configuration des écouteurs d'événements
 function setupEventListeners() {
+    // Retour du réseau : renvoyer les modifications en attente
+    window.addEventListener('online', () => {
+        if (pendingOfflineChange && cloudReady && db) {
+            saveData();
+        }
+    });
+    
     // Bouton ajouter une recette
     const addRecipeBtn = document.getElementById('add-recipe-btn');
     if (addRecipeBtn) {

@@ -110,6 +110,10 @@ async function loadData() {
         
         cloudReady = true;
         
+        if (navigator.onLine) {
+            retryMissingImages();
+        }
+        
         if (localStorage.getItem('menuPendingSync') === 'true') {
             // Des modifications hors ligne étaient en attente : les renvoyer maintenant
             await saveData();
@@ -269,8 +273,11 @@ async function saveData() {
 function setupEventListeners() {
     // Retour du réseau : renvoyer les modifications en attente
     window.addEventListener('online', () => {
-        if (pendingOfflineChange && cloudReady && db) {
-            saveData();
+        if (cloudReady && db) {
+            if (pendingOfflineChange) {
+                saveData();
+            }
+            retryMissingImages();
         }
     });
     
@@ -629,10 +636,20 @@ async function fetchRecipeImage(url, recipeId) {
                 recipe.imageUrl = imageUrl;
                 await saveData();
                 renderRecipes();
+                return true;
             }
         }
     } catch (error) {
         console.warn('Impossible de récupérer l\u2019image de la recette :', error);
+    }
+    return false;
+}
+
+// Rattraper les images manquantes (créées hors ligne par exemple) une fois en ligne
+async function retryMissingImages() {
+    const missing = recipes.filter(r => r.url && !r.imageUrl);
+    for (const recipe of missing) {
+        await fetchRecipeImage(recipe.url, recipe.id);
     }
 }
 

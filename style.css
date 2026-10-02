@@ -172,25 +172,29 @@ header h1 {
     font-style: italic;
 }
 
-.meal-box-select-btn {
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
+.meal-box-delete-btn {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
+    background-color: transparent;
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
     border-radius: 50%;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0;
     transition: var(--transition);
 }
 
-.meal-box-select-btn:hover {
-    background-color: var(--primary-dark);
-    transform: scale(1.1);
+.meal-box-delete-btn:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    border-color: var(--primary-color);
 }
 
 /* Section Recettes */

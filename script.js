@@ -621,7 +621,7 @@ function renderDays() {
                         <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.dejeuner ? '' : 'empty'}">
                             ${manualEntries[dayInfo.dateKey]?.dejeuner || 'Vide'}
                         </span>
-                        <div class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="dejeuner">-</div>
+                        <button class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="dejeuner">-</button>
                     </div>
                 </div>
                 <div class="meal-slot" data-meal="diner">
@@ -631,7 +631,7 @@ function renderDays() {
                         <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.diner ? '' : 'empty'}">
                             ${manualEntries[dayInfo.dateKey]?.diner || 'Vide'}
                         </span>
-                        <div class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="diner">-</div>
+                        <button class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="diner">-</button>
                     </div>
                 </div>
             </div>
@@ -646,13 +646,17 @@ function renderDays() {
 // Attacher les événements aux éléments des jours
 function attachDayEvents() {
     // Boutons + pour sélectionner une recette
-    document.querySelectorAll('.meal-box-select-btn').forEach(btn => {
+    document.querySelectorAll('.meal-box-delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const day = btn.dataset.day;
             const meal = btn.dataset.meal;
-            showRecipeSelectionForMeal(day, meal);
+            manualEntries[day][meal] = '';
+            menu[day][meal] = null;
+            saveData();
+            renderDays();
         });
+    });
     });
     
     // Cases de repas (clic pour éditer)

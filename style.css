@@ -81,7 +81,7 @@ header h1 {
 .days-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 6px;
 }
 
 /* Carte d'un jour */
@@ -89,7 +89,7 @@ header h1 {
     background-color: var(--card-color);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    padding: 15px;
+    padding: 8px;
     transition: var(--transition);
 }
 
@@ -99,9 +99,9 @@ header h1 {
 
 .day-card h3 {
     color: var(--primary-color);
-    margin-bottom: 10px;
-    font-size: 1.1rem;
-    padding-bottom: 8px;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    padding-bottom: 4px;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -109,7 +109,7 @@ header h1 {
 .day-meals {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 }
 
 .meal-slot {
@@ -121,22 +121,23 @@ header h1 {
 .meal-label {
     font-weight: bold;
     color: var(--text-light);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
 }
 
 /* Case de repas (affichage clair) */
 .meal-box {
-    padding: 10px 12px;
-    border: 2px solid var(--border-color);
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     background-color: var(--card-color);
-    min-height: 40px;
+    min-height: 30px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
     transition: var(--transition);
     position: relative;
+    font-size: 0.85rem;
 }
 
 .meal-box:hover {

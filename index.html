@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Cuisine v15.002</title>
+    <title>Ma Cuisine v15.003</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Ma Cuisine <span class="version">v15.002</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
+            <h1>Ma Cuisine <span class="version">v15.003</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
         </header>
 
         <div class="main-layout">
@@ -33,8 +33,8 @@
                     <input type="text" id="recipe-search" placeholder="Rechercher...">
                     <select id="recipe-filter">
                         <option value="all">Toutes</option>
-                        <option value="lien">Liens</option>
-                        <option value="texte">Recettes écrites</option>
+                        <option value="lien">Avec lien</option>
+                        <option value="texte">Avec notes</option>
                     </select>
                 </div>
 
@@ -58,19 +58,12 @@
                     <input type="text" id="recipe-name" required>
                 </div>
                 <div class="form-group">
-                    <label for="recipe-type">Type</label>
-                    <select id="recipe-type" required>
-                        <option value="lien">Lien vers une recette</option>
-                        <option value="texte">Recette écrite</option>
-                    </select>
-                </div>
-                <div class="form-group" id="url-group">
-                    <label for="recipe-url">URL *</label>
+                    <label for="recipe-url">URL (optionnel)</label>
                     <input type="url" id="recipe-url" placeholder="https://...">
                 </div>
-                <div class="form-group hidden" id="text-group">
-                    <label for="recipe-text">Recette *</label>
-                    <textarea id="recipe-text" rows="5" placeholder="Écrivez votre recette ici..."></textarea>
+                <div class="form-group">
+                    <label for="recipe-text">Notes (optionnel)</label>
+                    <textarea id="recipe-text" rows="5" placeholder="Notes, étapes, astuces..."></textarea>
                 </div>
                 <div class="form-group">
                     <label for="recipe-category">Catégorie</label>
@@ -98,7 +91,6 @@
             <div id="view-recipe-content">
                 <div id="view-recipe-category" class="recipe-meta"></div>
                 <div id="view-recipe-tags" class="recipe-meta"></div>
-                <div id="view-recipe-type"></div>
                 <div id="view-recipe-url" class="recipe-url"></div>
                 <div id="view-recipe-text" class="recipe-text"></div>
             </div>

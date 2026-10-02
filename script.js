@@ -212,10 +212,6 @@ function setupEventListeners() {
         recipeForm.addEventListener('submit', handleRecipeForm);
     }
     
-    const recipeType = document.getElementById('recipe-type');
-    if (recipeType) {
-        recipeType.addEventListener('change', toggleRecipeForm);
-    }
     
     const cancelBtn = document.getElementById('cancel-btn');
     if (cancelBtn) {
@@ -434,7 +430,6 @@ function showRecipeModal(recipeId) {
         const recipe = recipes.find(r => r.id === recipeId);
         document.getElementById('modal-title').textContent = 'Modifier la recette';
         document.getElementById('recipe-name').value = recipe.name;
-        document.getElementById('recipe-type').value = recipe.type;
         document.getElementById('recipe-url').value = recipe.url || '';
         document.getElementById('recipe-text').value = recipe.text || '';
         document.getElementById('recipe-category').value = recipe.category || '';
@@ -447,7 +442,6 @@ function showRecipeModal(recipeId) {
         form.dataset.editingId = '';
     }
     
-    toggleRecipeForm();
     modal.classList.add('active');
 }
 
@@ -469,17 +463,6 @@ function closeModal(modal) {
     });
 }
 
-// Basculer entre lien et texte dans le formulaire
-function toggleRecipeForm() {
-    const type = document.getElementById('recipe-type').value;
-    const urlGroup = document.getElementById('url-group');
-    const textGroup = document.getElementById('text-group');
-    
-    if (urlGroup && textGroup) {
-        urlGroup.classList.toggle('hidden', type === 'texte');
-        textGroup.classList.toggle('hidden', type === 'lien');
-    }
-}
 
 // Gérer la soumission du formulaire de recette
 function handleRecipeForm(e) {
@@ -488,7 +471,6 @@ function handleRecipeForm(e) {
     const form = e.target;
     const recipeId = form.dataset.editingId;
     const name = document.getElementById('recipe-name').value.trim();
-    const type = document.getElementById('recipe-type').value;
     const url = document.getElementById('recipe-url').value.trim();
     const text = document.getElementById('recipe-text').value.trim();
     const category = document.getElementById('recipe-category').value.trim();
@@ -499,30 +481,20 @@ function handleRecipeForm(e) {
         return;
     }
     
-    if (type === 'lien' && !url) {
-        alert('L\'URL est obligatoire pour une recette de type lien');
-        return;
-    }
-    
-    if (type === 'texte' && !text) {
-        alert('Le texte de la recette est obligatoire');
-        return;
-    }
-    
+
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
     
     const finalId = recipeId || Date.now().toString();
     
-    if (type === 'lien') {
+    if (url) {
         fetchRecipeImage(url, finalId);
     }
     
     const recipeData = {
         id: finalId,
         name,
-        type,
-        url: type === 'lien' ? url : null,
-        text: type === 'texte' ? text : null,
+        url: url || null,
+        text: text || null,
         category: category || null,
         tags,
         createdAt: recipeId ? recipes.find(r => r.id === recipeId).createdAt : new Date().toISOString()
@@ -588,20 +560,21 @@ function showRecipeDetails(recipeId) {
         tagsEl.style.display = 'none';
     }
     
-    const typeEl = document.getElementById('view-recipe-type');
-    typeEl.innerHTML = `<strong>Type:</strong> <span class="${recipe.type}">${recipe.type === 'lien' ? 'Lien' : 'Recette écrite'}</span>`;
-    
     const urlEl = document.getElementById('view-recipe-url');
     const textEl = document.getElementById('view-recipe-text');
     
-    if (recipe.type === 'lien') {
-        urlEl.innerHTML = `<strong>URL:</strong> <a href="${recipe.url}" target="_blank">${recipe.url}</a>`;
+    if (recipe.url) {
+        urlEl.innerHTML = `<strong>Lien:</strong> <a href="${recipe.url}" target="_blank">${recipe.url}</a>`;
         urlEl.style.display = 'block';
-        textEl.style.display = 'none';
     } else {
         urlEl.style.display = 'none';
-        textEl.innerHTML = `<strong>Recette:</strong><pre>${recipe.text}</pre>`;
+    }
+    
+    if (recipe.text) {
+        textEl.innerHTML = `<strong>Notes:</strong><pre>${recipe.text}</pre>`;
         textEl.style.display = 'block';
+    } else {
+        textEl.style.display = 'none';
     }
     
     modal.classList.add('active');
@@ -638,7 +611,9 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
                            (recipe.category && recipe.category.toLowerCase().includes(searchTerm)) ||
                            (recipe.text && recipe.text.toLowerCase().includes(searchTerm));
         
-        const matchesFilter = filterType === 'all' || recipe.type === filterType;
+        const matchesFilter = filterType === 'all'
+            || (filterType === 'lien' && !!recipe.url)
+            || (filterType === 'texte' && !!recipe.text);
         
         return matchesSearch && matchesFilter;
     });
@@ -676,7 +651,6 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
                 ${recipe.tags && recipe.tags.length > 0 ? 
                     `<div class="recipe-tags">${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
             </div>
-            <div class="recipe-type ${recipe.type}">${recipe.type === 'lien' ? 'Lien' : 'Recette écrite'}</div>
             <div class="recipe-actions">
                 <button class="btn-icon view-recipe" title="Voir">👁️</button>
                 <button class="btn-icon edit-recipe" title="Modifier">✏️</button>

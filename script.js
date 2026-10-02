@@ -499,6 +499,11 @@ function handleRecipeForm(e) {
     
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
     
+    if (type === 'lien') {
+        fetchRecipeImage(url, recipeId || Date.now().toString());
+    }
+    
+    
     const recipeData = {
         id: recipeId || Date.now().toString(),
         name,
@@ -522,12 +527,40 @@ function handleRecipeForm(e) {
     renderRecipes();
 }
 
+// Récupérer l'image d'une recette de type lien via l'API Microlink
+async function fetchRecipeImage(url, recipeId) {
+    try {
+        const response = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url) + '&embed=image.url');
+        const json = await response.json();
+        if (json.status === 'success' && json.data && json.data.image && json.data.image.url) {
+            const imageUrl = json.data.image.url;
+            const recipe = recipes.find(r => r.id === recipeId);
+            if (recipe && !recipe.imageUrl) {
+                recipe.imageUrl = imageUrl;
+                await saveData();
+                renderRecipes();
+            }
+        }
+    } catch (error) {
+        console.warn('Impossible de récupérer l\u2019image de la recette :', error);
+    }
+}
+
 // Afficher une recette dans la modal de visualisation
 function showRecipeDetails(recipeId) {
     const recipe = recipes.find(r => r.id === recipeId);
     const modal = document.getElementById('view-recipe-modal');
     
     document.getElementById('view-recipe-title').textContent = recipe.name;
+    
+    const imageEl = document.getElementById('view-recipe-image');
+    if (recipe.imageUrl) {
+        imageEl.src = recipe.imageUrl;
+        imageEl.style.display = 'block';
+    } else {
+        imageEl.src = '';
+        imageEl.style.display = 'none';
+    }
     
     const categoryEl = document.getElementById('view-recipe-category');
     categoryEl.textContent = recipe.category ? `Catégorie: ${recipe.category}` : '';
@@ -622,6 +655,7 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         }
         
         card.innerHTML = `
+            ${recipe.imageUrl ? `<div class="recipe-image"><img src="${recipe.imageUrl}" alt="${recipe.name}" loading="lazy"></div>` : ''}
             <h3>${recipe.name}</h3>
             <div class="recipe-meta">
                 ${recipe.category ? `<span>${recipe.category}</span>` : ''}

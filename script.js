@@ -5,19 +5,24 @@ let manualEntries = {};
 let draggedRecipe = null;
 let draggedMeal = null;
 
+// Firebase
+let db = null;
+let cloudReady = false;
+
 // Jours de la semaine
 const DAYS_OF_WEEK = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
 
 // Initialisation
-function init() {
-    loadData();
+async function init() {
+    await loadData();
     setupEventListeners();
     renderRecipes();
     renderDays();
 }
 
-// Chargement des données depuis localStorage
-function loadData() {
+// Chargement des données : cloud (Firestore) + migration localStorage
+async function loadData() {
+    // 1. Charger d'abord le localStorage (affichage instantané)
     const savedRecipes = localStorage.getItem('menuRecipes');
     const savedMenu = localStorage.getItem('menuPlanning');
     const savedManualEntries = localStorage.getItem('menuManualEntries');
@@ -32,6 +37,72 @@ function loadData() {
     
     if (savedManualEntries) {
         manualEntries = JSON.parse(savedManualEntries);
+    }
+    
+    // 2. Initialiser Firebase et charger les données du cloud
+    try {
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js');
+        const { getFirestore, doc, getDoc, setDoc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js');
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAjPFcp1Zi1kXLmpxgTjjb5VxfANblpE5U",
+            authDomain: "ma-cuisine-37ba4.firebaseapp.com",
+            projectId: "ma-cuisine-37ba4",
+            storageBucket: "ma-cuisine-37ba4.firebasestorage.app",
+            messagingSenderId: "1018432867713",
+            appId: "1:1018432867713:web:5e841368e50994fa72ac80"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        
+        const docRef = doc(db, 'spaces', 'default');
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            // Le cloud a des données : elles font foi
+            const data = docSnap.data();
+            if (data.recipes) recipes = data.recipes;
+            if (data.menu) menu = data.menu;
+            if (data.manualEntries) manualEntries = data.manualEntries;
+        } else if (savedRecipes || savedMenu || savedManualEntries) {
+            // Première fois : migrer les données locales vers le cloud
+            await setDoc(docRef, {
+                recipes: recipes,
+                menu: menu,
+                manualEntries: manualEntries
+            });
+        }
+        
+        cloudReady = true;
+        
+        // Synchronisation temps réel : mettre à jour si le cloud change
+        onSnapshot(docRef, (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                const currentData = JSON.stringify({ recipes, menu, manualEntries });
+                const cloudData = JSON.stringify({ recipes: data.recipes || [], menu: data.menu || {}, manualEntries: data.manualEntries || {} });
+                if (currentData !== cloudData) {
+                    if (data.recipes) recipes = data.recipes;
+                    if (data.menu) menu = data.menu;
+                    if (data.manualEntries) manualEntries = data.manualEntries;
+                    renderRecipes();
+                    renderDays();
+                }
+            }
+        });
+        
+        // Nettoyer le localStorage après migration réussie
+        if (savedRecipes || savedMenu || savedManualEntries) {
+            localStorage.removeItem('menuRecipes');
+            localStorage.removeItem('menuPlanning');
+            localStorage.removeItem('menuManualEntries');
+        }
+        
+        renderRecipes();
+        renderDays();
+    } catch (error) {
+        console.warn('Cloud indisponible, utilisation du mode local :', error);
     }
     
     // Initialiser les structures si vide
@@ -72,10 +143,21 @@ function getDayLabel(date) {
 }
 
 // Sauvegarde des données dans localStorage
-function saveData() {
-    localStorage.setItem('menuRecipes', JSON.stringify(recipes));
-    localStorage.setItem('menuPlanning', JSON.stringify(menu));
-    localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
+async function saveData() {
+    if (cloudReady && db) {
+        // Sauvegarde dans le cloud (source de vérité)
+        const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js');
+        await setDoc(doc(db, 'spaces', 'default'), {
+            recipes: recipes,
+            menu: menu,
+            manualEntries: manualEntries
+        });
+    } else {
+        // Fallback : localStorage si le cloud est indisponible
+        localStorage.setItem('menuRecipes', JSON.stringify(recipes));
+        localStorage.setItem('menuPlanning', JSON.stringify(menu));
+        localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
+    }
 }
 
 // Configuration des écouteurs d'événements

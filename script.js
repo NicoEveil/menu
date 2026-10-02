@@ -221,15 +221,13 @@ function dropMeal(ev) {
         const targetDay = target.dataset.day;
         const targetMeal = target.dataset.meal;
         
-        // Échanger les repas
-        const tempText = manualEntries[sourceDay][sourceMeal];
-        const tempRecipeId = menu[sourceDay][sourceMeal];
+        // Écraser la cible avec le repas source (pas d'échange)
+        manualEntries[targetDay][targetMeal] = manualEntries[sourceDay][sourceMeal];
+        menu[targetDay][targetMeal] = menu[sourceDay][sourceMeal];
         
-        manualEntries[sourceDay][sourceMeal] = manualEntries[targetDay][targetMeal];
-        manualEntries[targetDay][targetMeal] = tempText;
-        
-        menu[sourceDay][sourceMeal] = menu[targetDay][targetMeal];
-        menu[targetDay][targetMeal] = tempRecipeId;
+        // Vider la source
+        manualEntries[sourceDay][sourceMeal] = '';
+        menu[sourceDay][sourceMeal] = null;
         
         saveData();
         renderDays();

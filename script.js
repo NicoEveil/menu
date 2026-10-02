@@ -10,6 +10,7 @@ let db = null;
 let cloudReady = false;
 let lastExportMonth = null;
 let pendingOfflineChange = false;
+let isSaving = false;
 
 function setSyncStatus(text, title) {
     const el = document.getElementById('sync-status');
@@ -123,7 +124,7 @@ async function loadData() {
         
         // Synchronisation temps réel : mettre à jour si le cloud change
         onSnapshot(docRef, (snap) => {
-            if (snap.exists()) {
+            if (snap.exists() && !isSaving) {
                 const data = snap.data();
                 const currentData = JSON.stringify({ recipes, menu, manualEntries });
                 const cloudData = JSON.stringify({ recipes: data.recipes || [], menu: data.menu || {}, manualEntries: data.manualEntries || {} });
@@ -247,12 +248,14 @@ async function saveData() {
     if (cloudReady && db) {
         try {
             const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js');
+            isSaving = true;
             await setDoc(doc(db, 'spaces', 'default'), {
                 recipes: recipes,
                 menu: menu,
                 manualEntries: manualEntries,
                 lastExportMonth: lastExportMonth
             });
+            isSaving = false;
             localStorage.setItem('menuPendingSync', 'false');
             pendingOfflineChange = false;
             setSyncStatus('☁️ synchronisé', 'Données synchronisées via Firebase');
@@ -631,9 +634,9 @@ async function fetchRecipeImage(url, recipeId) {
         const json = await response.json();
         if (json.status === 'success' && json.data && json.data.image && json.data.image.url) {
             const imageUrl = json.data.image.url;
-            const recipe = recipes.find(r => r.id === recipeId || (r.url === url));
-            if (recipe && !recipe.imageUrl) {
-                recipe.imageUrl = imageUrl;
+            const index = recipes.findIndex(r => r.id === recipeId || (r.url === url));
+            if (index !== -1 && !recipes[index].imageUrl) {
+                recipes[index] = { ...recipes[index], imageUrl: imageUrl };
                 await saveData();
                 renderRecipes();
                 return true;

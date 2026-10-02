@@ -621,7 +621,7 @@ function renderDays() {
                         <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.dejeuner ? '' : 'empty'}">
                             ${manualEntries[dayInfo.dateKey]?.dejeuner || 'Vide'}
                         </span>
-                        <div class="meal-box-select-btn" data-day="${dayInfo.dateKey}" data-meal="dejeuner">+</div>
+                        <div class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="dejeuner">-</div>
                     </div>
                 </div>
                 <div class="meal-slot" data-meal="diner">
@@ -631,7 +631,7 @@ function renderDays() {
                         <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.diner ? '' : 'empty'}">
                             ${manualEntries[dayInfo.dateKey]?.diner || 'Vide'}
                         </span>
-                        <div class="meal-box-select-btn" data-day="${dayInfo.dateKey}" data-meal="diner">+</div>
+                        <div class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="diner">-</div>
                     </div>
                 </div>
             </div>

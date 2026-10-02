@@ -241,17 +241,9 @@ header h1 .sync-status {
 
 .recipes-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
     margin-bottom: 20px;
-}
-
-.recipes-header h2 {
-    margin-right: 8px;
-}
-
-.recipes-header .header-spacer {
-    flex: 1;
 }
 
 .recipes-header h2 {

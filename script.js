@@ -499,13 +499,14 @@ function handleRecipeForm(e) {
     
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
     
+    const finalId = recipeId || Date.now().toString();
+    
     if (type === 'lien') {
-        fetchRecipeImage(url, recipeId || Date.now().toString());
+        fetchRecipeImage(url, finalId);
     }
     
-    
     const recipeData = {
-        id: recipeId || Date.now().toString(),
+        id: finalId,
         name,
         type,
         url: type === 'lien' ? url : null,
@@ -534,7 +535,7 @@ async function fetchRecipeImage(url, recipeId) {
         const json = await response.json();
         if (json.status === 'success' && json.data && json.data.image && json.data.image.url) {
             const imageUrl = json.data.image.url;
-            const recipe = recipes.find(r => r.id === recipeId);
+            const recipe = recipes.find(r => r.id === recipeId || (r.url === url));
             if (recipe && !recipe.imageUrl) {
                 recipe.imageUrl = imageUrl;
                 await saveData();

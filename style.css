@@ -594,8 +594,18 @@ header h1 .sync-status {
 }
 
 .recipe-text {
-    white-space: pre-wrap;
     line-height: 1.8;
+}
+
+.recipe-text pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow-x: hidden;
+    margin: 8px 0 0;
+    font-family: inherit;
+    font-size: 0.95rem;
+    max-width: 100%;
 }
 
 /* Boutons */

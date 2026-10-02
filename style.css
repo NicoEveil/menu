@@ -157,7 +157,6 @@ header h1 .version {
 .meal-box.has-value {
     border-color: var(--primary-color);
     background-color: #F5F5F5;
-    font-weight: bold;
 }
 
 .meal-box.today {
@@ -171,6 +170,7 @@ header h1 .version {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--text-color);
 }
 
 .meal-box-text.empty {

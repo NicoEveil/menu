@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Cuisine</title>
+    <title>Mon Menu Hebdomadaire</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Ma Cuisine</h1>
+            <h1>Mon Menu Hebdomadaire</h1>
         </header>
 
         <div class="main-layout">
             <!-- Colonne Menu -->
-            <section class="menu-section" id="menu-section">
+            <section class="menu-section">
                 <h2>Mon Menu</h2>
-                <div class="days-list" id="days-list">
+                <div class="days-list">
                     <!-- Les jours seront générés dynamiquement -->
                 </div>
             </section>
 
             <!-- Colonne Recettes -->
-            <section class="recipes-section" id="recipes-section">
+            <section class="recipes-section">
                 <div class="recipes-header">
                     <h2>Mes Recettes</h2>
                     <button id="add-recipe-btn" class="btn btn-primary">
@@ -75,7 +75,7 @@
                 </div>
                 <div class="form-group">
                     <label for="recipe-category">Catégorie</label>
-                    <input type="text" id="recipe-category" placeholder="Ex: Plat principal, Dessert, Entrée...">
+                    <input type="text" id="recipe-category" placeholder="Ex: Plat principal, Dessert...">
                 </div>
                 <div class="form-group">
                     <label for="recipe-tags">Tags (séparés par des virgules)</label>
@@ -108,9 +108,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Indicateur de drag (invisible par défaut) -->
-    <div id="drag-indicator" class="drag-indicator">Glissez ici pour assigner</div>
 
     <script src="script.js"></script>
 </body>

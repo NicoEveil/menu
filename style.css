@@ -168,7 +168,6 @@ header h1 .sync-status {
 
 .meal-box.today {
     border-color: var(--primary-color);
-    background-color: #F0F0F0;
 }
 
 .meal-box-text {

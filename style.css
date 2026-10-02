@@ -178,6 +178,30 @@ header h1 .version {
     font-style: italic;
 }
 
+.meal-box-link-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    margin-right: 4px;
+    padding: 0;
+    line-height: 1;
+}
+
+.meal-box-link-btn:hover {
+    background-color: var(--primary-dark);
+    transform: scale(1.1);
+}
+
 .meal-box-delete-btn {
     width: 28px;
     height: 28px;

@@ -621,6 +621,7 @@ function renderDays() {
                         <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.dejeuner ? '' : 'empty'}">
                             ${manualEntries[dayInfo.dateKey]?.dejeuner || 'Vide'}
                         </span>
+                        ${menu[dayInfo.dateKey]?.dejeuner ? `<button type="button" class="meal-box-link-btn" data-recipe-id="${menu[dayInfo.dateKey].dejeuner}" title="Voir la recette">&#128279;</button>` : ''}
                         <button type="button" class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="dejeuner">-</button>
                     </div>
                 </div>
@@ -631,6 +632,7 @@ function renderDays() {
                         <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.diner ? '' : 'empty'}">
                             ${manualEntries[dayInfo.dateKey]?.diner || 'Vide'}
                         </span>
+                        ${menu[dayInfo.dateKey]?.diner ? `<button type="button" class="meal-box-link-btn" data-recipe-id="${menu[dayInfo.dateKey].diner}" title="Voir la recette">&#128279;</button>` : ''}
                         <button type="button" class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="diner">-</button>
                     </div>
                 </div>
@@ -658,10 +660,19 @@ function attachDayEvents() {
         });
     });
     
+    // Boutons lien pour ouvrir la recette
+    document.querySelectorAll('.meal-box-link-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showRecipeDetails(btn.dataset.recipeId);
+        });
+    });
+    
     // Cases de repas (clic pour éditer)
     document.querySelectorAll('.meal-box').forEach(box => {
         box.addEventListener('click', (e) => {
             if (e.target.classList.contains('meal-box-delete-btn')) return;
+            if (e.target.classList.contains('meal-box-link-btn')) return;
             
             const day = box.dataset.day;
             const meal = box.dataset.meal;

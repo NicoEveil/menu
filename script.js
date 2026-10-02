@@ -231,6 +231,18 @@ function setupEventListeners() {
             closeModal(document.getElementById('view-recipe-modal'));
         });
     }
+    
+    // Bouton Modifier : passer du popup de lecture au popup de modification
+    const editFromViewBtn = document.getElementById('edit-from-view-btn');
+    if (editFromViewBtn) {
+        editFromViewBtn.addEventListener('click', () => {
+            const recipeId = window.currentViewedRecipeId;
+            closeModal(document.getElementById('view-recipe-modal'));
+            if (recipeId) {
+                showRecipeModal(recipeId);
+            }
+        });
+    }
 }
 
 // Permettre le drop
@@ -549,6 +561,7 @@ async function fetchRecipeImage(url, recipeId) {
 
 // Afficher une recette dans la modal de visualisation
 function showRecipeDetails(recipeId) {
+    window.currentViewedRecipeId = recipeId;
     const recipe = recipes.find(r => r.id === recipeId);
     const modal = document.getElementById('view-recipe-modal');
     

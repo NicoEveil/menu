@@ -51,6 +51,7 @@ async function loadData() {
     try {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js');
         const { getFirestore, doc, getDoc, setDoc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js');
+        const { getAuth, signInAnonymously, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js');
         
         const firebaseConfig = {
             apiKey: "AIzaSyAjPFcp1Zi1kXLmpxgTjjb5VxfANblpE5U",
@@ -63,6 +64,13 @@ async function loadData() {
         
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
+        
+        const auth = getAuth(app);
+        await signInAnonymously(auth);
+        await new Promise((resolve) => {
+            if (auth.currentUser) { resolve(); return; }
+            onAuthStateChanged(auth, (user) => { if (user) resolve(); });
+        });
         
         const docRef = doc(db, 'spaces', 'default');
         setSyncStatus('⏳ connexion...');

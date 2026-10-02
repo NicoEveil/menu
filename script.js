@@ -9,6 +9,14 @@ let draggedMeal = null;
 let db = null;
 let cloudReady = false;
 
+function setSyncStatus(text, title) {
+    const el = document.getElementById('sync-status');
+    if (el) {
+        el.textContent = text;
+        if (title) el.title = title;
+    }
+}
+
 // Jours de la semaine
 const DAYS_OF_WEEK = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
 
@@ -57,6 +65,7 @@ async function loadData() {
         db = getFirestore(app);
         
         const docRef = doc(db, 'spaces', 'default');
+        setSyncStatus('⏳ connexion...');
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
@@ -75,6 +84,7 @@ async function loadData() {
         }
         
         cloudReady = true;
+        setSyncStatus('☁️ synchronisé', 'Données synchronisées via Firebase');
         
         // Synchronisation temps réel : mettre à jour si le cloud change
         onSnapshot(docRef, (snap) => {
@@ -103,6 +113,8 @@ async function loadData() {
         renderDays();
     } catch (error) {
         console.warn('Cloud indisponible, utilisation du mode local :', error);
+        setSyncStatus('⚠️ hors ligne', 'Erreur cloud : ' + (error && error.message ? error.message : error));
+        alert('Synchronisation cloud impossible.\n\nErreur : ' + (error && error.message ? error.message : error) + '\n\nL\u2019application fonctionne en mode local (données non synchronisées entre appareils).');
     }
     
     // Initialiser les structures si vide

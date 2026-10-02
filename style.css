@@ -57,6 +57,13 @@ header h1 .version {
     font-weight: normal;
 }
 
+header h1 .sync-status {
+    font-size: 0.4em;
+    font-weight: normal;
+    color: var(--text-light);
+    margin-left: 4px;
+}
+
 /* Layout principal : 2/5 menu, 3/5 recettes */
 .main-layout {
     display: grid;

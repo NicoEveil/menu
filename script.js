@@ -652,21 +652,9 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
                     `<div class="recipe-tags">${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
             </div>
             <div class="recipe-actions">
-                <button class="btn-icon view-recipe" title="Voir">👁️</button>
-                <button class="btn-icon edit-recipe" title="Modifier">✏️</button>
                 <button class="btn-icon delete-recipe" title="Supprimer">🗑️</button>
             </div>
         `;
-        
-        card.querySelector('.view-recipe').addEventListener('click', (e) => {
-            e.stopPropagation();
-            showRecipeDetails(recipe.id);
-        });
-        
-        card.querySelector('.edit-recipe').addEventListener('click', (e) => {
-            e.stopPropagation();
-            showRecipeModal(recipe.id);
-        });
         
         card.querySelector('.delete-recipe').addEventListener('click', (e) => {
             e.stopPropagation();

@@ -114,14 +114,16 @@ header h1 {
 
 .meal-slot {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    gap: 6px;
 }
 
 .meal-label {
     font-weight: bold;
     color: var(--text-light);
     font-size: 0.75rem;
+    white-space: nowrap;
+    min-width: 70px;
 }
 
 /* Case de repas (affichage clair) */
@@ -131,6 +133,7 @@ header h1 {
     border-radius: var(--border-radius);
     background-color: var(--card-color);
     min-height: 30px;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;

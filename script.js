@@ -615,7 +615,7 @@ function renderDays() {
             <h3>${dayLabel}</h3>
             <div class="day-meals">
                 <div class="meal-slot" data-meal="dejeuner">
-                    <span class="meal-label">Déjeuner</span>
+                    <span class="meal-label">Déjeuner :</span>
                     <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayInfo.dateKey]?.dejeuner ? 'has-value' : ''}" 
                          data-day="${dayInfo.dateKey}" data-meal="dejeuner">
                         <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.dejeuner ? '' : 'empty'}">
@@ -625,7 +625,7 @@ function renderDays() {
                     </div>
                 </div>
                 <div class="meal-slot" data-meal="diner">
-                    <span class="meal-label">Dîner</span>
+                    <span class="meal-label">Dîner :</span>
                     <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayInfo.dateKey]?.diner ? 'has-value' : ''}" 
                          data-day="${dayInfo.dateKey}" data-meal="diner">
                         <span class="meal-box-text ${manualEntries[dayInfo.dateKey]?.diner ? '' : 'empty'}">

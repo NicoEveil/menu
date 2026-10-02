@@ -2,6 +2,8 @@
 let recipes = [];
 let menu = {};
 let manualEntries = {};
+let draggedRecipe = null;
+let draggedMeal = null;
 
 // Jours de la semaine
 const DAYS_OF_WEEK = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
@@ -50,7 +52,6 @@ function loadData() {
 function getDaysToShow(today) {
     const days = [];
     
-    // Commencer par aujourd'hui
     for (let i = 0; i < 8; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
@@ -61,7 +62,7 @@ function getDaysToShow(today) {
     return days;
 }
 
-// Obtenir le nom du jour avec date (ex: "Lundi 15")
+// Obtenir le nom du jour avec date
 function getDayLabel(date) {
     const options = { weekday: 'long', day: 'numeric', month: 'short' };
     return date.toLocaleDateString('fr-FR', options);
@@ -135,16 +136,173 @@ function setupEventListeners() {
     }
 }
 
+// Permettre le drop
+function allowDrop(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    
+    // Ajouter la classe drag-over à l'élément cible
+    const target = ev.target.closest('.meal-box, .day-card, .recipes-grid');
+    if (target) {
+        target.classList.add('drag-over');
+    }
+}
+
+// Quitter la zone de drop
+function dragLeave(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    
+    // Retirer la classe drag-over
+    document.querySelectorAll('.meal-box, .day-card, .recipes-grid').forEach(el => {
+        el.classList.remove('drag-over');
+    });
+}
+
+// Gérer le drop d'une recette sur un repas
+function dropRecipe(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    
+    // Retirer toutes les classes drag-over
+    document.querySelectorAll('.meal-box, .day-card, .recipes-grid').forEach(el => {
+        el.classList.remove('drag-over');
+    });
+    
+    // Récupérer les données du drag
+    const recipeId = ev.dataTransfer.getData('text/plain');
+    
+    if (!recipeId) return;
+    
+    const recipe = recipes.find(r => r.id === recipeId);
+    if (!recipe) return;
+    
+    // Trouver la cible (meal-box ou day-card)
+    let target = ev.target.closest('.meal-box');
+    
+    if (target) {
+        const day = target.dataset.day;
+        const meal = target.dataset.meal;
+        
+        // Assigner la recette à ce repas
+        manualEntries[day][meal] = recipe.name;
+        menu[day][meal] = recipeId;
+        
+        saveData();
+        renderDays();
+        renderRecipes();
+    }
+    
+    // Réinitialiser
+    draggedRecipe = null;
+    hideDragIndicator();
+}
+
+// Gérer le drop d'un repas sur un autre repas (réorganisation)
+function dropMeal(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    
+    // Retirer toutes les classes drag-over
+    document.querySelectorAll('.meal-box, .day-card').forEach(el => {
+        el.classList.remove('drag-over');
+    });
+    
+    // Récupérer les données du drag
+    const data = ev.dataTransfer.getData('text/plain');
+    const [sourceDay, sourceMeal] = data.split('|');
+    
+    if (!sourceDay || !sourceMeal) return;
+    
+    // Trouver la cible
+    const target = ev.target.closest('.meal-box');
+    
+    if (target) {
+        const targetDay = target.dataset.day;
+        const targetMeal = target.dataset.meal;
+        
+        // Échanger les repas
+        const tempText = manualEntries[sourceDay][sourceMeal];
+        const tempRecipeId = menu[sourceDay][sourceMeal];
+        
+        manualEntries[sourceDay][sourceMeal] = manualEntries[targetDay][targetMeal];
+        manualEntries[targetDay][targetMeal] = tempText;
+        
+        menu[sourceDay][sourceMeal] = menu[targetDay][targetMeal];
+        menu[targetDay][targetMeal] = tempRecipeId;
+        
+        saveData();
+        renderDays();
+    }
+    
+    // Réinitialiser
+    draggedMeal = null;
+    hideDragIndicator();
+}
+
+// Afficher l'indicateur de drag
+function showDragIndicator() {
+    const indicator = document.getElementById('drag-indicator');
+    if (indicator) {
+        indicator.classList.add('active');
+    }
+}
+
+// Cacher l'indicateur de drag
+function hideDragIndicator() {
+    const indicator = document.getElementById('drag-indicator');
+    if (indicator) {
+        indicator.classList.remove('active');
+    }
+}
+
+// Commencer le drag d'une recette
+function startRecipeDrag(ev, recipeId) {
+    draggedRecipe = recipeId;
+    ev.dataTransfer.setData('text/plain', recipeId);
+    ev.dataTransfer.effectAllowed = 'copy';
+    
+    // Ajouter la classe dragging
+    ev.target.classList.add('dragging');
+    
+    // Afficher l'indicateur après un délai
+    setTimeout(showDragIndicator, 300);
+}
+
+// Fin du drag d'une recette
+function endRecipeDrag(ev) {
+    ev.target.classList.remove('dragging');
+    draggedRecipe = null;
+    hideDragIndicator();
+}
+
+// Commencer le drag d'un repas
+function startMealDrag(ev, day, meal) {
+    draggedMeal = { day, meal };
+    ev.dataTransfer.setData('text/plain', `${day}|${meal}`);
+    ev.dataTransfer.effectAllowed = 'move';
+    
+    // Ajouter la classe dragging
+    ev.target.classList.add('dragging');
+    
+    // Afficher l'indicateur
+    setTimeout(showDragIndicator, 300);
+}
+
+// Fin du drag d'un repas
+function endMealDrag(ev) {
+    ev.target.classList.remove('dragging');
+    draggedMeal = null;
+    hideDragIndicator();
+}
+
 // Afficher la modal de sélection de recette pour un jour/repas
 function showRecipeSelectionForMeal(day, meal) {
-    // Stocker les infos pour la sélection
     window.currentSelectingDay = day;
     window.currentSelectingMeal = meal;
     
-    // Afficher toutes les recettes avec la possibilité de sélection
     renderRecipes(true, day, meal);
     
-    // Passer à l'onglet recettes (scroll vers la section)
     document.querySelector('.recipes-section').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -152,7 +310,6 @@ function showRecipeSelectionForMeal(day, meal) {
 function selectRecipeForMenu(recipeId, day, meal) {
     const recipe = recipes.find(r => r.id === recipeId);
     if (recipe) {
-        // Remplir le champ manuel avec le nom de la recette
         manualEntries[day][meal] = recipe.name;
         menu[day][meal] = recipeId;
     }
@@ -191,18 +348,15 @@ function showRecipeModal(recipeId) {
 function closeModal(modal) {
     modal.classList.remove('active');
     
-    // Réinitialiser le formulaire
     const form = document.getElementById('recipe-form');
     if (form) {
         form.reset();
         form.dataset.editingId = '';
     }
     
-    // Réinitialiser la sélection pour le menu
     delete window.currentSelectingDay;
     delete window.currentSelectingMeal;
     
-    // Réinitialiser la sélection des recettes
     document.querySelectorAll('.recipe-card').forEach(card => {
         card.classList.remove('selected');
     });
@@ -233,7 +387,6 @@ function handleRecipeForm(e) {
     const category = document.getElementById('recipe-category').value.trim();
     const tagsInput = document.getElementById('recipe-tags').value.trim();
     
-    // Validation
     if (!name) {
         alert('Le nom de la recette est obligatoire');
         return;
@@ -263,11 +416,9 @@ function handleRecipeForm(e) {
     };
     
     if (recipeId) {
-        // Modifier la recette existante
         const index = recipes.findIndex(r => r.id === recipeId);
         recipes[index] = recipeData;
     } else {
-        // Ajouter une nouvelle recette
         recipes.push(recipeData);
     }
     
@@ -317,7 +468,6 @@ function showRecipeDetails(recipeId) {
 // Supprimer une recette
 function deleteRecipe(recipeId) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette recette ?')) {
-        // Retirer la recette du menu si elle y est
         for (const day in menu) {
             for (const meal in menu[day]) {
                 if (menu[day][meal] === recipeId) {
@@ -351,7 +501,6 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         return matchesSearch && matchesFilter;
     });
     
-    // Trier par nom
     filteredRecipes.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
     
     listEl.innerHTML = '';
@@ -361,17 +510,16 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         return;
     }
     
-    // Vérifier si on est en mode sélection pour le menu
     let isSelecting = forSelection && dayParam && mealParam;
     let currentSelectingDay = dayParam;
     let currentSelectingMeal = mealParam;
     
     filteredRecipes.forEach(recipe => {
         const card = document.createElement('div');
-        card.className = 'recipe-card';
+        card.className = 'recipe-card draggable';
         card.dataset.recipeId = recipe.id;
+        card.draggable = true;
         
-        // Vérifier si cette recette est sélectionnée pour le menu
         if (isSelecting && currentSelectingDay && currentSelectingMeal) {
             if (menu[currentSelectingDay][currentSelectingMeal] === recipe.id) {
                 card.classList.add('selected');
@@ -393,7 +541,6 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
             </div>
         `;
         
-        // Événements pour les actions
         card.querySelector('.view-recipe').addEventListener('click', (e) => {
             e.stopPropagation();
             showRecipeDetails(recipe.id);
@@ -409,17 +556,23 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
             deleteRecipe(recipe.id);
         });
         
+        // Événements drag & drop pour les recettes
+        card.addEventListener('dragstart', (ev) => {
+            startRecipeDrag(ev, recipe.id);
+        });
+        
+        card.addEventListener('dragend', (ev) => {
+            endRecipeDrag(ev);
+        });
+        
         // Événement pour la sélection
         card.addEventListener('click', () => {
             if (isSelecting) {
-                // Retirer la sélection précédente
                 document.querySelectorAll('.recipe-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
                 
-                // Sélectionner cette recette
                 selectRecipeForMenu(recipe.id, currentSelectingDay, currentSelectingMeal);
                 
-                // Fermer le mode sélection
                 closeModal(document.getElementById('recipe-modal'));
             } else {
                 showRecipeDetails(recipe.id);
@@ -428,6 +581,11 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         
         listEl.appendChild(card);
     });
+    
+    // Événements pour la zone de drop des recettes
+    listEl.addEventListener('dragover', allowDrop);
+    listEl.addEventListener('dragleave', dragLeave);
+    listEl.addEventListener('drop', dropRecipe);
 }
 
 // Rendre les jours avec leurs repas
@@ -445,13 +603,14 @@ function renderDays() {
         dayCard.className = 'day-card';
         dayCard.dataset.day = dayName;
         
-        // Calculer la date pour ce jour
         const date = new Date(today);
         date.setDate(today.getDate() + index);
         const dayLabel = getDayLabel(date);
-        
-        // Mettre en évidence le jour actuel
         const isToday = index === 0;
+        
+        if (isToday) {
+            dayCard.classList.add('today');
+        }
         
         dayCard.innerHTML = `
             <h3>${dayLabel}</h3>
@@ -461,7 +620,7 @@ function renderDays() {
                     <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayName]?.dejeuner ? 'has-value' : ''}" 
                          data-day="${dayName}" data-meal="dejeuner">
                         <span class="meal-box-text ${manualEntries[dayName]?.dejeuner ? '' : 'empty'}">
-                            ${manualEntries[dayName]?.dejeuner || 'Cliquez pour ajouter'}
+                            ${manualEntries[dayName]?.dejeuner || 'Vide'}
                         </span>
                         <div class="meal-box-select-btn" data-day="${dayName}" data-meal="dejeuner">+</div>
                     </div>
@@ -471,7 +630,7 @@ function renderDays() {
                     <div class="meal-box ${isToday ? 'today' : ''} ${manualEntries[dayName]?.diner ? 'has-value' : ''}" 
                          data-day="${dayName}" data-meal="diner">
                         <span class="meal-box-text ${manualEntries[dayName]?.diner ? '' : 'empty'}">
-                            ${manualEntries[dayName]?.diner || 'Cliquez pour ajouter'}
+                            ${manualEntries[dayName]?.diner || 'Vide'}
                         </span>
                         <div class="meal-box-select-btn" data-day="${dayName}" data-meal="diner">+</div>
                     </div>
@@ -482,7 +641,6 @@ function renderDays() {
         daysList.appendChild(dayCard);
     });
     
-    // Attacher les événements
     attachDayEvents();
 }
 
@@ -501,31 +659,27 @@ function attachDayEvents() {
     // Cases de repas (clic pour éditer)
     document.querySelectorAll('.meal-box').forEach(box => {
         box.addEventListener('click', (e) => {
-            // Ne pas déclencher si on a cliqué sur le bouton +
             if (e.target.classList.contains('meal-box-select-btn')) return;
             
             const day = box.dataset.day;
             const meal = box.dataset.meal;
             
-            // Créer un input temporaire pour l'édition
             const currentText = manualEntries[day][meal] || '';
             const input = document.createElement('input');
             input.type = 'text';
             input.value = currentText;
             input.className = 'meal-edit-input';
+            input.id = `edit-${day}-${meal}`;
             input.style.width = '100%';
             input.style.padding = '8px';
             input.style.border = '2px solid var(--primary-color)';
             input.style.borderRadius = '4px';
             
-            // Remplacer le contenu par l'input
             const textSpan = box.querySelector('.meal-box-text');
-            const oldText = textSpan.textContent;
             textSpan.textContent = '';
             textSpan.appendChild(input);
             input.focus();
             
-            // Sauvegarder à la validation
             const saveEdit = () => {
                 manualEntries[day][meal] = input.value;
                 box.classList.toggle('has-value', !!input.value);
@@ -541,6 +695,17 @@ function attachDayEvents() {
                 }
             });
         });
+        
+        // Drag & Drop pour les repas
+        box.draggable = true;
+        box.addEventListener('dragstart', (ev) => startMealDrag(ev, box.dataset.day, box.dataset.meal));
+        box.addEventListener('dragend', (ev) => endMealDrag(ev));
+        box.addEventListener('dragover', allowDrop);
+        box.addEventListener('dragleave', dragLeave);
+        box.addEventListener('drop', dropMeal);
+        
+        // Drag & Drop pour les recettes
+        box.addEventListener('drop', dropRecipe);
     });
 }
 

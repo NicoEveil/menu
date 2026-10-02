@@ -579,6 +579,58 @@ header h1 {
     background: var(--primary-dark);
 }
 
+/* Drag & Drop styles */
+.dragging {
+    opacity: 0.5;
+    background-color: var(--primary-light) !important;
+}
+
+.drag-over {
+    border: 2px dashed var(--primary-color) !important;
+    background-color: #E8F5E8 !important;
+}
+
+.drag-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 20px 30px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    display: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.drag-indicator.active {
+    display: block;
+}
+
+/* Case de repas avec drag & drop */
+.meal-box.drag-over {
+    border: 2px dashed var(--primary-color) !important;
+    background-color: #E8F5E8 !important;
+}
+
+/* Recette avec drag & drop */
+.recipe-card.draggable {
+    cursor: grab;
+}
+
+.recipe-card.draggable:active {
+    cursor: grabbing;
+}
+
+.recipe-card.dragging {
+    opacity: 0.7;
+    transform: scale(0.95);
+    z-index: 1000;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .main-layout {

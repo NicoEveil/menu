@@ -274,6 +274,8 @@ async function saveData() {
 
 // Configuration des écouteurs d'événements
 function setupEventListeners() {
+    setupMobileTabs();
+
     // Navigation par onglets sur mobile : par défaut, seule la vue active est visible
     if (window.innerWidth <= 1024) {
         const activeTab = document.querySelector('.mobile-tab.active');
@@ -286,23 +288,52 @@ function setupEventListeners() {
         }
     }
     
-    document.querySelectorAll('.mobile-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            const menuSection = document.getElementById('menu-section');
-            const recipesSection = document.getElementById('recipes-section');
-            
-            if (tab.dataset.tab === 'menu') {
-                menuSection.classList.remove('hidden-tab');
-                recipesSection.classList.add('hidden-tab');
-            } else {
-                recipesSection.classList.remove('hidden-tab');
-                menuSection.classList.add('hidden-tab');
-            }
-        });
+    function getMobileTabs() {
+    return Array.from(document.querySelectorAll('.mobile-tab'));
+}
+
+function switchToTab(tabName) {
+    const tabs = getMobileTabs();
+    tabs.forEach(t => t.classList.remove('active'));
+    const target = tabs.find(t => t.dataset.tab === tabName);
+    if (!target) return;
+    target.classList.add('active');
+    document.querySelectorAll('[data-section]').forEach(section => {
+        section.classList.toggle('hidden-tab', section.dataset.section !== tabName);
     });
+}
+
+function setupMobileTabs() {
+    document.querySelectorAll('.mobile-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
+    });
+
+    if (window.innerWidth > 1024) return;
+
+    let touchStartX = null;
+    let touchStartY = null;
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+        if (touchStartX === null) return;
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        touchStartX = null;
+        touchStartY = null;
+        if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+        if (e.target.closest('.modal') || e.target.closest('input') || e.target.closest('textarea') || e.target.closest('select')) return;
+        const tabs = getMobileTabs();
+        const activeIndex = tabs.findIndex(t => t.classList.contains('active'));
+        if (activeIndex === -1) return;
+        const nextIndex = dx < 0 ? activeIndex + 1 : activeIndex - 1;
+        if (nextIndex < 0 || nextIndex >= tabs.length) return;
+        switchToTab(tabs[nextIndex].dataset.tab);
+    }, { passive: true });
+}
     
     // Retour du réseau : renvoyer les modifications en attente
     window.addEventListener('online', () => {

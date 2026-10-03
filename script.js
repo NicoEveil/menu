@@ -650,7 +650,7 @@ async function fetchRecipeImage(url, recipeId) {
 
 // Rattraper les images manquantes (créées hors ligne par exemple) une fois en ligne
 async function retryMissingImages() {
-    // Limiter le rattrapage à une fois par jour (quota gratuit Microlink)
+    // Limiter le rattrapage à une fois par jour, max 10 tentatives (quota gratuit Microlink)
     const today = new Date().toISOString().slice(0, 10);
     if (localStorage.getItem('menuLastImageRetry') === today) {
         return;
@@ -658,12 +658,12 @@ async function retryMissingImages() {
     localStorage.setItem('menuLastImageRetry', today);
     
     const missing = recipes.filter(r => r.url && !r.imageUrl);
+    let attempts = 0;
     for (const recipe of missing) {
-        const ok = await fetchRecipeImage(recipe.url, recipe.id);
-        if (!ok) {
-            // Une recette en échec : stopper pour économiser le quota du jour
-            break;
-        }
+        if (attempts >= 10) break;
+        attempts++;
+        // En cas d'échec (site bloquant), continuer avec les autres recettes
+        await fetchRecipeImage(recipe.url, recipe.id);
     }
 }
 

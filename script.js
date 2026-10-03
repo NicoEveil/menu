@@ -802,11 +802,11 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         }
         
         card.innerHTML = `
+                        ${recipe.imageUrl ? `<div class="recipe-image"><img src="${recipe.imageUrl}" alt="${recipe.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://images.weserv.nl/?url=' + encodeURIComponent('${recipe.imageUrl.replace(/'/g, "\\'")}')"></div>` : ''}
 <div class="recipe-title-row">
                 <h3>${recipe.name}</h3>
                 <button class="btn-icon delete-recipe" title="Supprimer">🗑️</button>
             </div>
-                        ${recipe.imageUrl ? `<div class="recipe-image"><img src="${recipe.imageUrl}" alt="${recipe.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://images.weserv.nl/?url=' + encodeURIComponent('${recipe.imageUrl.replace(/'/g, "\\'")}')"></div>` : ''}
             <div class="recipe-meta">
                 ${recipe.category ? `<span>${recipe.category}</span>` : ''}
                 ${recipe.tags && recipe.tags.length > 0 ? 

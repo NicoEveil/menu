@@ -342,7 +342,7 @@ function setupMobileTabs() {
         const rightIndex = activeIndex + 1;
         const leftSection = leftIndex >= 0 ? getSwipeSections().find(s => s.dataset.section === tabs[leftIndex].dataset.tab) : null;
         const rightSection = rightIndex < tabs.length ? getSwipeSections().find(s => s.dataset.section === tabs[rightIndex].dataset.tab) : null;
-        swipeSections = [getSwipeSections().find(s => s.dataset.section === tabs[activeIndex].dataset.tab), leftSection, rightSection].filter(Boolean);
+        swipeSections = [getSwipeSections().find(s => s.dataset.section === tabs[activeIndex].dataset.tab), leftSection, rightSection];
         swipeDir = 0;
     }, { passive: true });
 
@@ -395,8 +395,8 @@ function setupMobileTabs() {
         touchStartX = null;
         touchStartY = null;
 
-        const current = swipeSections[0];
-        const incoming = swipeDir > 0 ? swipeSections[2] : swipeSections[1];
+        const current = swipeSections[0] || null;
+        const incoming = (swipeDir > 0 ? swipeSections[2] : swipeSections[1]) || null;
 
         const cleanup = (commit) => {
             if (current) {

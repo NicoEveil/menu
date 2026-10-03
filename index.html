@@ -10,11 +10,15 @@
 <body>
     <div class="container">
         <header>
-            <h1>Ma Cuisine <span class="version">v23.000</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
+            <h1>Ma Cuisine <span class="version">v23.001</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
         </header>
 
         <div class="main-layout">
             <!-- Colonne Menu -->
+            <nav class="mobile-tabs" id="mobile-tabs">
+                <button type="button" class="mobile-tab active" data-tab="menu">Menu</button>
+                <button type="button" class="mobile-tab" data-tab="recipes">Recettes</button>
+            </nav>
             <section class="menu-section" id="menu-section">
                 <div class="days-list" id="days-list">
                     <!-- Les jours seront générés dynamiquement -->

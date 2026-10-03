@@ -760,6 +760,11 @@ header h1 .sync-status {
 }
 
 /* Responsive */
+/* Onglets mobiles : cachés sur ordinateur */
+.mobile-tabs {
+    display: none;
+}
+
 @media (max-width: 1024px) {
     .main-layout {
         grid-template-columns: 1fr;
@@ -767,8 +772,44 @@ header h1 .sync-status {
     
     .menu-section,
     .recipes-section {
-        max-height: 50vh;
-        overflow-y: auto;
+        max-height: none;
+        height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background-color: var(--bg-color);
+        padding: 8px 0;
+    }
+    
+    .mobile-tab {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        background-color: var(--card-color);
+        color: var(--primary-color);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .mobile-tab.active {
+        background-color: var(--primary-color);
+        color: #FFFFFF;
+        font-weight: bold;
+    }
+    
+    .menu-section.hidden-tab,
+    .recipes-section.hidden-tab {
+        display: none;
     }
 }
 

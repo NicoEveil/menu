@@ -274,6 +274,25 @@ async function saveData() {
 
 // Configuration des écouteurs d'événements
 function setupEventListeners() {
+    // Navigation par onglets sur mobile
+    document.querySelectorAll('.mobile-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const menuSection = document.getElementById('menu-section');
+            const recipesSection = document.getElementById('recipes-section');
+            
+            if (tab.dataset.tab === 'menu') {
+                menuSection.classList.remove('hidden-tab');
+                recipesSection.classList.add('hidden-tab');
+            } else {
+                recipesSection.classList.remove('hidden-tab');
+                menuSection.classList.add('hidden-tab');
+            }
+        });
+    });
+    
     // Retour du réseau : renvoyer les modifications en attente
     window.addEventListener('online', () => {
         if (cloudReady && db) {

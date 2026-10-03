@@ -67,7 +67,7 @@ header h1 .sync-status {
 /* Layout principal : 2/5 menu, 3/5 recettes */
 .main-layout {
     display: grid;
-    grid-template-columns: 2fr 3fr;
+    grid-template-columns: 2fr 3.7fr;
     gap: 25px;
     height: calc(100vh - 120px);
 }

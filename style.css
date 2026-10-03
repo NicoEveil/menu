@@ -360,6 +360,21 @@ header h1 .sync-status {
     margin-bottom: 0;
 }
 
+.recipe-card .recipe-link-preview {
+    display: block;
+    flex: 1;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+    color: var(--secondary-color);
+    text-decoration: none;
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+.recipe-card .recipe-link-preview:hover {
+    text-decoration: underline;
+}
+
 .recipe-card .recipe-notes-preview {
     flex: 1;
     margin-bottom: 10px;

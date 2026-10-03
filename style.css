@@ -294,8 +294,7 @@ header h1 .sync-status {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 15px;
-    max-height: 500px;
-    overflow-y: auto;
+    align-content: start;
 }
 
 /* Image de recette (récupérée automatiquement depuis le lien) */

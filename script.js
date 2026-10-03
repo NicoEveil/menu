@@ -629,6 +629,19 @@ function handleRecipeForm(e) {
 
 // Récupérer l'image d'une recette de type lien via l'API Microlink
 async function fetchRecipeImage(url, recipeId) {
+    // Liens YouTube : utiliser la miniature officielle de la vidéo (fiable, sans quota)
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{6,})/);
+    if (ytMatch) {
+        const imageUrl = 'https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg';
+        const index = recipes.findIndex(r => r.id === recipeId || (r.url === url));
+        if (index !== -1 && !recipes[index].imageUrl) {
+            recipes[index] = { ...recipes[index], imageUrl: imageUrl };
+            await saveData();
+            renderRecipes();
+            return true;
+        }
+    }
+    
     try {
         const response = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url));
         const json = await response.json();

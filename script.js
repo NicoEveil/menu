@@ -559,6 +559,7 @@ function showRecipeModal(recipeId) {
     }
     
     modal.classList.add('active');
+    modal.querySelector('.modal-content').scrollTop = 0;
 }
 
 // Fermer une modal

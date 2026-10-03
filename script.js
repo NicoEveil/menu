@@ -25,10 +25,10 @@ const DAYS_OF_WEEK = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendre
 
 // Initialisation
 async function init() {
-    await loadData();
     setupEventListeners();
     renderRecipes();
     renderDays();
+    await loadData();
 }
 
 // Chargement des données : cloud (Firestore) + migration localStorage

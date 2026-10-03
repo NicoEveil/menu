@@ -274,7 +274,18 @@ async function saveData() {
 
 // Configuration des écouteurs d'événements
 function setupEventListeners() {
-    // Navigation par onglets sur mobile
+    // Navigation par onglets sur mobile : par défaut, seule la vue active est visible
+    if (window.innerWidth <= 1024) {
+        const activeTab = document.querySelector('.mobile-tab.active');
+        const menuSection = document.getElementById('menu-section');
+        const recipesSection = document.getElementById('recipes-section');
+        if (activeTab && activeTab.dataset.tab === 'menu') {
+            recipesSection.classList.add('hidden-tab');
+        } else {
+            menuSection.classList.add('hidden-tab');
+        }
+    }
+    
     document.querySelectorAll('.mobile-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));

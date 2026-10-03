@@ -652,10 +652,10 @@ async function fetchRecipeImage(url, recipeId) {
 async function retryMissingImages() {
     // Limiter le rattrapage à une fois par jour, max 10 tentatives (quota gratuit Microlink)
     const today = new Date().toISOString().slice(0, 10);
-    if (localStorage.getItem('menuLastImageRetry') === today) {
+    if (localStorage.getItem('menuLastImageRetry2') === today) {
         return;
     }
-    localStorage.setItem('menuLastImageRetry', today);
+    localStorage.setItem('menuLastImageRetry2', today);
     
     const missing = recipes.filter(r => r.url && !r.imageUrl);
     let attempts = 0;

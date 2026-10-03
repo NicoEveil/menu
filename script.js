@@ -299,10 +299,8 @@ function setupEventListeners() {
 
     // Recherche et filtre des recettes
     const recipeSearch = document.getElementById('recipe-search');
-    const recipeFilter = document.getElementById('recipe-filter');
-    if (recipeSearch && recipeFilter) {
+    if (recipeSearch) {
         recipeSearch.addEventListener('input', renderRecipes);
-        recipeFilter.addEventListener('change', renderRecipes);
     }
 
     // Modal
@@ -763,7 +761,7 @@ function deleteRecipe(recipeId) {
 function renderRecipes(forSelection = false, dayParam = null, mealParam = null) {
     const listEl = document.getElementById('recipes-list');
     const searchTerm = document.getElementById('recipe-search')?.value.toLowerCase() || '';
-    const filterType = document.getElementById('recipe-filter')?.value || 'all';
+    const filterType = 'all';
     
     let filteredRecipes = recipes.filter(recipe => {
         const matchesSearch = recipe.name.toLowerCase().includes(searchTerm) ||

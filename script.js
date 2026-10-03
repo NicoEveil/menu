@@ -601,10 +601,6 @@ function handleRecipeForm(e) {
     
     const finalId = recipeId || Date.now().toString();
     
-    if (url) {
-        fetchRecipeImage(url, finalId);
-    }
-    
     const recipeData = {
         id: finalId,
         name,
@@ -625,6 +621,11 @@ function handleRecipeForm(e) {
     saveData();
     closeModal(document.getElementById('recipe-modal'));
     renderRecipes();
+    
+    // Récupérer l'image APRÈS enregistrement (évite que le formulaire écrase l'image)
+    if (url) {
+        fetchRecipeImage(url, finalId);
+    }
 }
 
 // Récupérer l'image d'une recette de type lien via l'API Microlink

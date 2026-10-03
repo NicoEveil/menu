@@ -228,7 +228,7 @@ function exportRecipesToFile() {
 // Proposer l'export automatique une fois par mois
 function checkMonthlyExport() {
     const currentMonth = new Date().toISOString().slice(0, 7);
-    if (lastExportMonth !== currentMonth && recipes.length > 0) {
+    if (window.innerWidth > 1024 && lastExportMonth !== currentMonth && recipes.length > 0) {
         if (confirm("C'est le moment de faire votre sauvegarde mensuelle !\n\nVoulez-vous télécharger vos recettes en fichier texte ?")) {
             exportRecipesToFile();
         } else {

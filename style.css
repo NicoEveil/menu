@@ -761,6 +761,10 @@ header h1 .sync-status {
 
 /* Responsive */
 /* Onglets mobiles : cachés sur ordinateur */
+body {
+    overscroll-behavior-x: none;
+}
+
 .mobile-tabs {
     display: none;
 }

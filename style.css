@@ -765,6 +765,25 @@ header h1 .sync-status {
     display: none;
 }
 
+/* Empêcher le débordement horizontal global */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.main-layout {
+    min-width: 0;
+}
+
+.day-card,
+.day-meals,
+.meal-slot,
+.recipes-section,
+.menu-section {
+    min-width: 0;
+    max-width: 100%;
+}
+
 @media (max-width: 1024px) {
     .mobile-tabs {
         display: flex;
@@ -818,7 +837,20 @@ header h1 .sync-status {
 @media (max-width: 768px) {
     .container {
         padding: 10px;
+        max-width: 100%;
     }
+    
+    .meal-label {
+        min-width: auto;
+        white-space: normal;
+    }
+    
+    .meal-box-text {
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
     
     header h1 {
         font-size: 1.5rem;

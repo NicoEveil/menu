@@ -845,6 +845,10 @@ html, body {
         min-width: 0;
         white-space: normal;
     }
+
+    #export-recipes-btn {
+        display: none;
+    }
 }
 
 @media (max-width: 768px) {

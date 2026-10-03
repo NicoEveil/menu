@@ -392,6 +392,7 @@ function setupMobileTabs() {
         if (touchStartX === null) return;
         const touch = e.changedTouches[0];
         const dx = touch.clientX - touchStartX;
+        const dy = touchStartY === null ? 0 : touch.clientY - touchStartY;
         touchStartX = null;
         touchStartY = null;
 
@@ -417,7 +418,8 @@ function setupMobileTabs() {
         };
 
         if (!swipeEngaged) {
-            if (Math.abs(dx) >= MIN_COMMIT_DX) {
+            const horizontalDominant = Math.abs(dy) === 0 || Math.abs(dx) >= Math.abs(dy) * MAX_DRAG_RATIO;
+            if (Math.abs(dx) >= MIN_COMMIT_DX && horizontalDominant) {
                 const tabs = getMobileTabs();
                 const activeIndex = tabs.findIndex(t => t.classList.contains('active'));
                 const nextIndex = dx < 0 ? activeIndex + 1 : activeIndex - 1;
@@ -433,7 +435,8 @@ function setupMobileTabs() {
             return;
         }
 
-        const commit = Math.abs(dx) >= Math.min(MIN_COMMIT_DX, window.innerWidth * 0.25);
+        const commitSameDir = swipeDir > 0 ? dx < 0 : dx > 0;
+        const commit = commitSameDir && Math.abs(dx) >= Math.min(MIN_COMMIT_DX, window.innerWidth * 0.25);
         if (commit) {
             switchToTab(incoming.dataset.section);
             cleanup(true);

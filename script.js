@@ -279,28 +279,35 @@ function setupEventListeners() {
     // Navigation par onglets sur mobile : par défaut, seule la vue active est visible
     if (window.innerWidth <= 1024) {
         const activeTab = document.querySelector('.mobile-tab.active');
-        const menuSection = document.getElementById('menu-section');
-        const recipesSection = document.getElementById('recipes-section');
-        if (activeTab && activeTab.dataset.tab === 'menu') {
-            recipesSection.classList.add('hidden-tab');
-        } else {
-            menuSection.classList.add('hidden-tab');
-        }
+        const activeName = activeTab ? activeTab.dataset.tab : 'menu';
+        document.querySelectorAll('[data-section]').forEach(section => {
+            section.classList.toggle('hidden-tab', section.dataset.section !== activeName);
+        });
     }
-    
+
+    setupMobileTabs();
+
     function getMobileTabs() {
     return Array.from(document.querySelectorAll('.mobile-tab'));
 }
 
+function getSwipeSections() {
+    return Array.from(document.querySelectorAll('[data-section]'));
+}
+
 function switchToTab(tabName) {
     const tabs = getMobileTabs();
-    tabs.forEach(t => t.classList.remove('active'));
     const target = tabs.find(t => t.dataset.tab === tabName);
     if (!target) return;
+    tabs.forEach(t => t.classList.remove('active'));
     target.classList.add('active');
-    document.querySelectorAll('[data-section]').forEach(section => {
+    getSwipeSections().forEach(section => {
         section.classList.toggle('hidden-tab', section.dataset.section !== tabName);
     });
+}
+
+function isSwipeTargetValid(target) {
+    return !(target.closest('.modal') || target.closest('input') || target.closest('textarea') || target.closest('select'));
 }
 
 function setupMobileTabs() {
@@ -312,26 +319,135 @@ function setupMobileTabs() {
 
     let touchStartX = null;
     let touchStartY = null;
+    let swipeCandidate = false;
+    let swipeSections = [];
+    let swipeDir = 0;
+    let swipeEngaged = false;
+
+    const MAX_DRAG_RATIO = 1.5;
+    const MIN_COMMIT_DX = 60;
+    const MAX_RESET_DX = 9999;
+
     document.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1) return;
+        if (!isSwipeTargetValid(e.target)) return;
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
+        swipeCandidate = false;
+        swipeEngaged = false;
+        const tabs = getMobileTabs();
+        const activeIndex = tabs.findIndex(t => t.classList.contains('active'));
+        if (activeIndex === -1) return;
+        const leftIndex = activeIndex - 1;
+        const rightIndex = activeIndex + 1;
+        const leftSection = leftIndex >= 0 ? getSwipeSections().find(s => s.dataset.section === tabs[leftIndex].dataset.tab) : null;
+        const rightSection = rightIndex < tabs.length ? getSwipeSections().find(s => s.dataset.section === tabs[rightIndex].dataset.tab) : null;
+        swipeSections = [getSwipeSections().find(s => s.dataset.section === tabs[activeIndex].dataset.tab), leftSection, rightSection].filter(Boolean);
+        swipeDir = 0;
     }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (touchStartX === null) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+
+        if (!swipeEngaged) {
+            if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * MAX_DRAG_RATIO) return;
+            swipeEngaged = true;
+            const tabs = getMobileTabs();
+            const activeIndex = tabs.findIndex(t => t.classList.contains('active'));
+            if (dx < 0 && activeIndex < tabs.length - 1) swipeDir = 1;
+            else if (dx > 0 && activeIndex > 0) swipeDir = -1;
+            else swipeDir = 0;
+            if (swipeDir !== 0) {
+                const current = swipeSections[0];
+                const incoming = swipeDir > 0 ? swipeSections[2] : swipeSections[1];
+                if (current && incoming) {
+                    incoming.classList.remove('hidden-tab');
+                    incoming.style.transition = 'none';
+                    current.style.transition = 'none';
+                    incoming.classList.add('swipe-incoming');
+                }
+            }
+        }
+
+        if (swipeDir === 0) return;
+
+        const w = window.innerWidth;
+        const clampedDx = Math.max(-w, Math.min(w, dx));
+        const progress = Math.min(1, Math.abs(clampedDx) / w);
+        const current = swipeSections[0];
+        const incoming = swipeDir > 0 ? swipeSections[2] : swipeSections[1];
+        if (!current || !incoming) return;
+
+        current.style.transform = `translateX(${clampedDx * 0.85}px)`;
+        current.style.opacity = String(1 - progress * 0.4);
+        const incomingOffset = swipeDir > 0 ? w - clampedDx * 0.85 : -w - clampedDx * 0.85;
+        incoming.style.transform = `translateX(${incomingOffset}px)`;
+        incoming.style.opacity = String(0.3 + progress * 0.7);
+    }, { passive: true });
+
     document.addEventListener('touchend', (e) => {
         if (touchStartX === null) return;
         const touch = e.changedTouches[0];
         const dx = touch.clientX - touchStartX;
-        const dy = touch.clientY - touchStartY;
         touchStartX = null;
         touchStartY = null;
-        if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-        if (e.target.closest('.modal') || e.target.closest('input') || e.target.closest('textarea') || e.target.closest('select')) return;
-        const tabs = getMobileTabs();
-        const activeIndex = tabs.findIndex(t => t.classList.contains('active'));
-        if (activeIndex === -1) return;
-        const nextIndex = dx < 0 ? activeIndex + 1 : activeIndex - 1;
-        if (nextIndex < 0 || nextIndex >= tabs.length) return;
-        switchToTab(tabs[nextIndex].dataset.tab);
+
+        const current = swipeSections[0];
+        const incoming = swipeDir > 0 ? swipeSections[2] : swipeSections[1];
+
+        const cleanup = (commit) => {
+            if (current) {
+                current.style.transition = '';
+                current.style.transform = '';
+                current.style.opacity = '';
+            }
+            if (incoming) {
+                incoming.style.transition = '';
+                incoming.style.transform = '';
+                incoming.style.opacity = '';
+                incoming.classList.remove('swipe-incoming');
+                if (!commit) incoming.classList.add('hidden-tab');
+            }
+            swipeSections = [];
+            swipeDir = 0;
+            swipeEngaged = false;
+        };
+
+        if (!swipeEngaged) {
+            if (Math.abs(dx) >= MIN_COMMIT_DX) {
+                const tabs = getMobileTabs();
+                const activeIndex = tabs.findIndex(t => t.classList.contains('active'));
+                const nextIndex = dx < 0 ? activeIndex + 1 : activeIndex - 1;
+                if (nextIndex >= 0 && nextIndex < tabs.length && isSwipeTargetValid(e.target)) {
+                    switchToTab(tabs[nextIndex].dataset.tab);
+                }
+            }
+            return;
+        }
+
+        if (swipeDir === 0 || !current || !incoming) {
+            cleanup(false);
+            return;
+        }
+
+        const commit = Math.abs(dx) >= Math.min(MIN_COMMIT_DX, window.innerWidth * 0.25);
+        if (commit) {
+            switchToTab(incoming.dataset.section);
+            cleanup(true);
+        } else {
+            incoming.style.transition = '';
+            current.style.transition = '';
+            requestAnimationFrame(() => {
+                incoming.style.transform = 'translateX(0)';
+                incoming.style.opacity = '1';
+                current.style.transform = 'translateX(0)';
+                current.style.opacity = '1';
+            });
+            setTimeout(() => cleanup(false), 250);
+        }
     }, { passive: true });
 }
     

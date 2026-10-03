@@ -835,6 +835,11 @@ html, body {
         display: none;
     }
 
+    [data-section] {
+        transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+        will-change: transform, opacity;
+    }
+
     .meal-box {
         min-width: 0;
     }

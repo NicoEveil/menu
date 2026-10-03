@@ -547,6 +547,7 @@ function showRecipeModal(recipeId) {
         document.getElementById('recipe-name').value = recipe.name;
         document.getElementById('recipe-url').value = recipe.url || '';
         document.getElementById('recipe-text').value = recipe.text || '';
+        document.getElementById('recipe-image-url').value = recipe.imageUrl || '';
         document.getElementById('recipe-category').value = recipe.category || '';
         document.getElementById('recipe-tags').value = recipe.tags ? recipe.tags.join(', ') : '';
         
@@ -588,6 +589,7 @@ function handleRecipeForm(e) {
     const name = document.getElementById('recipe-name').value.trim();
     const url = document.getElementById('recipe-url').value.trim();
     const text = document.getElementById('recipe-text').value.trim();
+    const manualImage = document.getElementById('recipe-image-url').value.trim();
     const category = document.getElementById('recipe-category').value.trim();
     const tagsInput = document.getElementById('recipe-tags').value.trim();
     
@@ -601,11 +603,14 @@ function handleRecipeForm(e) {
     
     const finalId = recipeId || Date.now().toString();
     
+    const existingRecipe = recipes.find(r => r.id === finalId);
+    
     const recipeData = {
         id: finalId,
         name,
         url: url || null,
         text: text || null,
+        imageUrl: manualImage || (existingRecipe ? existingRecipe.imageUrl : null),
         category: category || null,
         tags,
         createdAt: recipeId ? recipes.find(r => r.id === recipeId).createdAt : new Date().toISOString()
@@ -623,7 +628,7 @@ function handleRecipeForm(e) {
     renderRecipes();
     
     // Récupérer l'image APRÈS enregistrement (évite que le formulaire écrase l'image)
-    if (url) {
+    if (url && !manualImage) {
         fetchRecipeImage(url, finalId);
     }
 }

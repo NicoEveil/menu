@@ -343,7 +343,7 @@ header h1 .sync-status {
 }
 
 .recipe-card h3 {
-    color: var(--text-color);
+    color: var(--primary-color);
     margin-bottom: 8px;
     font-size: 1rem;
 }

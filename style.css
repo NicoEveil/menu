@@ -292,7 +292,7 @@ header h1 .sync-status {
 /* Grille des recettes */
 .recipes-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 15px;
     align-content: start;
 }
@@ -343,7 +343,7 @@ header h1 .sync-status {
 }
 
 .recipe-card h3 {
-    color: var(--primary-color);
+    color: var(--text-color);
     margin-bottom: 8px;
     font-size: 1rem;
 }

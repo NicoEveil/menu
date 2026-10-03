@@ -830,9 +830,22 @@ html, body {
     .recipes-section.hidden-tab {
         display: none;
     }
-}
 
-@media (max-width: 768px) {
+    .meal-box {
+        min-width: 0;
+    }
+
+    .meal-box-text {
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .meal-label {
+        min-width: 0;
+        white-space: normal;
+    }
+}
 
 @media (max-width: 768px) {
     .container {

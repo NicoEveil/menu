@@ -807,6 +807,7 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
                 <h3>${recipe.name}</h3>
                 <button class="btn-icon delete-recipe" title="Supprimer">🗑️</button>
             </div>
+            ${!recipe.imageUrl && recipe.text ? `<div class="recipe-notes-preview">${recipe.text}</div>` : ''}
             <div class="recipe-meta">
                 ${recipe.category ? `<span>${recipe.category}</span>` : ''}
                 ${recipe.tags && recipe.tags.length > 0 ? 

@@ -360,6 +360,20 @@ header h1 .sync-status {
     margin-bottom: 0;
 }
 
+.recipe-card .recipe-notes-preview {
+    flex: 1;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+}
+
 .recipe-card .recipe-meta {
     display: flex;
     gap: 10px;

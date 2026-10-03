@@ -696,6 +696,10 @@ function showRecipeDetails(recipeId) {
     
     const imageEl = document.getElementById('view-recipe-image');
     if (recipe.imageUrl) {
+        imageEl.onerror = function() {
+            this.onerror = null;
+            this.src = 'https://images.weserv.nl/?url=' + encodeURIComponent(recipe.imageUrl);
+        };
         imageEl.src = recipe.imageUrl;
         imageEl.style.display = 'block';
     } else {
@@ -799,7 +803,7 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         }
         
         card.innerHTML = `
-            ${recipe.imageUrl ? `<div class="recipe-image"><img src="${recipe.imageUrl}" alt="${recipe.name}" loading="lazy"></div>` : ''}
+            ${recipe.imageUrl ? `<div class="recipe-image"><img src="${recipe.imageUrl}" alt="${recipe.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://images.weserv.nl/?url=' + encodeURIComponent('${recipe.imageUrl.replace(/'/g, "\\'")}')"></div>` : ''}
             <div class="recipe-title-row">
                 <h3>${recipe.name}</h3>
                 <button class="btn-icon delete-recipe" title="Supprimer">🗑️</button>

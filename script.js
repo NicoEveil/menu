@@ -1122,6 +1122,7 @@ function attachDayEvents() {
         box.addEventListener('click', (e) => {
             if (e.target.classList.contains('meal-box-delete-btn')) return;
             if (e.target.classList.contains('meal-box-link-btn')) return;
+            if (box.querySelector('.meal-edit-input')) return;
             
             const day = box.dataset.day;
             const meal = box.dataset.meal;

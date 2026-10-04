@@ -27,3 +27,5 @@ Les correctifs entre versions stables incrémentent le patch (`v24.001`, `v24.00
 - **Gestion des tags** : filtrer/trier les recettes par tags (les tags existent déjà sur les recettes — formulaire, cartes, recherche — mais ne sont pas actionnables).
 - **PWA / hors connexion** : rendre le site accessible hors connexion (service worker, cache, manifeste).
 - **Ajout de recettes pré-enregistrées depuis le téléphone** : gestion des recettes enregistrées localement sur téléphone (ex. partage depuis d'autres apps vers le site, ou réception de recettes pré-saisies).
+- **Liste de courses** : pouvoir ajouter et gérer une liste de courses dans l'app.
+- **Gestion des stocks** : piste à explorer — gestion des stocks d'ingrédients (peut-être liée à la liste de courses).

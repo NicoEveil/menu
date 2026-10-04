@@ -673,6 +673,10 @@ function endRecipeDrag(ev) {
 }
 
 // Commencer le drag d'un repas
+function isDragEnabled() {
+    return window.innerWidth > 768;
+}
+
 function startMealDrag(ev, day, meal) {
     draggedMeal = { day, meal };
     ev.dataTransfer.setData('text/plain', `${day}|${meal}`);
@@ -973,7 +977,7 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         const card = document.createElement('div');
         card.className = 'recipe-card draggable';
         card.dataset.recipeId = recipe.id;
-        card.draggable = true;
+        card.draggable = isDragEnabled();
         
         if (isSelecting && currentSelectingDay && currentSelectingMeal) {
             if (menu[currentSelectingDay][currentSelectingMeal] === recipe.id) {
@@ -1002,13 +1006,14 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
         });
         
         // Événements drag & drop pour les recettes
-        card.addEventListener('dragstart', (ev) => {
-            startRecipeDrag(ev, recipe.id);
-        });
-        
-        card.addEventListener('dragend', (ev) => {
-            endRecipeDrag(ev);
-        });
+        if (isDragEnabled()) {
+            card.addEventListener('dragstart', (ev) => {
+                startRecipeDrag(ev, recipe.id);
+            });
+            card.addEventListener('dragend', (ev) => {
+                endRecipeDrag(ev);
+            });
+        }
         
         // Événement pour la sélection
         card.addEventListener('click', () => {
@@ -1135,9 +1140,11 @@ function attachDayEvents() {
             const textSpan = box.querySelector('.meal-box-text');
             textSpan.textContent = '';
             textSpan.appendChild(input);
+            box.draggable = false;
             input.focus();
             
             const saveEdit = () => {
+                box.draggable = isDragEnabled();
                 manualEntries[day][meal] = input.value;
                 box.classList.toggle('has-value', !!input.value);
                 saveData();
@@ -1154,9 +1161,17 @@ function attachDayEvents() {
         });
         
         // Drag & Drop pour les repas
-        box.draggable = true;
-        box.addEventListener('dragstart', (ev) => startMealDrag(ev, box.dataset.day, box.dataset.meal));
-        box.addEventListener('dragend', (ev) => endMealDrag(ev));
+        box.draggable = isDragEnabled();
+        if (isDragEnabled()) {
+            box.addEventListener('dragstart', (ev) => {
+                if (box.querySelector('.meal-edit-input') || !window.getSelection().isCollapsed) {
+                    ev.preventDefault();
+                    return;
+                }
+                startMealDrag(ev, box.dataset.day, box.dataset.meal);
+            });
+            box.addEventListener('dragend', (ev) => endMealDrag(ev));
+        }
         box.addEventListener('dragover', allowDrop);
         box.addEventListener('dragleave', dragLeave);
         box.addEventListener('drop', dropMeal);

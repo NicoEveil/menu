@@ -159,6 +159,11 @@ async function loadData() {
     
     // Initialiser les structures si vide
     ensureDayStructures();
+    
+    // Purger les jours révolus de plus de 4 semaines
+    if (purgeOldDays()) {
+        await saveData();
+    }
 }
 
 function ensureDayStructures() {
@@ -172,6 +177,22 @@ function ensureDayStructures() {
             manualEntries[dayInfo.dateKey] = { dejeuner: '', diner: '', autre: '' };
         }
     });
+}
+
+function purgeOldDays(maxAgeDays = 28) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - maxAgeDays);
+    const cutoffKey = cutoff.toISOString().split('T')[0];
+    let removed = false;
+    [menu, manualEntries].forEach(store => {
+        Object.keys(store).forEach(key => {
+            if (/^\d{4}-\d{2}-\d{2}$/.test(key) && key < cutoffKey) {
+                delete store[key];
+                removed = true;
+            }
+        });
+    });
+    return removed;
 }
 
 // Obtenir les 8 jours à afficher (aujourd'hui + 7 suivants)

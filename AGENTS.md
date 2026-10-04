@@ -16,3 +16,8 @@ Les correctifs entre versions stables incrémentent le patch (`v24.001`, `v24.00
 ## Règles permanentes
 
 - Quand l'utilisateur donne une règle (de codage, de nommage, de façon de travailler), lui rappeler de demander son enregistrement dans ce fichier (`AGENTS.md`) si ce n'est pas déjà fait. Une règle non écrite ici est perdue entre les sessions.
+
+## Règles métier
+
+- Drag-and-drop désactivé sur mobile (fenêtre ≤ 768px), actif sur ordinateur et tablette.
+- Les jours révolus de plus de 4 semaines (28 jours) sont purgés automatiquement au chargement (clés de date dans `menu` et `manualEntries`). L'utilisateur n'a pas besoin de conserver l'historique des jours passés.

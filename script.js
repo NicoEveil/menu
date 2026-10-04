@@ -26,6 +26,7 @@ const DAYS_OF_WEEK = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendre
 // Initialisation
 async function init() {
     setupEventListeners();
+    ensureDayStructures();
     renderRecipes();
     renderDays();
     await loadData();
@@ -133,6 +134,7 @@ async function loadData() {
                     if (data.menu) menu = data.menu;
                     if (data.manualEntries) manualEntries = data.manualEntries;
                     if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
+                    ensureDayStructures();
                     renderRecipes();
                     renderDays();
                 }
@@ -156,9 +158,12 @@ async function loadData() {
     }
     
     // Initialiser les structures si vide
+    ensureDayStructures();
+}
+
+function ensureDayStructures() {
     const today = new Date();
     const daysToShow = getDaysToShow(today);
-    
     daysToShow.forEach(dayInfo => {
         if (!menu[dayInfo.dateKey]) {
             menu[dayInfo.dateKey] = { dejeuner: null, diner: null };
@@ -1127,6 +1132,12 @@ function attachDayEvents() {
             const day = box.dataset.day;
             const meal = box.dataset.meal;
             
+            if (!manualEntries[day]) {
+                manualEntries[day] = { dejeuner: '', diner: '', autre: '' };
+            }
+            if (!menu[day]) {
+                menu[day] = { dejeuner: null, diner: null };
+            }
             const currentText = manualEntries[day][meal] || '';
             const input = document.createElement('input');
             input.type = 'text';

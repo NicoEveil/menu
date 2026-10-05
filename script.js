@@ -30,6 +30,7 @@ async function init() {
     renderRecipes();
     renderDays();
     await loadData();
+    setupDayRollover();
 }
 
 // Chargement des données : cloud (Firestore) + migration localStorage
@@ -177,6 +178,26 @@ function ensureDayStructures() {
             manualEntries[dayInfo.dateKey] = { dejeuner: '', diner: '', autre: '' };
         }
     });
+}
+
+function setupDayRollover() {
+    let lastRolloverDate = new Date().toDateString();
+
+    const checkDayRollover = () => {
+        const today = new Date().toDateString();
+        if (today !== lastRolloverDate) {
+            lastRolloverDate = today;
+            ensureDayStructures();
+            if (purgeOldDays()) {
+                saveData();
+            }
+            renderDays();
+        }
+    };
+
+    setInterval(checkDayRollover, 60000);
+    document.addEventListener('visibilitychange', checkDayRollover);
+    window.addEventListener('focus', checkDayRollover);
 }
 
 function purgeOldDays(maxAgeDays = 28) {

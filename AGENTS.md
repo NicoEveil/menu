@@ -2,6 +2,8 @@
 
 ## Versions stables
 
+- **Rollover automatique du jour introduit entre `stable-v28` et `stable-v29`** (v28.001) : la liste des jours se rafraîchit sans rechargement au changement de date (minuit, sortie de veille, focus de l'onglet). Premier test réel du comportement en sortie de veille profonde encore à confirmer par l'utilisateur.
+
 Quand l'utilisateur demande d'enregistrer une version stable :
 
 1. Modifier UNIQUEMENT le numéro de version : passer au numéro rond suivant (ex. `v23.000` → `v24.000`), c'est-à-dire :

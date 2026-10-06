@@ -15,6 +15,15 @@ Quand l'utilisateur demande d'enregistrer une version stable :
 
 Les correctifs entre versions stables incrémentent le patch (`v24.001`, `v24.002`, …) et mettent à jour le cache-busting en conséquence.
 
+## Façon de travailler (workflow de livraison)
+
+- **Pas de Pull Request** : l'utilisateur ne relit pas le code. Workflow direct :
+  1. L'agent fait les modifications sur une branche de travail ;
+  2. pousse le commit directement sur `main` (push de la branche vers `main`) ;
+  3. l'utilisateur vérifie le résultat sur la page en ligne et valide.
+- Ne pas ouvrir de PR ni demander à l'utilisateur de relire/fusionner un PR.
+- Le cache-busting (`?v=N.NNN`) force le rechargement des fichiers modifiés : pas besoin de demander de vider le cache.
+
 ## Règles permanentes
 
 - Quand l'utilisateur donne une règle (de codage, de nommage, de façon de travailler), lui rappeler de demander son enregistrement dans ce fichier (`AGENTS.md`) si ce n'est pas déjà fait. Une règle non écrite ici est perdue entre les sessions.

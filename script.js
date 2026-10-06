@@ -167,6 +167,14 @@ async function loadData() {
     }
 }
 
+// Clé de date en heure locale (évite le décalage UTC autour de minuit)
+function toLocalDateKey(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
 function ensureDayStructures() {
     const today = new Date();
     const daysToShow = getDaysToShow(today);
@@ -203,7 +211,7 @@ function setupDayRollover() {
 function purgeOldDays(maxAgeDays = 28) {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - maxAgeDays);
-    const cutoffKey = cutoff.toISOString().split('T')[0];
+    const cutoffKey = toLocalDateKey(cutoff);
     let removed = false;
     [menu, manualEntries].forEach(store => {
         Object.keys(store).forEach(key => {
@@ -223,7 +231,7 @@ function getDaysToShow(today) {
     for (let i = 0; i < 8; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
-        const dateKey = date.toISOString().split('T')[0];
+        const dateKey = toLocalDateKey(date);
         days.push({
             dateKey: dateKey,
             dayName: DAYS_OF_WEEK[date.getDay()]

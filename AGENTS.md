@@ -15,6 +15,8 @@ Quand l'utilisateur demande d'enregistrer une version stable :
 
 Les correctifs entre versions stables incrémentent le patch (`v24.001`, `v24.002`, …) et mettent à jour le cache-busting en conséquence.
 
+**Règle de version affichée** : à chaque changement de version, mettre à jour AUSSI le badge de version affiché sur le site juste après le titre (`<span class="version">vN.NNN</span>` dans le `<h1>` de `index.html`). Ce badge doit toujours correspondre à la version des paramètres de cache-busting.
+
 ## Façon de travailler (workflow de livraison)
 
 - **Pas de Pull Request** : l'utilisateur ne relit pas le code. Workflow direct :

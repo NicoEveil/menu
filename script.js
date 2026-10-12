@@ -25,8 +25,8 @@ const DAYS_OF_WEEK = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendre
 
 // Initialisation
 async function init() {
-    setupEventListeners();
     ensureDayStructures();
+    setupEventListeners();
     renderRecipes();
     renderDays();
     await loadData();
@@ -329,8 +329,6 @@ async function saveData() {
 
 // Configuration des écouteurs d'événements
 function setupEventListeners() {
-    setupMobileTabs();
-
     // Navigation par onglets sur mobile : par défaut, seule la vue active est visible
     if (window.innerWidth <= 1024) {
         const activeTab = document.querySelector('.mobile-tab.active');
@@ -341,8 +339,9 @@ function setupEventListeners() {
     }
 
     setupMobileTabs();
+}
 
-    function getMobileTabs() {
+function getMobileTabs() {
     return Array.from(document.querySelectorAll('.mobile-tab'));
 }
 
@@ -508,8 +507,8 @@ function setupMobileTabs() {
         }
     }, { passive: true });
 }
-    
-    // Retour du réseau : renvoyer les modifications en attente
+
+// Retour du réseau : renvoyer les modifications en attente
     window.addEventListener('online', () => {
         if (cloudReady && db) {
             if (pendingOfflineChange) {
@@ -587,7 +586,6 @@ function setupMobileTabs() {
             }
         });
     }
-}
 
 // Permettre le drop
 function allowDrop(ev) {

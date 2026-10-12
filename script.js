@@ -757,8 +757,55 @@ function showRecipeSelectionForMeal(day, meal) {
     window.currentSelectingMeal = meal;
     
     renderRecipes(true, day, meal);
+    enterSelectionModeUI(day, meal);
+    switchToTab('recipes');
     
     document.querySelector('.recipes-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Mettre l'en-tête de l'onglet Recettes en mode sélection d'une recette pour un repas
+function enterSelectionModeUI(day, meal) {
+    const header = document.querySelector('.recipes-header');
+    if (!header.dataset.normalHtml) {
+        header.dataset.normalHtml = header.innerHTML;
+    }
+    
+    const date = new Date(`${day}T12:00:00`);
+    const dayLabel = getDayLabel(date);
+    
+    header.innerHTML = `
+        <h2>Ajouter une recette le ${dayLabel}</h2>
+        <select id="meal-select" class="btn btn-secondary" title="Repas pour lequel ajouter la recette">
+            <option value="dejeuner" ${meal === 'dejeuner' ? 'selected' : ''}>Déjeuner</option>
+            <option value="diner" ${meal === 'diner' ? 'selected' : ''}>Dîner</option>
+        </select>
+        <div class="header-spacer"></div>
+        <button type="button" id="cancel-selection-btn" class="btn btn-secondary">Annuler</button>
+    `;
+    
+    document.getElementById('meal-select').addEventListener('change', (e) => {
+        window.currentSelectingMeal = e.target.value;
+        renderRecipes(true, window.currentSelectingDay, e.target.value);
+    });
+    
+    document.getElementById('cancel-selection-btn').addEventListener('click', exitSelectionMode);
+}
+
+// Restaurer l'en-tête normal de l'onglet Recettes
+function exitSelectionMode() {
+    const header = document.querySelector('.recipes-header');
+    if (header.dataset.normalHtml) {
+        header.innerHTML = header.dataset.normalHtml;
+        delete header.dataset.normalHtml;
+    }
+    
+    delete window.currentSelectingDay;
+    delete window.currentSelectingMeal;
+    
+    document.getElementById('add-recipe-btn').addEventListener('click', () => showRecipeModal(null));
+    document.getElementById('export-recipes-btn').addEventListener('click', exportRecipesToFile);
+    
+    renderRecipes();
 }
 
 // Sélectionner une recette pour un jour/repas
@@ -770,7 +817,13 @@ function selectRecipeForMenu(recipeId, day, meal) {
     }
     saveData();
     renderDays();
-    renderRecipes();
+    
+    if (window.currentSelectingDay) {
+        exitSelectionMode();
+        switchToTab('menu');
+    } else {
+        renderRecipes();
+    }
 }
 
 // Afficher la modal d'ajout/modification de recette
@@ -1153,16 +1206,26 @@ function renderDays() {
 
 // Attacher les événements aux éléments des jours
 function attachDayEvents() {
-    // Boutons - pour vider une case de repas
+    // Boutons -/+ : vider la case (bureau) ou ajouter une recette (mobile)
     document.querySelectorAll('.meal-box-delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const day = btn.dataset.day;
             const meal = btn.dataset.meal;
-            manualEntries[day][meal] = '';
-            menu[day][meal] = null;
-            saveData();
-            renderDays();
+            if (btn.textContent.trim() === '+') {
+                if (!manualEntries[day]) {
+                    manualEntries[day] = { dejeuner: '', diner: '', autre: '' };
+                }
+                if (!menu[day]) {
+                    menu[day] = { dejeuner: null, diner: null };
+                }
+                showRecipeSelectionForMeal(day, meal);
+            } else {
+                manualEntries[day][meal] = '';
+                menu[day][meal] = null;
+                saveData();
+                renderDays();
+            }
         });
     });
     

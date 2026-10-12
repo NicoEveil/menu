@@ -791,14 +791,14 @@ body {
 @media (max-width: 1024px) {
     body {
         overflow: visible;
-        overflow-x: hidden;
+        overflow-x: clip;
     }
 }
 
 /* Empêcher le débordement horizontal global */
 html, body {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .main-layout {

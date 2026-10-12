@@ -263,18 +263,12 @@ header h1 .sync-status {
 /* En-tête de sélection fixe pendant le scroll des recettes */
 @media (max-width: 1024px) {
     .recipes-header.selection-mode {
-        position: fixed;
-        left: 10px;
-        right: 10px;
-        top: 56px;
+        position: sticky;
+        top: 64px;
         z-index: 90;
         background-color: var(--card-color);
         padding: 10px;
         box-shadow: var(--shadow);
-    }
-
-    .recipes-header.selection-mode + .search-bar {
-        margin-top: 56px;
     }
 }
 

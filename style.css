@@ -262,17 +262,22 @@ header h1 .sync-status {
 
 /* En-tête de sélection fixe pendant le scroll des recettes */
 .recipes-header.selection-mode {
-    position: sticky;
-    top: -20px;
+    position: fixed;
+    left: 10px;
+    right: 10px;
     z-index: 90;
     background-color: var(--card-color);
-    padding: 10px 0;
-    margin: -10px 0 20px;
+    padding: 10px;
+    box-shadow: var(--shadow);
+}
+
+.recipes-header.selection-mode + .search-bar {
+    margin-top: 56px;
 }
 
 @media (max-width: 1024px) {
     .recipes-header.selection-mode {
-        top: 52px;
+        top: 56px;
     }
 }
 
@@ -784,6 +789,13 @@ body {
 
 .mobile-tabs {
     display: none;
+}
+
+@media (max-width: 1024px) {
+    body {
+        overflow: visible;
+        overflow-x: hidden;
+    }
 }
 
 /* Empêcher le débordement horizontal global */

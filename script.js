@@ -784,6 +784,8 @@ function enterSelectionModeUI(day, meal) {
         <button type="button" id="cancel-selection-btn" class="btn btn-secondary">Annuler</button>
     `;
     
+    header.classList.add('selection-mode');
+    
     document.getElementById('meal-select').addEventListener('change', (e) => {
         const [selectedDay, selectedMeal] = e.target.value.split('|');
         window.currentSelectingDay = selectedDay;
@@ -797,6 +799,7 @@ function enterSelectionModeUI(day, meal) {
 // Restaurer l'en-tête normal de l'onglet Recettes
 function exitSelectionMode() {
     const header = document.querySelector('.recipes-header');
+    header.classList.remove('selection-mode');
     if (header.dataset.normalHtml) {
         header.innerHTML = header.dataset.normalHtml;
         delete header.dataset.normalHtml;

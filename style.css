@@ -260,6 +260,22 @@ header h1 .sync-status {
     font-size: 1.5rem;
 }
 
+/* En-tête de sélection fixe pendant le scroll des recettes */
+.recipes-header.selection-mode {
+    position: sticky;
+    top: -20px;
+    z-index: 90;
+    background-color: var(--card-color);
+    padding: 10px 0;
+    margin: -10px 0 20px;
+}
+
+@media (max-width: 1024px) {
+    .recipes-header.selection-mode {
+        top: 52px;
+    }
+}
+
 /* Barre de recherche */
 .search-bar {
     display: flex;
@@ -797,7 +813,7 @@ html, body {
         position: sticky;
         top: 0;
         z-index: 100;
-        background-color: var(--bg-color);
+        background-color: var(--background-color);
         padding: 8px 0;
     }
     

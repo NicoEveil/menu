@@ -1100,6 +1100,8 @@ function renderDays() {
     
     const today = new Date();
     const daysToShow = getDaysToShow(today);
+    const isMobile = window.innerWidth <= 768;
+    const mealBtnLabel = isMobile ? '+' : '-';
     
     daysList.innerHTML = '';
     
@@ -1126,7 +1128,7 @@ function renderDays() {
                             ${manualEntries[dayInfo.dateKey]?.dejeuner || 'Vide'}
                         </span>
                         ${menu[dayInfo.dateKey]?.dejeuner ? `<button type="button" class="meal-box-link-btn" data-recipe-id="${menu[dayInfo.dateKey].dejeuner}" title="Voir la recette">&#128279;</button>` : ''}
-                        <button type="button" class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="dejeuner">-</button>
+                        <button type="button" class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="dejeuner">${mealBtnLabel}</button>
                     </div>
                 </div>
                 <div class="meal-slot" data-meal="diner">
@@ -1137,7 +1139,7 @@ function renderDays() {
                             ${manualEntries[dayInfo.dateKey]?.diner || 'Vide'}
                         </span>
                         ${menu[dayInfo.dateKey]?.diner ? `<button type="button" class="meal-box-link-btn" data-recipe-id="${menu[dayInfo.dateKey].diner}" title="Voir la recette">&#128279;</button>` : ''}
-                        <button type="button" class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="diner">-</button>
+                        <button type="button" class="meal-box-delete-btn" data-day="${dayInfo.dateKey}" data-meal="diner">${mealBtnLabel}</button>
                     </div>
                 </div>
             </div>

@@ -261,23 +261,26 @@ header h1 .sync-status {
 }
 
 /* En-tête de sélection fixe pendant le scroll des recettes */
-.recipes-header.selection-mode {
-    position: fixed;
-    left: 10px;
-    right: 10px;
-    z-index: 90;
-    background-color: var(--card-color);
-    padding: 10px;
-    box-shadow: var(--shadow);
-}
-
-.recipes-header.selection-mode + .search-bar {
-    margin-top: 56px;
-}
-
 @media (max-width: 1024px) {
     .recipes-header.selection-mode {
+        position: fixed;
+        left: 10px;
+        right: 10px;
         top: 56px;
+        z-index: 90;
+        background-color: var(--card-color);
+        padding: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .recipes-header.selection-mode + .search-bar {
+        margin-top: 56px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .recipes-header.selection-mode {
+        position: static;
     }
 }
 
@@ -866,7 +869,10 @@ html, body {
 
     [data-section] {
         transition: transform 0.25s ease-out, opacity 0.25s ease-out;
-        will-change: transform, opacity;
+    }
+
+    [data-section]:not(.swipe-incoming) {
+        transform: none;
     }
 
     .meal-box {

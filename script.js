@@ -768,22 +768,27 @@ function enterSelectionModeUI(day, meal) {
         header.dataset.normalHtml = header.innerHTML;
     }
     
-    const date = new Date(`${day}T12:00:00`);
-    const dayLabel = getDayLabel(date);
+    const options = getDaysToShow(new Date()).map(dayInfo => {
+        const date = new Date(`${dayInfo.dateKey}T12:00:00`);
+        const dayNum = date.getDate();
+        return `
+            <option value="${dayInfo.dateKey}|dejeuner" ${day === dayInfo.dateKey && meal === 'dejeuner' ? 'selected' : ''}>${dayInfo.dayName} ${dayNum} midi</option>
+            <option value="${dayInfo.dateKey}|diner" ${day === dayInfo.dateKey && meal === 'diner' ? 'selected' : ''}>${dayInfo.dayName} ${dayNum} soir</option>
+        `;
+    }).join('');
     
     header.innerHTML = `
-        <h2>Ajouter une recette le ${dayLabel}</h2>
-        <select id="meal-select" class="btn btn-secondary" title="Repas pour lequel ajouter la recette">
-            <option value="dejeuner" ${meal === 'dejeuner' ? 'selected' : ''}>Déjeuner</option>
-            <option value="diner" ${meal === 'diner' ? 'selected' : ''}>Dîner</option>
-        </select>
+        <h2>Ajouter pour le</h2>
+        <select id="meal-select" class="btn btn-secondary" title="Jour et repas pour lesquels ajouter la recette">${options}</select>
         <div class="header-spacer"></div>
         <button type="button" id="cancel-selection-btn" class="btn btn-secondary">Annuler</button>
     `;
     
     document.getElementById('meal-select').addEventListener('change', (e) => {
-        window.currentSelectingMeal = e.target.value;
-        renderRecipes(true, window.currentSelectingDay, e.target.value);
+        const [selectedDay, selectedMeal] = e.target.value.split('|');
+        window.currentSelectingDay = selectedDay;
+        window.currentSelectingMeal = selectedMeal;
+        renderRecipes(true, selectedDay, selectedMeal);
     });
     
     document.getElementById('cancel-selection-btn').addEventListener('click', exitSelectionMode);

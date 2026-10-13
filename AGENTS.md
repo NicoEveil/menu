@@ -41,3 +41,4 @@ Les correctifs entre versions stables incrémentent le patch (`v24.001`, `v24.00
 - **PWA / hors connexion** : rendre le site accessible hors connexion (service worker, cache, manifeste).
 - **Liste de courses** : pouvoir ajouter et gérer une liste de courses dans l'app.
 - **Gestion des stocks** : piste à explorer — gestion des stocks d'ingrédients (peut-être liée à la liste de courses).
+- **Comptes multi-utilisateurs** : upgrade pour que plusieurs personnes puissent se connecter, chacune avec son propre compte, son propre menu et ses propres recettes (actuellement : connexion anonyme unique Firestore).

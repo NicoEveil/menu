@@ -1,0 +1,17 @@
+{
+    "name": "Ma Cuisine",
+    "short_name": "Ma Cuisine",
+    "description": "Planification des repas et gestion des recettes",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#FFFFFF",
+    "theme_color": "#EDB835",
+    "icons": [
+        {
+            "src": "./favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}

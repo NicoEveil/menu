@@ -3,6 +3,7 @@
 ## Versions stables
 
 - **Rollover automatique du jour introduit entre `stable-v28` et `stable-v29`** (v28.001) : la liste des jours se rafraîchit sans rechargement au changement de date (minuit, sortie de veille, focus de l'onglet). Premier test réel du comportement en sortie de veille profonde encore à confirmer par l'utilisateur.
+- **`stable-v33` (v33.000) est la dernière version stable avant PWA** : à partir de v33.xxx on implémente la PWA (service worker, cache, manifeste). En cas de souci avec la PWA, revenir au tag `stable-v33`.
 
 Quand l'utilisateur demande d'enregistrer une version stable :
 

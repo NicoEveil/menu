@@ -1,0 +1,56 @@
+// Service Worker Ma Cuisine
+// CACHE_VERSION doit suivre la version du site (v33.001 au moment de l'ajout)
+const CACHE_VERSION = 'v33.001';
+const CACHE_NAME = `ma-cuisine-${CACHE_VERSION}`;
+const APP_SHELL = [
+    './',
+    './index.html',
+    './style.css',
+    './script.js',
+    './favicon.svg',
+    './manifest.json'
+];
+
+// Installation : mettre en cache le shell de l'application
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(APP_SHELL))
+            .then(() => self.skipWaiting())
+    );
+});
+
+// Activation : purger les anciens caches et prendre le contrôle
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys()
+            .then(keys => Promise.all(
+                keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+            ))
+            .then(() => self.clients.claim())
+    );
+});
+
+// Interception des requêtes :
+// - fichiers du site : cache d'abord, puis réseau (et mise à jour du cache)
+// - Firestore et tout le reste : réseau uniquement (jamais de cache, jamais d'ecrasement de donnees)
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    if (event.request.method !== 'GET') return;
+    if (url.origin !== self.location.origin) return;
+
+    event.respondWith(
+        caches.match(event.request, { ignoreSearch: true }).then(cached => {
+            const fetchPromise = fetch(event.request).then(response => {
+                if (response && response.ok) {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                }
+                return response;
+            }).catch(() => cached);
+
+            return cached || fetchPromise;
+        })
+    );
+});

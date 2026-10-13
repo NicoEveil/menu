@@ -31,6 +31,13 @@ async function init() {
     renderDays();
     await loadData();
     setupDayRollover();
+    
+    // Enregistrer le service worker pour le mode hors ligne (PWA)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js').catch(err => {
+            console.warn('Service worker non enregistre :', err);
+        });
+    }
 }
 
 // Chargement des données : cloud (Firestore) + migration localStorage

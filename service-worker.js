@@ -1,6 +1,6 @@
 // Service Worker Ma Cuisine
 // CACHE_VERSION doit suivre la version du site
-const CACHE_VERSION = 'v33.005';
+const CACHE_VERSION = 'v33.006';
 const CACHE_NAME = `ma-cuisine-${CACHE_VERSION}`;
 const APP_SHELL = [
     './',

@@ -307,6 +307,9 @@ function exportRecipesToFile() {
         if (recipe.tags && recipe.tags.length > 0) {
             lines.push('Tags: ' + recipe.tags.join(', '));
         }
+        if (recipe.category) {
+            lines.push('Categorie: ' + recipe.category);
+        }
         lines.push('');
     });
     
@@ -336,18 +339,23 @@ function importRecipesFromFile(file) {
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
                 if (current && current.name) imported.push(current);
-                current = { name: nameMatch[1].trim(), url: null, text: null, imageUrl: null, tags: [] };
-            } else if (current) {
+                current = { name: nameMatch[1].trim(), url: null, text: null, imageUrl: null, tags: [], category: null };
+                return;
+            }
+            if (current) {
                 const linkMatch = line.match(/^Lien: (.*)$/);
                 const notesMatch = line.match(/^Notes: (.*)$/);
                 const imageMatch = line.match(/^Image: (.*)$/);
                 const tagsMatch = line.match(/^Tags: (.*)$/);
+                const catMatch = line.match(/^Categorie: (.*)$/);
                 if (linkMatch) {
                     current.url = linkMatch[1].trim() || null;
                 } else if (imageMatch) {
                     current.imageUrl = imageMatch[1].trim() || null;
                 } else if (tagsMatch) {
                     current.tags = tagsMatch[1].split(',').map(t => t.trim()).filter(t => t);
+                } else if (catMatch) {
+                    current.category = catMatch[1].trim() || null;
                 } else if (notesMatch) {
                     current.text = notesMatch[1].trim() || null;
                 }
@@ -383,6 +391,10 @@ function importRecipesFromFile(file) {
                     existing.tags = r.tags;
                     updated++;
                 }
+                if (!existing.category && r.category) {
+                    existing.category = r.category;
+                    updated++;
+                }
             } else {
                 recipes.push({
                     id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 8),
@@ -390,7 +402,7 @@ function importRecipesFromFile(file) {
                     url: r.url,
                     text: r.text,
                     imageUrl: r.imageUrl,
-                    category: null,
+                    category: r.category,
                     tags: r.tags || [],
                     createdAt: new Date().toISOString()
                 });

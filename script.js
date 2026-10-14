@@ -34,6 +34,14 @@ async function init() {
     
     // Enregistrer le service worker pour le mode hors ligne (PWA)
     if ('serviceWorker' in navigator) {
+        let refreshing = false;
+        // Quand un nouveau service worker prend le controle, recharger la page
+        // pour que index.html/script.js de la nouvelle version soient charges
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            location.reload();
+        });
         navigator.serviceWorker.register('./service-worker.js').then(reg => {
             // Appliquer immediatement une nouvelle version du service worker des qu'elle est detectee
             reg.addEventListener('updatefound', () => {
@@ -357,7 +365,8 @@ function importRecipesFromFile(file) {
                 } else if (catMatch) {
                     current.category = catMatch[1].trim() || null;
                 } else if (notesMatch) {
-                    current.text = notesMatch[1].trim() || null;
+                    // Decoder aussi les sauts de ligne litteraux \n (fichiers exportes par la v33.011)
+                    current.text = notesMatch[1].trim().replace(/\\n/g, '\n') || null;
                 } else {
                     // Suite des notes : ligne sans prefixe reconnu apres une ligne Notes:
                     if (current.text && line.trim() !== '') {

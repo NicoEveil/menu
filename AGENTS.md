@@ -18,6 +18,8 @@ Les correctifs entre versions stables incrémentent le patch (`v24.001`, `v24.00
 
 **Règle de version affichée** : à chaque changement de version, mettre à jour AUSSI le badge de version affiché sur le site juste après le titre (`<span class="version">vN.NNN</span>` dans le `<h1>` de `index.html`). Ce badge doit toujours correspondre à la version des paramètres de cache-busting.
 
+**Règle cache-busting obligatoire (leçon v33.014)** : à CHAQUE changement de version, mettre à jour les paramètres `?v=N.NNN` sur `style.css` et `script.js` dans `index.html`. En v33.013 ils étaient restés bloqués à `?v=33.006` : le navigateur rechargeait donc l'ancien script.js, et les correctifs semblaient « ne pas marcher » alors qu'ils n'étaient tout simplement pas livrés. Vérifier systématiquement `grep '?v=' index.html` avant chaque commit de version.
+
 ## Façon de travailler (workflow de livraison)
 
 - **Pas de Pull Request** : l'utilisateur ne relit pas le code. Workflow direct :

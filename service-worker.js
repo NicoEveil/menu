@@ -1,6 +1,6 @@
 // Service Worker Ma Cuisine
 // CACHE_VERSION doit suivre la version du site
-const CACHE_VERSION = 'v33.013';
+const CACHE_VERSION = 'v33.014';
 const CACHE_NAME = `ma-cuisine-${CACHE_VERSION}`;
 const APP_SHELL = [
     './',
@@ -12,10 +12,14 @@ const APP_SHELL = [
 ];
 
 // Installation : mettre en cache le shell de l'application
+// reponse no-store : toujours telecharger les fichiers frais du reseau,
+// jamais depuis le cache HTTP du navigateur (sinon on recopie une vieille version)
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(APP_SHELL))
+            .then(cache => cache.addAll(
+                APP_SHELL.map(url => new Request(url, { cache: 'no-store' }))
+            ))
             .then(() => self.skipWaiting())
     );
 });
@@ -66,7 +70,7 @@ self.addEventListener('fetch', (event) => {
 
     event.respondWith(
         caches.match(event.request, { ignoreSearch: true }).then(cached => {
-            const fetchPromise = fetch(event.request).then(response => {
+            const fetchPromise = fetch(new Request(event.request, { cache: 'no-store' })).then(response => {
                 if (response && response.ok) {
                     const clone = response.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));

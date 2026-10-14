@@ -219,6 +219,11 @@ async function loadData() {
                     if (data.menu) menu = data.menu;
                     if (data.manualEntries) manualEntries = data.manualEntries;
                     if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
+                    // Persister aussi en local : sans cela, un repas recupere en temps reel
+                    // etait perdu des qu'on actualisait la page hors ligne
+                    localStorage.setItem('menuRecipes', JSON.stringify(recipes));
+                    localStorage.setItem('menuPlanning', JSON.stringify(menu));
+                    localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
                     ensureDayStructures();
                     renderRecipes();
                     renderDays();

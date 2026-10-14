@@ -100,7 +100,22 @@ async function loadData() {
         
         const pendingFlag = localStorage.getItem('menuPendingSync') === 'true';
         
-        if (docSnap.exists() && !pendingFlag) {
+        const localRecipes = JSON.parse(savedRecipes || '[]');
+        const cloudRecipeCount = (docSnap.data().recipes || []).length;
+        const localMenuEntries = Object.values(JSON.parse(savedMenu || '{}')).filter(d => d && (d.dejeuner || d.diner)).length;
+        const cloudHasData = cloudRecipeCount > 0;
+        const localHasData = localRecipes.length > 0 || localMenuEntries > 0;
+        
+        if (docSnap.exists() && pendingFlag && !localHasData && cloudHasData) {
+            // GARDE-FOU : le local est vide mais le cloud a des donnees - NE PAS ecraser le cloud
+            console.warn('Sync en attente ignoree : local vide, cloud non vide');
+            localStorage.setItem('menuPendingSync', 'false');
+            const data = docSnap.data();
+            if (data.recipes) recipes = data.recipes;
+            if (data.menu) menu = data.menu;
+            if (data.manualEntries) manualEntries = data.manualEntries;
+            if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
+        } else if (docSnap.exists() && !pendingFlag) {
             // Le cloud a des données : elles font foi
             const data = docSnap.data();
             if (data.recipes) recipes = data.recipes;
@@ -109,9 +124,6 @@ async function loadData() {
             if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
         } else if (docSnap.exists() && pendingFlag) {
             // Des modifications hors ligne sont en attente : elles écrasent le cloud
-            localStorage.setItem('menuRecipes', JSON.stringify(recipes));
-            localStorage.setItem('menuPlanning', JSON.stringify(menu));
-            localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
             await setDoc(docRef, {
                 recipes: recipes,
                 menu: menu,
@@ -159,12 +171,10 @@ async function loadData() {
             }
         });
         
-        // Nettoyer le localStorage après migration réussie
-        if (savedRecipes || savedMenu || savedManualEntries) {
-            localStorage.removeItem('menuRecipes');
-            localStorage.removeItem('menuPlanning');
-            localStorage.removeItem('menuManualEntries');
-        }
+        // Garder une copie locale des donnees cloud (indispensable pour le mode hors ligne)
+        localStorage.setItem('menuRecipes', JSON.stringify(recipes));
+        localStorage.setItem('menuPlanning', JSON.stringify(menu));
+        localStorage.setItem('menuManualEntries', JSON.stringify(manualEntries));
         
         renderRecipes();
         renderDays();
@@ -294,6 +304,64 @@ function exportRecipesToFile() {
     
     lastExportMonth = new Date().toISOString().slice(0, 7);
     saveData();
+}
+
+// Importer des recettes depuis un fichier texte d'export (format : === Nom === / Lien: ... / Notes: ...)
+function importRecipesFromFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+        const text = reader.result;
+        const imported = [];
+        let current = null;
+        
+        text.split(/\r?\n/).forEach(line => {
+            const nameMatch = line.match(/^=== (.+) ===$/);
+            if (nameMatch) {
+                if (current && current.name) imported.push(current);
+                current = { name: nameMatch[1].trim(), url: null, text: null };
+            } else if (current) {
+                const linkMatch = line.match(/^Lien: (.*)$/);
+                const notesMatch = line.match(/^Notes: (.*)$/);
+                if (linkMatch) {
+                    current.url = linkMatch[1].trim() || null;
+                } else if (notesMatch) {
+                    current.text = notesMatch[1].trim() || null;
+                }
+            }
+        });
+        if (current && current.name) imported.push(current);
+        
+        if (imported.length === 0) {
+            alert('Aucune recette trouv\u00e9e dans ce fichier. V\u00e9rifiez qu\u2019il s\u2019agit d\u2019un export "mes-recettes-....txt".');
+            return;
+        }
+        
+        let added = 0;
+        let skipped = 0;
+        imported.forEach(r => {
+            const exists = recipes.some(existing => existing.name.toLowerCase() === r.name.toLowerCase());
+            if (exists) {
+                skipped++;
+            } else {
+                recipes.push({
+                    id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 8),
+                    name: r.name,
+                    url: r.url,
+                    text: r.text,
+                    imageUrl: null,
+                    category: null,
+                    tags: [],
+                    createdAt: new Date().toISOString()
+                });
+                added++;
+            }
+        });
+        
+        saveData();
+        renderRecipes();
+        alert(added + ' recette(s) import\u00e9e(s), ' + skipped + ' d\u00e9j\u00e0 pr\u00e9sente(s) (ignor\u00e9es).');
+    };
+    reader.readAsText(file);
 }
 
 // Proposer l'export automatique une fois par mois
@@ -545,6 +613,18 @@ function setupMobileTabs() {
     const exportRecipesBtn = document.getElementById('export-recipes-btn');
     if (exportRecipesBtn) {
         exportRecipesBtn.addEventListener('click', exportRecipesToFile);
+    }
+    
+    const importRecipesBtn = document.getElementById('import-recipes-btn');
+    const importRecipesInput = document.getElementById('import-recipes-input');
+    if (importRecipesBtn && importRecipesInput) {
+        importRecipesBtn.addEventListener('click', () => importRecipesInput.click());
+        importRecipesInput.addEventListener('change', () => {
+            if (importRecipesInput.files && importRecipesInput.files[0]) {
+                importRecipesFromFile(importRecipesInput.files[0]);
+                importRecipesInput.value = '';
+            }
+        });
     }
 
     // Recherche et filtre des recettes

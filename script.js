@@ -298,6 +298,9 @@ function exportRecipesToFile() {
         if (recipe.url) {
             lines.push('Lien: ' + recipe.url);
         }
+        if (recipe.imageUrl) {
+            lines.push('Image: ' + recipe.imageUrl);
+        }
         if (recipe.text) {
             lines.push('Notes: ' + recipe.text);
         }
@@ -330,12 +333,15 @@ function importRecipesFromFile(file) {
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
                 if (current && current.name) imported.push(current);
-                current = { name: nameMatch[1].trim(), url: null, text: null };
+                current = { name: nameMatch[1].trim(), url: null, text: null, imageUrl: null };
             } else if (current) {
                 const linkMatch = line.match(/^Lien: (.*)$/);
                 const notesMatch = line.match(/^Notes: (.*)$/);
+                const imageMatch = line.match(/^Image: (.*)$/);
                 if (linkMatch) {
                     current.url = linkMatch[1].trim() || null;
+                } else if (imageMatch) {
+                    current.imageUrl = imageMatch[1].trim() || null;
                 } else if (notesMatch) {
                     current.text = notesMatch[1].trim() || null;
                 }
@@ -349,18 +355,31 @@ function importRecipesFromFile(file) {
         }
         
         let added = 0;
+        let updated = 0;
         let skipped = 0;
         imported.forEach(r => {
-            const exists = recipes.some(existing => existing.name.toLowerCase() === r.name.toLowerCase());
-            if (exists) {
-                skipped++;
+            const existing = recipes.find(e => e.name.toLowerCase() === r.name.toLowerCase());
+            if (existing) {
+                // Mettre a jour les champs manquants de la recette existante (ex. image apres re-import)
+                if (!existing.imageUrl && r.imageUrl) {
+                    existing.imageUrl = r.imageUrl;
+                    updated++;
+                }
+                if (!existing.url && r.url) {
+                    existing.url = r.url;
+                    updated++;
+                }
+                if (!existing.text && r.text) {
+                    existing.text = r.text;
+                    updated++;
+                }
             } else {
                 recipes.push({
                     id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 8),
                     name: r.name,
                     url: r.url,
                     text: r.text,
-                    imageUrl: null,
+                    imageUrl: r.imageUrl,
                     category: null,
                     tags: [],
                     createdAt: new Date().toISOString()
@@ -371,7 +390,7 @@ function importRecipesFromFile(file) {
         
         saveData();
         renderRecipes();
-        alert(added + ' recette(s) import\u00e9e(s), ' + skipped + ' d\u00e9j\u00e0 pr\u00e9sente(s) (ignor\u00e9es).');
+        alert(added + ' recette(s) import\u00e9e(s), ' + updated + ' champ(s) compl\u00e9t\u00e9(s) sur des recettes existantes.');
     };
     reader.readAsText(file);
 }

@@ -343,10 +343,21 @@ function importRecipesFromFile(file) {
         const imported = [];
         let current = null;
         
+        // Nettoyer les notes a la fermeture d'une recette :
+        // retirer les sauts de ligne de fin (separateurs entre recettes)
+        // et réduire les suites de lignes vides à une seule ligne vide
+        const finalizeRecipe = r => {
+            if (r.text) {
+                r.text = r.text.replace(/\n{3,}/g, '\n\n').replace(/[\n\s]+$/, '');
+                if (!r.text) r.text = null;
+            }
+            return r;
+        };
+        
         text.split(/\r?\n/).forEach(line => {
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
-                if (current && current.name) imported.push(current);
+                if (current && current.name) imported.push(finalizeRecipe(current));
                 current = { name: nameMatch[1].trim(), url: null, text: null, imageUrl: null, tags: [], category: null };
                 return;
             }
@@ -369,13 +380,14 @@ function importRecipesFromFile(file) {
                     current.text = notesMatch[1].trim().replace(/\\n/g, '\n') || null;
                 } else {
                     // Suite des notes : ligne sans prefixe reconnu apres une ligne Notes:
-                    if (current.text && line.trim() !== '') {
-                        current.text += '\n' + line;
+                    // les lignes vides sont des sauts de paragraphe : les conserver
+                    if (current.text) {
+                        current.text += line.trim() === '' ? '\n' : '\n' + line;
                     }
                 }
             }
         });
-        if (current && current.name) imported.push(current);
+        if (current && current.name) imported.push(finalizeRecipe(current));
         
         if (imported.length === 0) {
             alert('Aucune recette trouv\u00e9e dans ce fichier. V\u00e9rifiez qu\u2019il s\u2019agit d\u2019un export "mes-recettes-....txt".');

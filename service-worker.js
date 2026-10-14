@@ -1,6 +1,6 @@
 // Service Worker Ma Cuisine
-// CACHE_VERSION doit suivre la version du site (v33.001 au moment de l'ajout)
-const CACHE_VERSION = 'v33.002';
+// CACHE_VERSION doit suivre la version du site
+const CACHE_VERSION = 'v33.004';
 const CACHE_NAME = `ma-cuisine-${CACHE_VERSION}`;
 const APP_SHELL = [
     './',
@@ -18,6 +18,13 @@ self.addEventListener('install', (event) => {
             .then(cache => cache.addAll(APP_SHELL))
             .then(() => self.skipWaiting())
     );
+});
+
+// Mise a jour immediate quand la page le demande (evite de rester bloque sur une vieille version)
+self.addEventListener('message', (event) => {
+    if (event.data === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
 // Activation : purger les anciens caches et prendre le contrôle

@@ -34,7 +34,19 @@ async function init() {
     
     // Enregistrer le service worker pour le mode hors ligne (PWA)
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js').catch(err => {
+        navigator.serviceWorker.register('./service-worker.js').then(reg => {
+            // Appliquer immediatement une nouvelle version du service worker des qu'elle est detectee
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                if (newWorker) {
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            newWorker.postMessage('SKIP_WAITING');
+                        }
+                    });
+                }
+            });
+        }).catch(err => {
             console.warn('Service worker non enregistre :', err);
         });
     }

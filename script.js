@@ -582,15 +582,29 @@ function getSwipeSections() {
     return Array.from(document.querySelectorAll('[data-section]'));
 }
 
+let menuScrollPosition = 0;
+
 function switchToTab(tabName) {
     const tabs = getMobileTabs();
     const target = tabs.find(t => t.dataset.tab === tabName);
     if (!target) return;
+    const activeTab = tabs.find(t => t.classList.contains('active'));
+    const leavingMenu = activeTab && activeTab.dataset.tab === 'menu' && tabName !== 'menu';
+    // Sur telephone, mémoriser la position du scroll du Menu avant de le quitter
+    if (leavingMenu && window.innerWidth <= 1024) {
+        menuScrollPosition = window.scrollY;
+    }
     tabs.forEach(t => t.classList.remove('active'));
     target.classList.add('active');
     getSwipeSections().forEach(section => {
         section.classList.toggle('hidden-tab', section.dataset.section !== tabName);
     });
+    // Restaurer la position du scroll du Menu (le retour depuis Recettes laissait la page tout en bas)
+    if (tabName === 'menu' && window.innerWidth <= 1024) {
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: menuScrollPosition });
+        });
+    }
 }
 
 function isSwipeTargetValid(target) {

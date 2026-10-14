@@ -791,9 +791,13 @@ function setupMobileTabs() {
     }
 
     // Recherche et filtre des recettes
+    // En mode selection ("Ajouter pour le"), conserver le contexte jour/repas,
+    // sinon renderRecipes() sans arguments sortait du mode selection et l'ajout echouait
     const recipeSearch = document.getElementById('recipe-search');
     if (recipeSearch) {
-        recipeSearch.addEventListener('input', renderRecipes);
+        recipeSearch.addEventListener('input', () => {
+            renderRecipes(!!window.currentSelectingDay, window.currentSelectingDay, window.currentSelectingMeal);
+        });
     }
 
     // Modal

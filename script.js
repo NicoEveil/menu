@@ -302,7 +302,7 @@ function exportRecipesToFile() {
             lines.push('Image: ' + recipe.imageUrl);
         }
         if (recipe.text) {
-            lines.push('Notes: ' + recipe.text);
+            lines.push('Notes: ' + recipe.text.replace(/\r?\n/g, '\\n'));
         }
         if (recipe.tags && recipe.tags.length > 0) {
             lines.push('Tags: ' + recipe.tags.join(', '));
@@ -357,7 +357,7 @@ function importRecipesFromFile(file) {
                 } else if (catMatch) {
                     current.category = catMatch[1].trim() || null;
                 } else if (notesMatch) {
-                    current.text = notesMatch[1].trim() || null;
+                    current.text = notesMatch[1].trim().replace(/\\n/g, '\n') || null;
                 }
             }
         });

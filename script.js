@@ -1546,6 +1546,10 @@ function attachDayEvents() {
                 box.draggable = isDragEnabled();
                 manualEntries[day][meal] = input.value;
                 box.classList.toggle('has-value', !!input.value);
+                // Texte vide : supprimer aussi le lien vers la recette
+                if (!input.value.trim() && menu[day]) {
+                    menu[day][meal] = null;
+                }
                 saveData();
                 renderDays();
             };

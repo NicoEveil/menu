@@ -1385,6 +1385,15 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
             deleteRecipe(recipe.id);
         });
         
+        // Sur telephone, le lien preview d'une carte doit ouvrir la recette en lecture,
+        // pas naviguer vers le site externe (comme le reste de la carte)
+        const linkPreview = card.querySelector('.recipe-link-preview');
+        if (linkPreview && window.innerWidth <= 768) {
+            linkPreview.addEventListener('click', (e) => {
+                e.preventDefault();
+            });
+        }
+        
         // Événements drag & drop pour les recettes
         if (isDragEnabled()) {
             card.addEventListener('dragstart', (ev) => {

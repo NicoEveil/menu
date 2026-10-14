@@ -31,6 +31,7 @@ async function init() {
     renderDays();
     await loadData();
     setupDayRollover();
+    setupAutoSync();
     
     // Enregistrer le service worker pour le mode hors ligne (PWA)
     if ('serviceWorker' in navigator) {
@@ -58,6 +59,40 @@ async function init() {
             console.warn('Service worker non enregistre :', err);
         });
     }
+}
+
+// Pousser automatiquement les modifications en attente vers le cloud au retour du reseau.
+// Appelé par l'evenement 'online', le retour sur l'onglet (visibilitychange) et un check periodique.
+let syncRetryInProgress = false;
+async function syncPendingToCloud() {
+    if (!navigator.onLine || syncRetryInProgress) return;
+    const pending = localStorage.getItem('menuPendingSync') === 'true' || pendingOfflineChange;
+    if (!pending && cloudReady) return;
+    syncRetryInProgress = true;
+    setSyncStatus('⏳ connexion...');
+    try {
+        if (cloudReady && db) {
+            await saveData();
+        } else {
+            // Firebase pas encore initialise (chargement hors ligne) : repasser par loadData
+            await loadData();
+        }
+    } catch (error) {
+        console.warn('Sync auto échouée, nouvel essai plus tard :', error);
+    } finally {
+        syncRetryInProgress = false;
+    }
+}
+
+function setupAutoSync() {
+    window.addEventListener('online', syncPendingToCloud);
+    window.addEventListener('offline', () => {
+        setSyncStatus('⚠️ hors ligne', 'Hors ligne : données locales, synchronisation au retour du réseau');
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) syncPendingToCloud();
+    });
+    setInterval(syncPendingToCloud, 30000);
 }
 
 // Chargement des données : cloud (Firestore) + migration localStorage

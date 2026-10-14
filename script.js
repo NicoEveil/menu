@@ -1546,9 +1546,16 @@ function attachDayEvents() {
                 box.draggable = isDragEnabled();
                 manualEntries[day][meal] = input.value;
                 box.classList.toggle('has-value', !!input.value);
-                // Texte vide : supprimer aussi le lien vers la recette
-                if (!input.value.trim() && menu[day]) {
-                    menu[day][meal] = null;
+                // Texte vide ou nom de la recette liee absent : supprimer le lien
+                const linkedId = menu[day] ? menu[day][meal] : null;
+                if (linkedId) {
+                    const linkedRecipe = recipes.find(r => r.id === linkedId);
+                    const linkedName = linkedRecipe ? linkedRecipe.name : null;
+                    const textOk = linkedName && input.value.trim() &&
+                        input.value.toLowerCase().includes(linkedName.toLowerCase());
+                    if (!textOk) {
+                        menu[day][meal] = null;
+                    }
                 }
                 saveData();
                 renderDays();

@@ -388,9 +388,15 @@ function importRecipesFromFile(file) {
                     existing.url = r.url;
                     updated++;
                 }
-                if (!existing.text && r.text) {
-                    existing.text = r.text;
-                    updated++;
+                if (r.text) {
+                    if (!existing.text) {
+                        existing.text = r.text;
+                        updated++;
+                    } else if (r.text.length > existing.text.length) {
+                        // Notes importees plus completes (ex. restauration de notes tronquees) : remplacer
+                        existing.text = r.text;
+                        updated++;
+                    }
                 }
                 if (r.tags && r.tags.length > 0 && (!existing.tags || existing.tags.length === 0)) {
                     existing.tags = r.tags;

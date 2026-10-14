@@ -1,6 +1,6 @@
 // Service Worker Ma Cuisine
 // CACHE_VERSION doit suivre la version du site (v33.001 au moment de l'ajout)
-const CACHE_VERSION = 'v33.001';
+const CACHE_VERSION = 'v33.002';
 const CACHE_NAME = `ma-cuisine-${CACHE_VERSION}`;
 const APP_SHELL = [
     './',
@@ -38,6 +38,23 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
     if (event.request.method !== 'GET') return;
+
+    // Firestore / Firebase : réseau d'abord avec fallback cache (pour ouvrir l'app hors ligne)
+    if (url.hostname === 'www.gstatic.com' && url.pathname.includes('firebasejs')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    if (response && response.ok) {
+                        const clone = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                    }
+                    return response;
+                })
+                .catch(() => caches.match(event.request))
+        );
+        return;
+    }
+
     if (url.origin !== self.location.origin) return;
 
     event.respondWith(

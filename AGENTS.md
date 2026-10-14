@@ -45,3 +45,4 @@ Les correctifs entre versions stables incrémentent le patch (`v24.001`, `v24.00
 - **Comptes multi-utilisateurs** : upgrade pour que plusieurs personnes puissent se connecter, chacune avec son propre compte, son propre menu et ses propres recettes (actuellement : connexion anonyme unique Firestore).
 - **Bouton de lien orphelin** : faire disparaître le bouton 🔗 d'une case de repas quand le texte est effacé à la main (actuellement le bouton reste affiché si `menu[day][meal]` n'est pas vidé).
 - **PWA étape 2** : persistance hors ligne des données (recettes, menu) + stratégie de synchronisation au retour du réseau (règle de conflit à valider avec l'utilisateur).
+- **Règle de conflit de synchronisation** : quand des modifications locales sont en attente (`menuPendingSync`), elles écrasent le cloud au retour du réseau (« le local modifié gagne »). À reconsidérer lors des comptes multi-utilisateurs.

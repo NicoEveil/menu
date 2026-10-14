@@ -60,6 +60,16 @@ async function loadData() {
     }
     
     // 2. Initialiser Firebase et charger les données du cloud
+    if (!navigator.onLine) {
+        setSyncStatus('⚠️ hors ligne', 'Hors ligne : données locales, synchronisation au retour du réseau');
+        ensureDayStructures();
+        if (purgeOldDays()) {
+            await saveData();
+        }
+        renderRecipes();
+        renderDays();
+        return;
+    }
     try {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js');
         const { getFirestore, doc, getDoc, setDoc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js');
@@ -161,8 +171,7 @@ async function loadData() {
         checkMonthlyExport();
     } catch (error) {
         console.warn('Cloud indisponible, utilisation du mode local :', error);
-        setSyncStatus('⚠️ hors ligne', 'Erreur cloud : ' + (error && error.message ? error.message : error));
-        alert('Synchronisation cloud impossible.\n\nErreur : ' + (error && error.message ? error.message : error) + '\n\nL\u2019application fonctionne en mode local (données non synchronisées entre appareils).');
+        setSyncStatus('⚠️ hors ligne', 'Hors ligne : données locales, synchronisation au retour du réseau');
     }
     
     // Initialiser les structures si vide

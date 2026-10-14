@@ -302,7 +302,7 @@ function exportRecipesToFile() {
             lines.push('Image: ' + recipe.imageUrl);
         }
         if (recipe.text) {
-            lines.push('Notes: ' + recipe.text.replace(/\r?\n/g, '\\n'));
+            lines.push('Notes: ' + recipe.text);
         }
         if (recipe.tags && recipe.tags.length > 0) {
             lines.push('Tags: ' + recipe.tags.join(', '));
@@ -357,7 +357,12 @@ function importRecipesFromFile(file) {
                 } else if (catMatch) {
                     current.category = catMatch[1].trim() || null;
                 } else if (notesMatch) {
-                    current.text = notesMatch[1].trim().replace(/\\n/g, '\n') || null;
+                    current.text = notesMatch[1].trim() || null;
+                } else {
+                    // Suite des notes : ligne sans prefixe reconnu apres une ligne Notes:
+                    if (current.text && line.trim() !== '') {
+                        current.text += '\n' + line;
+                    }
                 }
             }
         });

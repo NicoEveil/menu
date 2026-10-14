@@ -318,6 +318,9 @@ function exportRecipesToFile() {
         if (recipe.category) {
             lines.push('Categorie: ' + recipe.category);
         }
+        if (recipe.lastModified) {
+            lines.push('Modifie: ' + recipe.lastModified);
+        }
         lines.push('');
     });
     
@@ -358,7 +361,7 @@ function importRecipesFromFile(file) {
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
                 if (current && current.name) imported.push(finalizeRecipe(current));
-                current = { name: nameMatch[1].trim(), url: null, text: null, imageUrl: null, tags: [], category: null };
+                current = { name: nameMatch[1].trim(), url: null, text: null, imageUrl: null, tags: [], category: null, lastModified: null };
                 return;
             }
             if (current) {
@@ -367,6 +370,7 @@ function importRecipesFromFile(file) {
                 const imageMatch = line.match(/^Image: (.*)$/);
                 const tagsMatch = line.match(/^Tags: (.*)$/);
                 const catMatch = line.match(/^Categorie: (.*)$/);
+                const modMatch = line.match(/^Modifie: (.*)$/);
                 if (linkMatch) {
                     current.url = linkMatch[1].trim() || null;
                 } else if (imageMatch) {
@@ -375,6 +379,8 @@ function importRecipesFromFile(file) {
                     current.tags = tagsMatch[1].split(',').map(t => t.trim()).filter(t => t);
                 } else if (catMatch) {
                     current.category = catMatch[1].trim() || null;
+                } else if (modMatch) {
+                    current.lastModified = modMatch[1].trim() || null;
                 } else if (notesMatch) {
                     // Decoder aussi les sauts de ligne litteraux \n (fichiers exportes par la v33.011)
                     current.text = notesMatch[1].trim().replace(/\\n/g, '\n') || null;
@@ -400,7 +406,24 @@ function importRecipesFromFile(file) {
         imported.forEach(r => {
             const existing = recipes.find(e => e.name.toLowerCase() === r.name.toLowerCase());
             if (existing) {
-                // Mettre a jour les champs manquants de la recette existante (ex. image apres re-import)
+                // Tag invisible de derniere modification : si la version importee est plus recente,
+                // elle remplace integralement la recette existante (supprime le risque de doublon)
+                const importedNewer = r.lastModified && (!existing.lastModified || r.lastModified > existing.lastModified);
+                if (importedNewer) {
+                    existing.url = r.url;
+                    existing.text = r.text;
+                    existing.imageUrl = r.imageUrl || existing.imageUrl;
+                    existing.category = r.category;
+                    if (r.tags && r.tags.length > 0) existing.tags = r.tags;
+                    existing.lastModified = r.lastModified;
+                    updated++;
+                    return;
+                }
+                // Sinon : mettre a jour les champs manquants de la recette existante (ex. image apres re-import)
+                if (!existing.lastModified && r.lastModified) {
+                    existing.lastModified = r.lastModified;
+                    updated++;
+                }
                 if (!existing.imageUrl && r.imageUrl) {
                     existing.imageUrl = r.imageUrl;
                     updated++;
@@ -436,7 +459,8 @@ function importRecipesFromFile(file) {
                     imageUrl: r.imageUrl,
                     category: r.category,
                     tags: r.tags || [],
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    lastModified: r.lastModified || new Date().toISOString()
                 });
                 added++;
             }
@@ -1111,7 +1135,8 @@ function handleRecipeForm(e) {
         imageUrl: manualImage || (existingRecipe ? existingRecipe.imageUrl : null),
         category: category || null,
         tags,
-        createdAt: recipeId ? recipes.find(r => r.id === recipeId).createdAt : new Date().toISOString()
+        createdAt: recipeId ? recipes.find(r => r.id === recipeId).createdAt : new Date().toISOString(),
+        lastModified: new Date().toISOString()
     };
     
     if (recipeId) {

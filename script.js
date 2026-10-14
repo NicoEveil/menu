@@ -1094,7 +1094,7 @@ async function fetchRecipeImage(url, recipeId) {
 
 // Rattraper les images manquantes (créées hors ligne par exemple) une fois en ligne
 async function retryMissingImages() {
-    // Rattrapage des images : une fois par jour, traite tout le backlog avec un petit delai entre requetes
+    // Limiter le rattrapage à une fois par jour, max 10 tentatives (quota gratuit Microlink)
     const today = new Date().toISOString().slice(0, 10);
     if (localStorage.getItem('menuLastImageRetry2') === today) {
         return;
@@ -1102,10 +1102,12 @@ async function retryMissingImages() {
     localStorage.setItem('menuLastImageRetry2', today);
     
     const missing = recipes.filter(r => r.url && !r.imageUrl);
+    let attempts = 0;
     for (const recipe of missing) {
+        if (attempts >= 10) break;
+        attempts++;
         // En cas d'échec (site bloquant), continuer avec les autres recettes
         await fetchRecipeImage(recipe.url, recipe.id);
-        await new Promise(resolve => setTimeout(resolve, 500));
     }
 }
 

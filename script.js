@@ -916,10 +916,30 @@ function exitSelectionMode() {
     delete window.currentSelectingDay;
     delete window.currentSelectingMeal;
     
-    document.getElementById('add-recipe-btn').addEventListener('click', () => showRecipeModal(null));
-    document.getElementById('export-recipes-btn').addEventListener('click', exportRecipesToFile);
+    attachHeaderButtons();
     
     renderRecipes();
+}
+
+// Brancher les boutons de l'en-tête Recettes (appelé à l'init et après restauration du mode sélection)
+function attachHeaderButtons() {
+    const addBtn = document.getElementById('add-recipe-btn');
+    if (addBtn) addBtn.addEventListener('click', () => showRecipeModal(null));
+    
+    const exportBtn = document.getElementById('export-recipes-btn');
+    if (exportBtn) exportBtn.addEventListener('click', exportRecipesToFile);
+    
+    const importBtn = document.getElementById('import-recipes-btn');
+    const importInput = document.getElementById('import-recipes-input');
+    if (importBtn && importInput) {
+        importBtn.addEventListener('click', () => importInput.click());
+        importInput.addEventListener('change', () => {
+            if (importInput.files && importInput.files[0]) {
+                importRecipesFromFile(importInput.files[0]);
+                importInput.value = '';
+            }
+        });
+    }
 }
 
 // Sélectionner une recette pour un jour/repas

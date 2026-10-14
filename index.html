@@ -6,12 +6,12 @@
     <title>Ma Cuisine</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=33.004">
+    <link rel="stylesheet" href="style.css?v=33.005">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Ma Cuisine <span class="version">v33.004</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
+            <h1>Ma Cuisine <span class="version">v33.005</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
         </header>
 
         <div class="main-layout">
@@ -36,7 +36,7 @@
                     <button id="import-recipes-btn" class="btn btn-secondary" title="Importer des recettes depuis un fichier texte d'export">
                         Importer
                     </button>
-                    <input type="file" id="import-recipes-input" accept=".txt,text/plain" hidden>
+                    <input type="file" id="import-recipes-input" accept=".txt,text/plain" style="position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;">
                     <div class="header-spacer"></div>
                     <button id="add-recipe-btn" class="btn btn-primary">
                         <span>+</span> Ajouter
@@ -117,6 +117,6 @@
     <!-- Indicateur de drag (invisible par défaut) -->
     <div id="drag-indicator" class="drag-indicator">Glissez ici pour assigner</div>
 
-    <script src="script.js?v=33.004"></script>
+    <script src="script.js?v=33.005"></script>
 </body>
 </html>

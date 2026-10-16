@@ -1317,8 +1317,16 @@ function showRecipeDetails(recipeId) {
     }
     
     const urlEl = document.getElementById('view-recipe-url');
+    const ingredientsEl = document.getElementById('view-recipe-ingredients');
     const textEl = document.getElementById('view-recipe-text');
     
+    if (recipe.ingredients && recipe.ingredients.length > 0) {
+        ingredientsEl.innerHTML = `<strong>Ingrédients:</strong><ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>`;
+        ingredientsEl.style.display = 'block';
+    } else {
+        ingredientsEl.style.display = 'none';
+    }
+
     if (recipe.url) {
         urlEl.innerHTML = `<strong>Lien:</strong> <a href="${recipe.url}" target="_blank">${recipe.url}</a>`;
         urlEl.style.display = 'block';

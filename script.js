@@ -1488,7 +1488,8 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
                 <button class="btn-icon delete-recipe" title="Supprimer">🗑️</button>
             </div>
             ${!recipe.imageUrl && recipe.text ? `<div class="recipe-notes-preview">${recipe.text}</div>` : ''}
-            ${!recipe.imageUrl && !recipe.text && recipe.url ? `<a href="${recipe.url}" target="_blank" rel="noopener noreferrer" class="recipe-link-preview" title="${recipe.url}">${recipe.url}</a>` : ''}
+            ${!recipe.imageUrl && !recipe.text && recipe.steps ? `<div class="recipe-notes-preview">${recipe.steps}</div>` : ''}
+            ${!recipe.imageUrl && !recipe.text && !recipe.steps && recipe.url ? `<a href="${recipe.url}" target="_blank" rel="noopener noreferrer" class="recipe-link-preview" title="${recipe.url}">${recipe.url}</a>` : ''}
             <div class="recipe-meta">
                 ${recipe.category ? `<span>${recipe.category}</span>` : ''}
                 ${recipe.tags && recipe.tags.length > 0 ? 

@@ -988,26 +988,14 @@ html, body {
 }
 
 /* Ligne de label Ingredients avec selecteur de personnes inline */
-.ingredients-label-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
-}
-
-.ingredients-label-row label {
-    margin-bottom: 0;
-}
-
 .servings-inline {
     font-weight: normal;
     font-size: 0.9em;
     color: var(--text-color);
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 4px;
+    margin-bottom: 8px;
 }
 
 .servings-inline input {

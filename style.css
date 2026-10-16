@@ -635,7 +635,9 @@ header h1 .sync-status {
 }
 
 .recipe-url {
-    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
 }
 
 .recipe-url a {
@@ -646,6 +648,21 @@ header h1 .sync-status {
 
 .recipe-url a:hover {
     text-decoration: underline;
+}
+
+#view-recipe-ingredients {
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+
+#view-recipe-ingredients ul {
+    margin: 8px 0 0;
+    padding-left: 20px;
+}
+
+#view-recipe-ingredients li {
+    margin-bottom: 4px;
 }
 
 .recipe-text {

@@ -1073,6 +1073,7 @@ html, body {
     align-items: center;
     gap: 5px;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .modified-inline input[type="checkbox"] {

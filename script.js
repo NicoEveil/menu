@@ -346,6 +346,9 @@ function exportRecipesToFile() {
         if (recipe.url) {
             lines.push('Lien: ' + recipe.url);
         }
+        if (recipe.servings) {
+            lines.push('Pour: ' + recipe.servings);
+        }
         if (recipe.ingredients && recipe.ingredients.length > 0) {
             lines.push('Ingredients: ' + recipe.ingredients.join(' | '));
         }
@@ -407,11 +410,12 @@ function importRecipesFromFile(file) {
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
                 if (current && current.name) imported.push(finalizeRecipe(current));
-                current = { name: nameMatch[1].trim(), url: null, ingredients: [], text: null, steps: null, imageUrl: null, tags: [], category: null, lastModified: null };
+                current = { name: nameMatch[1].trim(), url: null, servings: null, ingredients: [], text: null, steps: null, imageUrl: null, tags: [], category: null, lastModified: null };
                 return;
             }
             if (current) {
                 const linkMatch = line.match(/^Lien: (.*)$/);
+                const servingsMatch = line.match(/^Pour: (.*)$/);
                 const ingredientsMatch = line.match(/^Ingredients: (.*)$/);
                 const stepsMatch = line.match(/^Recette: (.*)$/);
                 const notesMatch = line.match(/^Notes: (.*)$/);
@@ -421,6 +425,8 @@ function importRecipesFromFile(file) {
                 const modMatch = line.match(/^Modifie: (.*)$/);
                 if (linkMatch) {
                     current.url = linkMatch[1].trim() || null;
+                } else if (servingsMatch) {
+                    current.servings = servingsMatch[1].trim() || null;
                 } else if (ingredientsMatch) {
                     current.ingredients = ingredientsMatch[1].split('|').map(i => i.trim()).filter(i => i);
                 } else if (stepsMatch) {
@@ -463,6 +469,7 @@ function importRecipesFromFile(file) {
                 const importedNewer = r.lastModified && (!existing.lastModified || r.lastModified > existing.lastModified);
                 if (importedNewer) {
                     existing.url = r.url;
+                    existing.servings = r.servings || null;
                     existing.ingredients = r.ingredients;
                     existing.text = r.text;
                     existing.steps = r.steps || null;
@@ -484,6 +491,10 @@ function importRecipesFromFile(file) {
                 }
                 if (!existing.url && r.url) {
                     existing.url = r.url;
+                    updated++;
+                }
+                if (!existing.servings && r.servings) {
+                    existing.servings = r.servings;
                     updated++;
                 }
                 if (!existing.ingredients && r.ingredients && r.ingredients.length > 0) {
@@ -517,6 +528,7 @@ function importRecipesFromFile(file) {
                     id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 8),
                     name: r.name,
                     url: r.url,
+                    servings: r.servings || null,
                     ingredients: r.ingredients || [],
                     text: r.text,
                     steps: r.steps || null,
@@ -1149,6 +1161,7 @@ function showRecipeModal(recipeId) {
         document.getElementById('modal-title').textContent = 'Modifier la recette';
         document.getElementById('recipe-name').value = recipe.name;
         document.getElementById('recipe-url').value = recipe.url || '';
+        document.getElementById('recipe-servings').value = recipe.servings || '';
         document.getElementById('recipe-ingredients').value = (recipe.ingredients || []).join('\n');
         document.getElementById('recipe-steps').value = recipe.steps || '';
         document.getElementById('recipe-text').value = recipe.text || '';
@@ -1194,6 +1207,7 @@ function handleRecipeForm(e) {
     const recipeId = form.dataset.editingId;
     const name = document.getElementById('recipe-name').value.trim();
     const url = document.getElementById('recipe-url').value.trim();
+    const servings = document.getElementById('recipe-servings').value.trim();
     const ingredients = document.getElementById('recipe-ingredients').value
         .split(/\r?\n/).map(l => l.trim()).filter(l => l);
     const steps = document.getElementById('recipe-steps').value.trim();
@@ -1219,6 +1233,7 @@ function handleRecipeForm(e) {
         name,
         url: url || null,
         ingredients,
+        servings: servings || null,
         text: text || null,
         steps: steps || null,
         imageUrl: manualImage || (existingRecipe ? existingRecipe.imageUrl : null),
@@ -1335,8 +1350,9 @@ function showRecipeDetails(recipeId) {
     const ingredientsEl = document.getElementById('view-recipe-ingredients');
     const textEl = document.getElementById('view-recipe-text');
     
+    const servingsLabel = recipe.servings ? ` — pour ${recipe.servings} personnes` : '';
     if (recipe.ingredients && recipe.ingredients.length > 0) {
-        ingredientsEl.innerHTML = `<strong>Ingrédients:</strong><ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>`;
+        ingredientsEl.innerHTML = `<strong>Ingrédients${servingsLabel}</strong><ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>`;
         ingredientsEl.style.display = 'block';
     } else {
         ingredientsEl.style.display = 'none';

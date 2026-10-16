@@ -6,12 +6,12 @@
     <title>Ma Cuisine</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=40.000">
+    <link rel="stylesheet" href="style.css?v=40.002">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Ma Cuisine <span class="version">v40.000</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
+            <h1>Ma Cuisine <span class="version">v40.002</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
         </header>
 
         <div class="main-layout">
@@ -71,7 +71,10 @@
                     <input type="url" id="recipe-url" placeholder="https://...">
                 </div>
                 <div class="form-group">
-                    <label for="recipe-ingredients">Ingrédients <span class="hint">— un par ligne, quantité d'abord : « 200 g farine »</span></label>
+                    <div class="ingredients-label-row">
+                        <label for="recipe-ingredients">Ingrédients <span class="hint">— un par ligne, quantité d'abord</span></label>
+                        <span class="servings-inline">pour <input type="text" id="recipe-servings" size="3" maxlength="3" placeholder="X" aria-label="Nombre de personnes"> personnes</span>
+                    </div>
                     <textarea id="recipe-ingredients" rows="5" placeholder="200 g de farine&#10;3 œufs&#10;20 cl de crème..."></textarea>
                 </div>
                 <div class="form-group">
@@ -127,6 +130,6 @@
     <!-- Indicateur de drag (invisible par défaut) -->
     <div id="drag-indicator" class="drag-indicator">Glissez ici pour assigner</div>
 
-    <script src="script.js?v=40.000"></script>
+    <script src="script.js?v=40.002"></script>
 </body>
 </html>

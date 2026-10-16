@@ -367,6 +367,9 @@ function exportRecipesToFile() {
         if (recipe.category) {
             lines.push('Categorie: ' + recipe.category);
         }
+        if (recipe.modified) {
+            lines.push('Modifiee: oui');
+        }
         if (recipe.lastModified) {
             lines.push('Modifie: ' + recipe.lastModified);
         }
@@ -410,7 +413,7 @@ function importRecipesFromFile(file) {
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
                 if (current && current.name) imported.push(finalizeRecipe(current));
-                current = { name: nameMatch[1].trim(), url: null, servings: null, ingredients: [], text: null, steps: null, imageUrl: null, tags: [], category: null, lastModified: null };
+                current = { name: nameMatch[1].trim(), url: null, servings: null, ingredients: [], text: null, steps: null, imageUrl: null, tags: [], category: null, modified: null, lastModified: null };
                 return;
             }
             if (current) {
@@ -422,6 +425,7 @@ function importRecipesFromFile(file) {
                 const imageMatch = line.match(/^Image: (.*)$/);
                 const tagsMatch = line.match(/^Tags: (.*)$/);
                 const catMatch = line.match(/^Categorie: (.*)$/);
+                const modifiedMatch = line.match(/^Modifiee: (.*)$/);
                 const modMatch = line.match(/^Modifie: (.*)$/);
                 if (linkMatch) {
                     current.url = linkMatch[1].trim() || null;
@@ -437,6 +441,8 @@ function importRecipesFromFile(file) {
                     current.tags = tagsMatch[1].split(',').map(t => t.trim()).filter(t => t);
                 } else if (catMatch) {
                     current.category = catMatch[1].trim() || null;
+                } else if (modifiedMatch) {
+                    current.modified = modifiedMatch[1].trim().toLowerCase() === 'oui';
                 } else if (modMatch) {
                     current.lastModified = modMatch[1].trim() || null;
                 } else if (notesMatch) {
@@ -469,6 +475,7 @@ function importRecipesFromFile(file) {
                 const importedNewer = r.lastModified && (!existing.lastModified || r.lastModified > existing.lastModified);
                 if (importedNewer) {
                     existing.url = r.url;
+                    existing.modified = r.modified === true;
                     existing.servings = r.servings || null;
                     existing.ingredients = r.ingredients;
                     existing.text = r.text;
@@ -491,6 +498,10 @@ function importRecipesFromFile(file) {
                 }
                 if (!existing.url && r.url) {
                     existing.url = r.url;
+                    updated++;
+                }
+                if (r.modified === true && !existing.modified) {
+                    existing.modified = true;
                     updated++;
                 }
                 if (!existing.servings && r.servings) {
@@ -528,6 +539,7 @@ function importRecipesFromFile(file) {
                     id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 8),
                     name: r.name,
                     url: r.url,
+                    modified: r.modified === true,
                     servings: r.servings || null,
                     ingredients: r.ingredients || [],
                     text: r.text,
@@ -1161,6 +1173,7 @@ function showRecipeModal(recipeId) {
         document.getElementById('modal-title').textContent = 'Modifier la recette';
         document.getElementById('recipe-name').value = recipe.name;
         document.getElementById('recipe-url').value = recipe.url || '';
+        document.getElementById('recipe-modified').checked = !recipe.url || recipe.modified === true;
         document.getElementById('recipe-servings').value = recipe.servings || '';
         document.getElementById('recipe-ingredients').value = (recipe.ingredients || []).join('\n');
         document.getElementById('recipe-steps').value = recipe.steps || '';
@@ -1173,6 +1186,7 @@ function showRecipeModal(recipeId) {
     } else {
         document.getElementById('modal-title').textContent = 'Ajouter une recette';
         form.reset();
+        document.getElementById('recipe-modified').checked = true;
         form.dataset.editingId = '';
     }
     
@@ -1207,6 +1221,8 @@ function handleRecipeForm(e) {
     const recipeId = form.dataset.editingId;
     const name = document.getElementById('recipe-name').value.trim();
     const url = document.getElementById('recipe-url').value.trim();
+    const modifiedCheckbox = document.getElementById('recipe-modified');
+    const modified = !url || modifiedCheckbox.checked;
     const servings = document.getElementById('recipe-servings').value.trim();
     const ingredients = document.getElementById('recipe-ingredients').value
         .split(/\r?\n/).map(l => l.trim()).filter(l => l);
@@ -1232,6 +1248,7 @@ function handleRecipeForm(e) {
         id: finalId,
         name,
         url: url || null,
+        modified,
         ingredients,
         servings: servings || null,
         text: text || null,
@@ -1319,7 +1336,16 @@ function showRecipeDetails(recipeId) {
     const recipe = recipes.find(r => r.id === recipeId);
     const modal = document.getElementById('view-recipe-modal');
     
-    document.getElementById('view-recipe-title').textContent = recipe.name;
+    const titleEl = document.getElementById('view-recipe-title');
+    titleEl.textContent = recipe.name;
+    const existingBadge = titleEl.querySelector('.modified-badge');
+    if (existingBadge) existingBadge.remove();
+    if (recipe.url && recipe.modified === true) {
+        const badge = document.createElement('span');
+        badge.className = 'modified-badge';
+        badge.textContent = 'recette modifiée';
+        titleEl.appendChild(badge);
+    }
     
     const imageEl = document.getElementById('view-recipe-image');
     if (recipe.imageUrl) {

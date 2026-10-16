@@ -346,6 +346,9 @@ function exportRecipesToFile() {
         if (recipe.url) {
             lines.push('Lien: ' + recipe.url);
         }
+        if (recipe.ingredients && recipe.ingredients.length > 0) {
+            lines.push('Ingredients: ' + recipe.ingredients.join(' | '));
+        }
         if (recipe.imageUrl) {
             lines.push('Image: ' + recipe.imageUrl);
         }
@@ -401,11 +404,12 @@ function importRecipesFromFile(file) {
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
                 if (current && current.name) imported.push(finalizeRecipe(current));
-                current = { name: nameMatch[1].trim(), url: null, text: null, imageUrl: null, tags: [], category: null, lastModified: null };
+                current = { name: nameMatch[1].trim(), url: null, ingredients: [], text: null, imageUrl: null, tags: [], category: null, lastModified: null };
                 return;
             }
             if (current) {
                 const linkMatch = line.match(/^Lien: (.*)$/);
+                const ingredientsMatch = line.match(/^Ingredients: (.*)$/);
                 const notesMatch = line.match(/^Notes: (.*)$/);
                 const imageMatch = line.match(/^Image: (.*)$/);
                 const tagsMatch = line.match(/^Tags: (.*)$/);
@@ -413,6 +417,8 @@ function importRecipesFromFile(file) {
                 const modMatch = line.match(/^Modifie: (.*)$/);
                 if (linkMatch) {
                     current.url = linkMatch[1].trim() || null;
+                } else if (ingredientsMatch) {
+                    current.ingredients = ingredientsMatch[1].split('|').map(i => i.trim()).filter(i => i);
                 } else if (imageMatch) {
                     current.imageUrl = imageMatch[1].trim() || null;
                 } else if (tagsMatch) {
@@ -451,6 +457,7 @@ function importRecipesFromFile(file) {
                 const importedNewer = r.lastModified && (!existing.lastModified || r.lastModified > existing.lastModified);
                 if (importedNewer) {
                     existing.url = r.url;
+                    existing.ingredients = r.ingredients;
                     existing.text = r.text;
                     existing.imageUrl = r.imageUrl || existing.imageUrl;
                     existing.category = r.category;
@@ -470,6 +477,10 @@ function importRecipesFromFile(file) {
                 }
                 if (!existing.url && r.url) {
                     existing.url = r.url;
+                    updated++;
+                }
+                if (!existing.ingredients && r.ingredients && r.ingredients.length > 0) {
+                    existing.ingredients = r.ingredients;
                     updated++;
                 }
                 if (r.text) {
@@ -495,6 +506,7 @@ function importRecipesFromFile(file) {
                     id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 8),
                     name: r.name,
                     url: r.url,
+                    ingredients: r.ingredients || [],
                     text: r.text,
                     imageUrl: r.imageUrl,
                     category: r.category,
@@ -1125,6 +1137,7 @@ function showRecipeModal(recipeId) {
         document.getElementById('modal-title').textContent = 'Modifier la recette';
         document.getElementById('recipe-name').value = recipe.name;
         document.getElementById('recipe-url').value = recipe.url || '';
+        document.getElementById('recipe-ingredients').value = (recipe.ingredients || []).join('\n');
         document.getElementById('recipe-text').value = recipe.text || '';
         document.getElementById('recipe-image-url').value = recipe.imageUrl || '';
         document.getElementById('recipe-category').value = recipe.category || '';
@@ -1168,6 +1181,8 @@ function handleRecipeForm(e) {
     const recipeId = form.dataset.editingId;
     const name = document.getElementById('recipe-name').value.trim();
     const url = document.getElementById('recipe-url').value.trim();
+    const ingredients = document.getElementById('recipe-ingredients').value
+        .split(/\r?\n/).map(l => l.trim()).filter(l => l);
     const text = document.getElementById('recipe-text').value.trim();
     const manualImage = document.getElementById('recipe-image-url').value.trim();
     const category = document.getElementById('recipe-category').value.trim();
@@ -1189,6 +1204,7 @@ function handleRecipeForm(e) {
         id: finalId,
         name,
         url: url || null,
+        ingredients,
         text: text || null,
         imageUrl: manualImage || (existingRecipe ? existingRecipe.imageUrl : null),
         category: category || null,

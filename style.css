@@ -540,6 +540,13 @@ header h1 .sync-status {
     color: var(--text-color);
 }
 
+.form-group label .hint {
+    font-weight: normal;
+    font-size: 0.8em;
+    color: var(--text-color);
+    opacity: 0.6;
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {

@@ -1352,7 +1352,16 @@ function showRecipeDetails(recipeId) {
     
     const servingsLabel = recipe.servings ? ` — pour ${recipe.servings} personnes` : '';
     if (recipe.ingredients && recipe.ingredients.length > 0) {
-        ingredientsEl.innerHTML = `<strong>Ingrédients${servingsLabel}</strong><ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>`;
+        // Affichage intelligent : une ligne finissant par " :" est un sous-titre (gras, sans puce),
+        // une ligne vide aere la liste, le reste est un ingredient a puce
+        const itemsHtml = recipe.ingredients.map(line => {
+            if (!line.trim()) return '<li class="ingredients-sep">&nbsp;</li>';
+            if (line.trim().endsWith(':')) {
+                return `<li class="ingredients-title">${line}</li>`;
+            }
+            return `<li>${line}</li>`;
+        }).join('');
+        ingredientsEl.innerHTML = `<strong>Ingrédients${servingsLabel}</strong><ul>${itemsHtml}</ul>`;
         ingredientsEl.style.display = 'block';
     } else {
         ingredientsEl.style.display = 'none';

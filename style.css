@@ -673,6 +673,41 @@ header h1 .sync-status {
 #view-recipe-ingredients ul {
     margin: 8px 0 0;
     padding-left: 20px;
+    list-style: none;
+}
+
+#view-recipe-ingredients li {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 4px;
+}
+
+#view-recipe-ingredients li::before {
+    content: '\2022';
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+}
+
+/* Sous-titres de groupe (lignes finissant par " :") : gras, sans puce */
+#view-recipe-ingredients li.ingredients-title {
+    font-weight: bold;
+    padding-left: 0;
+    margin-top: 10px;
+}
+
+#view-recipe-ingredients li.ingredients-title::before {
+    content: none;
+}
+
+/* Ligne vide : simple aeration, sans puce */
+#view-recipe-ingredients li.ingredients-sep {
+    padding-left: 0;
+    margin-bottom: 2px;
+}
+
+#view-recipe-ingredients li.ingredients-sep::before {
+    content: none;
 }
 
 #view-recipe-ingredients li {

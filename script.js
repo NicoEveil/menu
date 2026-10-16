@@ -349,6 +349,9 @@ function exportRecipesToFile() {
         if (recipe.ingredients && recipe.ingredients.length > 0) {
             lines.push('Ingredients: ' + recipe.ingredients.join(' | '));
         }
+        if (recipe.steps) {
+            lines.push('Recette: ' + recipe.steps.replace(/\r?\n/g, '\\n'));
+        }
         if (recipe.imageUrl) {
             lines.push('Image: ' + recipe.imageUrl);
         }
@@ -404,12 +407,13 @@ function importRecipesFromFile(file) {
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
                 if (current && current.name) imported.push(finalizeRecipe(current));
-                current = { name: nameMatch[1].trim(), url: null, ingredients: [], text: null, imageUrl: null, tags: [], category: null, lastModified: null };
+                current = { name: nameMatch[1].trim(), url: null, ingredients: [], text: null, steps: null, imageUrl: null, tags: [], category: null, lastModified: null };
                 return;
             }
             if (current) {
                 const linkMatch = line.match(/^Lien: (.*)$/);
                 const ingredientsMatch = line.match(/^Ingredients: (.*)$/);
+                const stepsMatch = line.match(/^Recette: (.*)$/);
                 const notesMatch = line.match(/^Notes: (.*)$/);
                 const imageMatch = line.match(/^Image: (.*)$/);
                 const tagsMatch = line.match(/^Tags: (.*)$/);
@@ -419,6 +423,8 @@ function importRecipesFromFile(file) {
                     current.url = linkMatch[1].trim() || null;
                 } else if (ingredientsMatch) {
                     current.ingredients = ingredientsMatch[1].split('|').map(i => i.trim()).filter(i => i);
+                } else if (stepsMatch) {
+                    current.steps = stepsMatch[1].trim().replace(/\\n/g, '\n') || null;
                 } else if (imageMatch) {
                     current.imageUrl = imageMatch[1].trim() || null;
                 } else if (tagsMatch) {
@@ -459,6 +465,7 @@ function importRecipesFromFile(file) {
                     existing.url = r.url;
                     existing.ingredients = r.ingredients;
                     existing.text = r.text;
+                    existing.steps = r.steps || null;
                     existing.imageUrl = r.imageUrl || existing.imageUrl;
                     existing.category = r.category;
                     if (r.tags && r.tags.length > 0) existing.tags = r.tags;
@@ -481,6 +488,10 @@ function importRecipesFromFile(file) {
                 }
                 if (!existing.ingredients && r.ingredients && r.ingredients.length > 0) {
                     existing.ingredients = r.ingredients;
+                    updated++;
+                }
+                if (!existing.steps && r.steps) {
+                    existing.steps = r.steps;
                     updated++;
                 }
                 if (r.text) {
@@ -508,6 +519,7 @@ function importRecipesFromFile(file) {
                     url: r.url,
                     ingredients: r.ingredients || [],
                     text: r.text,
+                    steps: r.steps || null,
                     imageUrl: r.imageUrl,
                     category: r.category,
                     tags: r.tags || [],
@@ -1138,6 +1150,7 @@ function showRecipeModal(recipeId) {
         document.getElementById('recipe-name').value = recipe.name;
         document.getElementById('recipe-url').value = recipe.url || '';
         document.getElementById('recipe-ingredients').value = (recipe.ingredients || []).join('\n');
+        document.getElementById('recipe-steps').value = recipe.steps || '';
         document.getElementById('recipe-text').value = recipe.text || '';
         document.getElementById('recipe-image-url').value = recipe.imageUrl || '';
         document.getElementById('recipe-category').value = recipe.category || '';
@@ -1183,6 +1196,7 @@ function handleRecipeForm(e) {
     const url = document.getElementById('recipe-url').value.trim();
     const ingredients = document.getElementById('recipe-ingredients').value
         .split(/\r?\n/).map(l => l.trim()).filter(l => l);
+    const steps = document.getElementById('recipe-steps').value.trim();
     const text = document.getElementById('recipe-text').value.trim();
     const manualImage = document.getElementById('recipe-image-url').value.trim();
     const category = document.getElementById('recipe-category').value.trim();
@@ -1206,6 +1220,7 @@ function handleRecipeForm(e) {
         url: url || null,
         ingredients,
         text: text || null,
+        steps: steps || null,
         imageUrl: manualImage || (existingRecipe ? existingRecipe.imageUrl : null),
         category: category || null,
         tags,
@@ -1325,6 +1340,14 @@ function showRecipeDetails(recipeId) {
         ingredientsEl.style.display = 'block';
     } else {
         ingredientsEl.style.display = 'none';
+    }
+
+    const stepsEl = document.getElementById('view-recipe-steps');
+    if (recipe.steps) {
+        stepsEl.innerHTML = `<strong>Recette:</strong><pre>${recipe.steps}</pre>`;
+        stepsEl.style.display = 'block';
+    } else {
+        stepsEl.style.display = 'none';
     }
 
     if (recipe.url) {

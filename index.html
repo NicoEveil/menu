@@ -6,12 +6,12 @@
     <title>Ma Cuisine</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=39.005">
+    <link rel="stylesheet" href="style.css?v=39.006">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Ma Cuisine <span class="version">v39.005</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
+            <h1>Ma Cuisine <span class="version">v39.006</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
         </header>
 
         <div class="main-layout">
@@ -75,8 +75,12 @@
                     <textarea id="recipe-ingredients" rows="5" placeholder="200 g de farine&#10;3 œufs&#10;20 cl de crème..."></textarea>
                 </div>
                 <div class="form-group">
+                    <label for="recipe-steps">Recette <span class="hint">— les étapes, un paragraphe par étape</span></label>
+                    <textarea id="recipe-steps" rows="6" placeholder="Étape 1 : ...&#10;&#10;Étape 2 : ..."></textarea>
+                </div>
+                <div class="form-group">
                     <label for="recipe-text">Notes</label>
-                    <textarea id="recipe-text" rows="5" placeholder="Notes, étapes, astuces..."></textarea>
+                    <textarea id="recipe-text" rows="5" placeholder="Notes, astuces..."></textarea>
                 </div>
                 <div class="form-group">
                     <label for="recipe-image-url">Image</label>
@@ -110,6 +114,7 @@
                 <div id="view-recipe-tags" class="recipe-meta"></div>
                 <div id="view-recipe-url" class="recipe-url"></div>
                 <div id="view-recipe-ingredients"></div>
+                <div id="view-recipe-steps"></div>
                 <div id="view-recipe-text" class="recipe-text"></div>
             </div>
             <div class="modal-footer">
@@ -122,6 +127,6 @@
     <!-- Indicateur de drag (invisible par défaut) -->
     <div id="drag-indicator" class="drag-indicator">Glissez ici pour assigner</div>
 
-    <script src="script.js?v=39.005"></script>
+    <script src="script.js?v=39.006"></script>
 </body>
 </html>

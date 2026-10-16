@@ -1173,7 +1173,7 @@ function showRecipeModal(recipeId) {
         document.getElementById('modal-title').textContent = 'Modifier la recette';
         document.getElementById('recipe-name').value = recipe.name;
         document.getElementById('recipe-url').value = recipe.url || '';
-        document.getElementById('recipe-modified').checked = !recipe.url || recipe.modified === true;
+        document.getElementById('recipe-modified').checked = recipe.modified === true;
         document.getElementById('recipe-servings').value = recipe.servings || '';
         document.getElementById('recipe-ingredients').value = (recipe.ingredients || []).join('\n');
         document.getElementById('recipe-steps').value = recipe.steps || '';
@@ -1186,7 +1186,7 @@ function showRecipeModal(recipeId) {
     } else {
         document.getElementById('modal-title').textContent = 'Ajouter une recette';
         form.reset();
-        document.getElementById('recipe-modified').checked = true;
+        document.getElementById('recipe-modified').checked = false;
         form.dataset.editingId = '';
     }
     

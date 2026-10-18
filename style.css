@@ -122,14 +122,6 @@ header .shopping-list-btn .shopping-list-icon {
     font-size: 0.9em;
 }
 
-.shopping-list-content .shopping-manual-title {
-    font-weight: bold;
-    margin: 18px 0 6px;
-    color: var(--primary-color);
-    border-top: 1px solid var(--border-color);
-    padding-top: 14px;
-}
-
 /* Layout principal : 2/5 menu, 3/5 recettes */
 .main-layout {
     display: grid;

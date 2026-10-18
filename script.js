@@ -1218,10 +1218,7 @@ function escapeHtml(text) {
 // Construire la liste de courses a partir des repas affiches (8 jours a partir d'aujourd'hui)
 function buildShoppingList() {
     const daysToShow = getDaysToShow(new Date());
-    const seen = new Map();
-    const order = [];
-    const seenManual = new Map();
-    const manualOrder = [];
+    const entries = [];
 
     daysToShow.forEach(dayInfo => {
         ['dejeuner', 'diner'].forEach(meal => {
@@ -1229,33 +1226,22 @@ function buildShoppingList() {
             if (recipeId) {
                 const recipe = recipes.find(r => r.id === recipeId);
                 if (!recipe) return;
-                if (!seen.has(recipe.id)) {
-                    seen.set(recipe.id, { recipe, count: 0 });
-                    order.push(recipe.id);
-                }
-                seen.get(recipe.id).count++;
+                entries.push({
+                    name: recipe.name,
+                    ingredients: (recipe.ingredients || []).filter(l => l.trim())
+                });
                 return;
             }
             const manualName = (manualEntries[dayInfo.dateKey]?.[meal] || '').trim();
             if (!manualName) return;
-            if (!seenManual.has(manualName)) {
-                seenManual.set(manualName, { name: manualName, count: 0 });
-                manualOrder.push(manualName);
-            }
-            seenManual.get(manualName).count++;
+            entries.push({
+                name: manualName,
+                ingredients: []
+            });
         });
     });
 
-    const recipeEntries = order.map(id => {
-        const entry = seen.get(id);
-        return {
-            recipe: entry.recipe,
-            count: entry.count,
-            ingredients: (entry.recipe.ingredients || []).filter(l => l.trim())
-        };
-    });
-    const manualEntriesOut = manualOrder.map(name => seenManual.get(name));
-    return { recipeEntries, manualEntriesOut };
+    return entries;
 }
 
 // Ouvrir la modal liste de courses
@@ -1264,29 +1250,19 @@ function openShoppingListModal() {
     const contentEl = document.getElementById('shopping-list-content');
     if (!modal || !contentEl) return;
 
-    const { recipeEntries, manualEntriesOut } = buildShoppingList();
-    const hasRecipes = recipeEntries.length > 0;
-    const hasManual = manualEntriesOut.length > 0;
-
-    if (!hasRecipes && !hasManual) {
+    const entries = buildShoppingList();
+    if (entries.length === 0) {
         contentEl.innerHTML = '<div class="shopping-list-empty">Aucun repas planifi\u00e9 dans les jours affich\u00e9s.</div>';
     } else {
         let html = '';
-        recipeEntries.forEach(entry => {
-            html += `<div class="shopping-recipe-name">${escapeHtml(entry.recipe.name)}${entry.count > 1 ? ' (x' + entry.count + ')' : ''}</div>`;
+        entries.forEach(entry => {
+            html += `<div class="shopping-recipe-name">${escapeHtml(entry.name)}</div>`;
             if (entry.ingredients.length > 0) {
                 html += '<ul>' + entry.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('') + '</ul>';
             } else {
                 html += '<div class="shopping-no-ingredients">Pas d\u2019ingr\u00e9dients enregistr\u00e9s pour cette recette</div>';
             }
         });
-        if (hasManual) {
-            html += '<div class="shopping-manual-title">Repas saisis \u00e0 la main</div><ul>';
-            manualEntriesOut.forEach(entry => {
-                html += `<li>${escapeHtml(entry.name)}${entry.count > 1 ? ' (x' + entry.count + ')' : ''}</li>`;
-            });
-            html += '</ul>';
-        }
         contentEl.innerHTML = html;
     }
 
@@ -1295,10 +1271,10 @@ function openShoppingListModal() {
 
 // Copier la liste de courses dans le presse-papiers (texte brut, pret pour Keep) — bouton retire en v44.004
 function copyShoppingList() {
-    const { recipeEntries, manualEntriesOut } = buildShoppingList();
+    const entries = buildShoppingList();
     const lines = [];
 
-    recipeEntries.forEach(entry => {
+    entries.forEach(entry => {
         lines.push('== ' + entry.recipe.name + (entry.count > 1 ? ' (x' + entry.count + ')' : ''));
         if (entry.ingredients.length > 0) {
             entry.ingredients.forEach(i => lines.push('- ' + i));
@@ -1307,12 +1283,6 @@ function copyShoppingList() {
         }
         lines.push('');
     });
-
-    if (manualEntriesOut.length > 0) {
-        lines.push('== Repas saisis a la main');
-        manualEntriesOut.forEach(entry => lines.push('- ' + entry.name + (entry.count > 1 ? ' (x' + entry.count + ')' : '')));
-        lines.push('');
-    }
 
     const text = lines.join('\n').trim();
     if (!text) {

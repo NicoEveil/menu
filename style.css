@@ -64,6 +64,59 @@ header h1 .sync-status {
     margin-left: 4px;
 }
 
+header h1 .shopping-list-btn {
+    float: right;
+    font-size: 0.55em;
+    font-weight: normal;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    margin-top: 8px;
+    vertical-align: top;
+}
+
+header h1 .shopping-list-btn .shopping-list-icon {
+    flex-shrink: 0;
+}
+
+.shopping-list-content {
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.shopping-list-content .shopping-list-empty {
+    color: var(--text-light);
+    text-align: center;
+    padding: 20px 0;
+}
+
+.shopping-list-content .shopping-recipe-name {
+    font-weight: bold;
+    margin: 14px 0 6px;
+    color: var(--primary-color);
+}
+
+.shopping-list-content .shopping-recipe-name:first-child {
+    margin-top: 0;
+}
+
+.shopping-list-content ul {
+    margin: 0 0 6px;
+    padding-left: 22px;
+}
+
+.shopping-list-content li {
+    margin: 2px 0;
+}
+
+.shopping-list-content .shopping-no-ingredients {
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 0.9em;
+}
+
 /* Layout principal : 2/5 menu, 3/5 recettes */
 .main-layout {
     display: grid;
@@ -982,6 +1035,15 @@ html, body {
     
     header h1 {
         font-size: 1.5rem;
+    }
+
+    header h1 .shopping-list-btn .shopping-list-label {
+        display: none;
+    }
+
+    header h1 .shopping-list-btn {
+        padding: 6px 8px;
+        margin-top: 4px;
     }
     
     .menu-section h2,

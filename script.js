@@ -885,6 +885,26 @@ function setupMobileTabs() {
             closeModal(document.getElementById('view-recipe-modal'));
         });
     }
+
+    // Liste de courses
+    const shoppingListBtn = document.getElementById('shopping-list-btn');
+    if (shoppingListBtn) {
+        shoppingListBtn.addEventListener('click', () => {
+            openShoppingListModal();
+        });
+    }
+    const shoppingListCopyBtn = document.getElementById('shopping-list-copy-btn');
+    if (shoppingListCopyBtn) {
+        shoppingListCopyBtn.addEventListener('click', () => {
+            copyShoppingList();
+        });
+    }
+    const shoppingListCloseBtn = document.getElementById('shopping-list-close-btn');
+    if (shoppingListCloseBtn) {
+        shoppingListCloseBtn.addEventListener('click', () => {
+            closeModal(document.getElementById('shopping-list-modal'));
+        });
+    }
     
     // Bouton Modifier : passer du popup de lecture au popup de modification
     const editFromViewBtn = document.getElementById('edit-from-view-btn');
@@ -1192,6 +1212,92 @@ function showRecipeModal(recipeId) {
     
     modal.classList.add('active');
     modal.querySelector('.modal-content').scrollTop = 0;
+}
+
+// Construire la liste de courses a partir des repas affiches (8 jours a partir d'aujourd'hui)
+function buildShoppingList() {
+    const daysToShow = getDaysToShow(new Date());
+    const seen = new Map();
+    const order = [];
+
+    daysToShow.forEach(dayInfo => {
+        ['dejeuner', 'diner'].forEach(meal => {
+            const recipeId = menu[dayInfo.dateKey]?.[meal];
+            if (!recipeId) return;
+            const recipe = recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+            if (!seen.has(recipe.id)) {
+                seen.set(recipe.id, { recipe, count: 0 });
+                order.push(recipe.id);
+            }
+            seen.get(recipe.id).count++;
+        });
+    });
+
+    return order.map(id => {
+        const entry = seen.get(id);
+        return {
+            recipe: entry.recipe,
+            count: entry.count,
+            ingredients: (entry.recipe.ingredients || []).filter(l => l.trim())
+        };
+    });
+}
+
+// Ouvrir la modal liste de courses
+function openShoppingListModal() {
+    const modal = document.getElementById('shopping-list-modal');
+    const contentEl = document.getElementById('shopping-list-content');
+    if (!modal || !contentEl) return;
+
+    const entries = buildShoppingList();
+    if (entries.length === 0) {
+        contentEl.innerHTML = '<div class="shopping-list-empty">Aucun repas planifi\u00e9 dans les jours affich\u00e9s.</div>';
+    } else {
+        let html = '';
+        entries.forEach(entry => {
+            html += `<div class="shopping-recipe-name">${entry.recipe.name}${entry.count > 1 ? ' (x' + entry.count + ')' : ''}</div>`;
+            if (entry.ingredients.length > 0) {
+                html += '<ul>' + entry.ingredients.map(i => `<li>${i}</li>`).join('') + '</ul>';
+            } else {
+                html += '<div class="shopping-no-ingredients">Pas d\u2019ingr\u00e9dients enregistr\u00e9s pour cette recette</div>';
+            }
+        });
+        contentEl.innerHTML = html;
+    }
+
+    modal.classList.add('active');
+}
+
+// Copier la liste de courses dans le presse-papiers (texte brut, pret pour Keep)
+function copyShoppingList() {
+    const entries = buildShoppingList();
+    const lines = [];
+
+    entries.forEach(entry => {
+        lines.push('== ' + entry.recipe.name + (entry.count > 1 ? ' (x' + entry.count + ')' : ''));
+        if (entry.ingredients.length > 0) {
+            entry.ingredients.forEach(i => lines.push('- ' + i));
+        } else {
+            lines.push('(pas d\u2019ingr\u00e9dients enregistr\u00e9s)');
+        }
+        lines.push('');
+    });
+
+    const text = lines.join('\n').trim();
+    if (!text) {
+        alert('Aucun repas planifi\u00e9 : rien \u00e0 copier.');
+        return;
+    }
+
+    const copyBtn = document.getElementById('shopping-list-copy-btn');
+    navigator.clipboard.writeText(text).then(() => {
+        const original = copyBtn.textContent;
+        copyBtn.textContent = 'Copi\u00e9 !';
+        setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    }).catch(() => {
+        alert('Copie impossible dans le presse-papiers.');
+    });
 }
 
 // Fermer une modal

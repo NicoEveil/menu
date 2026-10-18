@@ -1,0 +1,13 @@
+{
+  "name": "ma-cuisine-functions",
+  "description": "Cloud Functions Ma Cuisine - extraction IA des recettes",
+  "main": "index.js",
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0"
+  },
+  "private": true
+}

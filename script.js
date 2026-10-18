@@ -1263,7 +1263,10 @@ function openShoppingListModal() {
         contentEl.innerHTML = '<div class="shopping-list-empty">Aucun repas planifi\u00e9 dans les jours affich\u00e9s.</div>';
     } else {
         let html = '';
-        entries.forEach(day => {
+        entries.forEach((day, index) => {
+            if (index > 0) {
+                html += '<div class="shopping-day-sep"></div>';
+            }
             html += `<div class="shopping-day-label">${escapeHtml(day.dayLabel)}</div>`;
             day.meals.forEach(entry => {
                 html += `<div class="shopping-recipe-name">${escapeHtml(entry.name)}</div>`;

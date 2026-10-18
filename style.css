@@ -108,6 +108,11 @@ header .shopping-list-btn .shopping-list-icon {
     margin-top: 0;
 }
 
+.shopping-list-content .shopping-day-sep {
+    border-top: 1px solid var(--border-color);
+    margin: 16px 0 0;
+}
+
 .shopping-list-content .shopping-recipe-name {
     font-weight: bold;
     margin: 14px 0 6px;

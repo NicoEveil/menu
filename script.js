@@ -7,6 +7,7 @@ let draggedMeal = null;
 
 // Firebase
 let db = null;
+let firebaseApp = null;
 let cloudReady = false;
 let lastExportMonth = null;
 let pendingOfflineChange = false;
@@ -140,6 +141,7 @@ async function loadData() {
         };
         
         const app = initializeApp(firebaseConfig);
+        firebaseApp = app;
         db = getFirestore(app);
         
         const auth = getAuth(app);
@@ -886,6 +888,12 @@ function setupMobileTabs() {
         });
     }
 
+    // Extraction IA depuis l'URL
+    const extractBtn = document.getElementById('extract-recipe-btn');
+    if (extractBtn) {
+        extractBtn.addEventListener('click', extractRecipeFromUrl);
+    }
+
     // Liste de courses
     const shoppingListBtn = document.getElementById('shopping-list-btn');
     if (shoppingListBtn) {
@@ -1315,6 +1323,56 @@ function copyShoppingList() {
     }).catch(() => {
         alert('Copie impossible dans le presse-papiers.');
     });
+}
+
+// Extraire une recette depuis une URL via la Cloud Function (IA Mistral)
+async function extractRecipeFromUrl() {
+    const urlInput = document.getElementById('recipe-url');
+    const btn = document.getElementById('extract-recipe-btn');
+    if (!urlInput || !btn) return;
+
+    const url = urlInput.value.trim();
+    if (!url) {
+        alert('Colle d\u2019abord l\u2019URL de la recette dans le champ URL.');
+        urlInput.focus();
+        return;
+    }
+    if (!cloudReady || !firebaseApp) {
+        alert('Connexion au cloud pas encore pr\u00eate, r\u00e9essaie dans quelques secondes.');
+        return;
+    }
+
+    const originalLabel = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Extraction en cours\u2026';
+
+    try {
+        const { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-functions.js');
+        const functions = getFunctions(firebaseApp, 'europe-west1');
+        const extractRecipe = httpsCallable(functions, 'extractRecipe');
+        const result = await extractRecipe({ url });
+        const recipe = result?.data?.recipe;
+        if (!recipe || !recipe.name) {
+            throw new Error('Aucune recette d\u00e9tect\u00e9e sur cette page.');
+        }
+
+        // Pre-remplissage : on ecrase uniquement les champs vides pour ne pas detruire une saisie en cours
+        const nameInput = document.getElementById('recipe-name');
+        if (!nameInput.value.trim() && recipe.name) nameInput.value = recipe.name;
+        if (recipe.servings) document.getElementById('recipe-servings').value = recipe.servings;
+        if (recipe.ingredients && recipe.ingredients.length > 0) {
+            document.getElementById('recipe-ingredients').value = recipe.ingredients.join('\n');
+        }
+        if (recipe.steps) document.getElementById('recipe-steps').value = recipe.steps;
+        const imageInput = document.getElementById('recipe-image-url');
+        if (!imageInput.value.trim() && recipe.imageUrl) imageInput.value = recipe.imageUrl;
+    } catch (err) {
+        const message = err?.message || 'Extraction impossible.';
+        alert('Extraction \u00e9chou\u00e9e : ' + message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalLabel;
+    }
 }
 
 // Fermer une modal

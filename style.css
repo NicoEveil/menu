@@ -1112,6 +1112,12 @@ html, body {
     }
 }
 
+.extract-recipe-btn {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    padding: 8px 14px;
+}
+
 /* Ligne de label Ingredients avec selecteur de personnes inline */
 .ingredients-label-row {
     display: flex;

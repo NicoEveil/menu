@@ -97,6 +97,17 @@ header .shopping-list-btn .shopping-list-icon {
     padding: 20px 0;
 }
 
+.shopping-list-content .shopping-day-label {
+    color: var(--text-light);
+    font-size: 0.8em;
+    text-transform: capitalize;
+    margin: 16px 0 4px;
+}
+
+.shopping-list-content .shopping-day-label:first-child {
+    margin-top: 0;
+}
+
 .shopping-list-content .shopping-recipe-name {
     font-weight: bold;
     margin: 14px 0 6px;

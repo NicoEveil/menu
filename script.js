@@ -1221,12 +1221,13 @@ function buildShoppingList() {
     const entries = [];
 
     daysToShow.forEach(dayInfo => {
+        const dayMeals = [];
         ['dejeuner', 'diner'].forEach(meal => {
             const recipeId = menu[dayInfo.dateKey]?.[meal];
             if (recipeId) {
                 const recipe = recipes.find(r => r.id === recipeId);
                 if (!recipe) return;
-                entries.push({
+                dayMeals.push({
                     name: recipe.name,
                     ingredients: (recipe.ingredients || []).filter(l => l.trim())
                 });
@@ -1234,11 +1235,18 @@ function buildShoppingList() {
             }
             const manualName = (manualEntries[dayInfo.dateKey]?.[meal] || '').trim();
             if (!manualName) return;
-            entries.push({
+            dayMeals.push({
                 name: manualName,
                 ingredients: []
             });
         });
+        if (dayMeals.length > 0) {
+            const date = new Date(dayInfo.dateKey + 'T12:00:00');
+            entries.push({
+                dayLabel: date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' }),
+                meals: dayMeals
+            });
+        }
     });
 
     return entries;
@@ -1255,13 +1263,16 @@ function openShoppingListModal() {
         contentEl.innerHTML = '<div class="shopping-list-empty">Aucun repas planifi\u00e9 dans les jours affich\u00e9s.</div>';
     } else {
         let html = '';
-        entries.forEach(entry => {
-            html += `<div class="shopping-recipe-name">${escapeHtml(entry.name)}</div>`;
-            if (entry.ingredients.length > 0) {
-                html += '<ul>' + entry.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('') + '</ul>';
-            } else {
-                html += '<div class="shopping-no-ingredients">Pas d\u2019ingr\u00e9dients enregistr\u00e9s pour cette recette</div>';
-            }
+        entries.forEach(day => {
+            html += `<div class="shopping-day-label">${escapeHtml(day.dayLabel)}</div>`;
+            day.meals.forEach(entry => {
+                html += `<div class="shopping-recipe-name">${escapeHtml(entry.name)}</div>`;
+                if (entry.ingredients.length > 0) {
+                    html += '<ul>' + entry.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('') + '</ul>';
+                } else {
+                    html += '<div class="shopping-no-ingredients">Pas d\u2019ingr\u00e9dients enregistr\u00e9s pour cette recette</div>';
+                }
+            });
         });
         contentEl.innerHTML = html;
     }
@@ -1274,14 +1285,17 @@ function copyShoppingList() {
     const entries = buildShoppingList();
     const lines = [];
 
-    entries.forEach(entry => {
-        lines.push('== ' + entry.recipe.name + (entry.count > 1 ? ' (x' + entry.count + ')' : ''));
-        if (entry.ingredients.length > 0) {
-            entry.ingredients.forEach(i => lines.push('- ' + i));
-        } else {
-            lines.push('(pas d\u2019ingr\u00e9dients enregistr\u00e9s)');
-        }
-        lines.push('');
+    entries.forEach(day => {
+        lines.push('== ' + day.dayLabel);
+        day.meals.forEach(entry => {
+            lines.push('== ' + entry.name);
+            if (entry.ingredients.length > 0) {
+                entry.ingredients.forEach(i => lines.push('- ' + i));
+            } else {
+                lines.push('(pas d\u2019ingr\u00e9dients enregistr\u00e9s)');
+            }
+            lines.push('');
+        });
     });
 
     const text = lines.join('\n').trim();

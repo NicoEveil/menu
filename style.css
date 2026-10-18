@@ -81,7 +81,7 @@ header .shopping-list-btn {
     flex-shrink: 0;
 }
 
-header h1 .shopping-list-btn .shopping-list-icon {
+header .shopping-list-btn .shopping-list-icon {
     flex-shrink: 0;
 }
 
@@ -1047,8 +1047,10 @@ html, body {
     }
 
     header .shopping-list-btn {
-        padding: 8px 10px;
-        margin-top: 4px;
+        padding: 6px;
+        top: 8px;
+        right: 10px;
+        line-height: 0;
     }
     
     .menu-section h2,

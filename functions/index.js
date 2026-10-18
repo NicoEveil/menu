@@ -162,7 +162,8 @@ exports.extractRecipe = onCall(
         timeoutSeconds: 60,
         memory: '256MiB',
         minInstances: 0,
-        maxInstances: 3
+        maxInstances: 3,
+        secrets: ['MISTRAL_API_KEY']
     },
     async (request) => {
         // Appels non authentifies rejetes : seul le site (connecte en anonyme) peut extraire

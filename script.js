@@ -893,12 +893,6 @@ function setupMobileTabs() {
             openShoppingListModal();
         });
     }
-    const shoppingListCopyBtn = document.getElementById('shopping-list-copy-btn');
-    if (shoppingListCopyBtn) {
-        shoppingListCopyBtn.addEventListener('click', () => {
-            copyShoppingList();
-        });
-    }
     const shoppingListCloseBtn = document.getElementById('shopping-list-close-btn');
     if (shoppingListCloseBtn) {
         shoppingListCloseBtn.addEventListener('click', () => {
@@ -1269,7 +1263,7 @@ function openShoppingListModal() {
     modal.classList.add('active');
 }
 
-// Copier la liste de courses dans le presse-papiers (texte brut, pret pour Keep)
+// Copier la liste de courses dans le presse-papiers (texte brut, pret pour Keep) — bouton retire en v44.004
 function copyShoppingList() {
     const entries = buildShoppingList();
     const lines = [];

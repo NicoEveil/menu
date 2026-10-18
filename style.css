@@ -41,14 +41,21 @@ body {
 
 /* Header */
 header {
-    text-align: center;
     margin-bottom: 30px;
+}
+
+.header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0 20px;
 }
 
 header h1 {
     color: var(--primary-color);
     margin-bottom: 20px;
     font-size: 2rem;
+    text-align: left;
 }
 
 header h1 .version {
@@ -64,16 +71,11 @@ header h1 .sync-status {
     margin-left: 4px;
 }
 
-header h1 .shopping-list-btn {
-    float: right;
-    font-size: 0.55em;
+header .shopping-list-btn {
+    font-size: 0.95rem;
     font-weight: normal;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    margin-top: 8px;
-    vertical-align: top;
+    margin-top: 12px;
+    flex-shrink: 0;
 }
 
 header h1 .shopping-list-btn .shopping-list-icon {
@@ -1037,12 +1039,12 @@ html, body {
         font-size: 1.5rem;
     }
 
-    header h1 .shopping-list-btn .shopping-list-label {
+    header .shopping-list-btn .shopping-list-label {
         display: none;
     }
 
-    header h1 .shopping-list-btn {
-        padding: 6px 8px;
+    header .shopping-list-btn {
+        padding: 8px 10px;
         margin-top: 4px;
     }
     

@@ -1295,3 +1295,12 @@ html, body {
 .ing-unit {
     font-weight: bold;
 }
+
+/* Selecteur de portions par recette dans la liste de courses */
+.shopping-servings {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 6px;
+    font-size: 0.9em;
+}

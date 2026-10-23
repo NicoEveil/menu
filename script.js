@@ -1244,7 +1244,9 @@ function buildShoppingList() {
                 const recipe = recipes.find(r => r.id === recipeId);
                 if (!recipe) return;
                 dayMeals.push({
+                    recipeId: recipe.id,
                     name: recipe.name,
+                    servings: recipe.servings || null,
                     ingredients: (recipe.ingredients || []).filter(l => l.trim())
                 });
                 return;
@@ -1252,7 +1254,9 @@ function buildShoppingList() {
             const manualName = (manualEntries[dayInfo.dateKey]?.[meal] || '').trim();
             if (!manualName) return;
             dayMeals.push({
+                recipeId: null,
                 name: manualName,
+                servings: null,
                 ingredients: []
             });
         });
@@ -1268,34 +1272,99 @@ function buildShoppingList() {
     return entries;
 }
 
+// Nombre de personnes choisi pour chaque recette de la liste de courses
+// (cle : id de recette, valeur : nombre de personnes ; absent = valeur de la recette)
+const shoppingServings = {};
+
+// Construire les lignes d'ingredients d'une recette en appliquant le nombre de personnes choisi.
+function scaledIngredients(recipe, chosenServings) {
+    const baseServings = parseInt(recipe.servings, 10);
+    if (!recipe.ingredients || recipe.ingredients.length === 0) return { lines: recipe.ingredients || [], canScale: false };
+    if (!Number.isFinite(baseServings) || baseServings <= 0) return { lines: recipe.ingredients, canScale: false };
+    const hasParseableQty = recipe.ingredients.some(line => {
+        const p = parseIngredientLine(line);
+        return p && p.type === 'parsed' && p.qty && formatQtyValue(p.qty, 1, Boolean(p.unit)) !== null;
+    });
+    if (!hasParseableQty) return { lines: recipe.ingredients, canScale: false };
+    const factor = chosenServings / baseServings;
+    if (factor === 1) return { lines: recipe.ingredients, canScale: true };
+    const lines = recipe.ingredients.map(line => {
+        const parsed = parseIngredientLine(line);
+        if (parsed && parsed.type === 'parsed') {
+            const scaled = formatQtyValue(parsed.qty, factor, Boolean(parsed.unit));
+            if (scaled !== null) {
+                return buildIngredientLine(scaled, parsed.unit, parsed.name);
+            }
+        }
+        return line;
+    });
+    return { lines, canScale: true };
+}
+
+// Rendre la liste de courses avec selecteur de portions par recette.
+// Le changement de portions recalcule les quantites en direct (rien n'est sauvegarde).
+function renderShoppingList() {
+    const contentEl = document.getElementById('shopping-list-content');
+    if (!contentEl) return;
+
+    const entries = buildShoppingList();
+    if (entries.length === 0) {
+        contentEl.innerHTML = '<div class="shopping-list-empty">Aucun repas planifi\u00e9 dans les jours affich\u00e9s.</div>';
+        return;
+    }
+
+    let html = '';
+    entries.forEach((day, index) => {
+        if (index > 0) {
+            html += '<div class="shopping-day-sep"></div>';
+        }
+        html += `<div class="shopping-day-label">${escapeHtml(day.dayLabel)}</div>`;
+        day.meals.forEach(entry => {
+            html += `<div class="shopping-recipe-name">${escapeHtml(entry.name)}</div>`;
+            if (entry.ingredients.length === 0) {
+                html += '<div class="shopping-no-ingredients">Pas d\u2019ingr\u00e9dients enregistr\u00e9s pour cette recette</div>';
+                return;
+            }
+            if (!entry.recipeId) return;
+            const recipe = recipes.find(r => r.id === entry.recipeId);
+            if (!recipe) return;
+            const chosen = shoppingServings[entry.recipeId] || parseInt(recipe.servings, 10) || null;
+            const { lines, canScale } = scaledIngredients(recipe, chosen);
+            if (canScale && chosen) {
+                html += `
+                    <div class="shopping-servings">
+                        <span>pour</span>
+                        <button type="button" class="servings-btn" data-recipe-id="${entry.recipeId}" data-action="dec" aria-label="Moins de personnes">\u2212</button>
+                        <span class="servings-value">${chosen}</span>
+                        <button type="button" class="servings-btn" data-recipe-id="${entry.recipeId}" data-action="inc" aria-label="Plus de personnes">+</button>
+                        <span>personnes</span>
+                    </div>`;
+            }
+            html += '<ul>' + lines.map(i => `<li>${escapeHtml(i)}</li>`).join('') + '</ul>';
+        });
+    });
+    contentEl.innerHTML = html;
+
+    contentEl.querySelectorAll('.servings-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const recipeId = btn.dataset.recipeId;
+            const recipe = recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+            const current = shoppingServings[recipeId] || parseInt(recipe.servings, 10) || 1;
+            const next = btn.dataset.action === 'inc' ? current + 1 : Math.max(1, current - 1);
+            shoppingServings[recipeId] = next;
+            renderShoppingList();
+        });
+    });
+}
+
 // Ouvrir la modal liste de courses
 function openShoppingListModal() {
     const modal = document.getElementById('shopping-list-modal');
     const contentEl = document.getElementById('shopping-list-content');
     if (!modal || !contentEl) return;
 
-    const entries = buildShoppingList();
-    if (entries.length === 0) {
-        contentEl.innerHTML = '<div class="shopping-list-empty">Aucun repas planifi\u00e9 dans les jours affich\u00e9s.</div>';
-    } else {
-        let html = '';
-        entries.forEach((day, index) => {
-            if (index > 0) {
-                html += '<div class="shopping-day-sep"></div>';
-            }
-            html += `<div class="shopping-day-label">${escapeHtml(day.dayLabel)}</div>`;
-            day.meals.forEach(entry => {
-                html += `<div class="shopping-recipe-name">${escapeHtml(entry.name)}</div>`;
-                if (entry.ingredients.length > 0) {
-                    html += '<ul>' + entry.ingredients.map(i => `<li>${escapeHtml(i)}</li>`).join('') + '</ul>';
-                } else {
-                    html += '<div class="shopping-no-ingredients">Pas d\u2019ingr\u00e9dients enregistr\u00e9s pour cette recette</div>';
-                }
-            });
-        });
-        contentEl.innerHTML = html;
-    }
-
+    renderShoppingList();
     modal.classList.add('active');
 }
 
@@ -1309,7 +1378,15 @@ function copyShoppingList() {
         day.meals.forEach(entry => {
             lines.push('== ' + entry.name);
             if (entry.ingredients.length > 0) {
-                entry.ingredients.forEach(i => lines.push('- ' + i));
+                let ingredientLines = entry.ingredients;
+                if (entry.recipeId) {
+                    const recipe = recipes.find(r => r.id === entry.recipeId);
+                    if (recipe) {
+                        const chosen = shoppingServings[entry.recipeId] || parseInt(recipe.servings, 10) || null;
+                        ingredientLines = scaledIngredients(recipe, chosen).lines;
+                    }
+                }
+                ingredientLines.forEach(i => lines.push('- ' + i));
             } else {
                 lines.push('(pas d\u2019ingr\u00e9dients enregistr\u00e9s)');
             }

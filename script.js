@@ -1742,13 +1742,16 @@ function formatQtyValue(qty, factor, hasUnit) {
     else if (/^\d+(\.\d+)?$/.test(value)) num = parseFloat(value);
     else return null;
     const scaled = num * factor;
-    // Sans unite (ex: oeufs), arrondir a l'entier le plus proche si la quantite d'origine etait entiere
-    let rounded;
-    if (!hasUnit && Number.isInteger(num) && factor !== 1) {
-        rounded = Math.max(1, Math.round(scaled));
-    } else {
-        rounded = Math.round(scaled * 100) / 100;
+    // Sans unite (ex: oeufs), arrondir au quart et afficher en fractions (½, ¼, ¾)
+    if (!hasUnit && factor !== 1) {
+        const quartered = Math.max(0.25, Math.round(scaled * 4) / 4);
+        const whole = Math.floor(quartered);
+        const frac = Math.round((quartered - whole) * 100) / 100;
+        const fracGlyph = { 0.25: '¼', 0.5: '½', 0.75: '¾' }[frac];
+        if (fracGlyph) return whole > 0 ? `${whole} ${fracGlyph}` : fracGlyph;
+        return String(whole).replace('.', ',');
     }
+    const rounded = Math.round(scaled * 100) / 100;
     return String(rounded).replace('.', ',');
 }
 

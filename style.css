@@ -1290,7 +1290,6 @@ html, body {
 
 .ing-qty-scaled {
     font-weight: bold;
-    color: var(--primary-color);
 }
 
 .ing-unit {

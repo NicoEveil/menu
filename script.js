@@ -622,6 +622,12 @@ function setupEventListeners() {
     }
 
     setupMobileTabs();
+
+    // Apercu decompose des ingredients : se rafraichir a chaque saisie dans le textarea
+    const ingredientsTextarea = document.getElementById('recipe-ingredients');
+    if (ingredientsTextarea) {
+        ingredientsTextarea.addEventListener('input', renderIngredientsPreview);
+    }
 }
 
 function getMobileTabs() {
@@ -1214,6 +1220,8 @@ function showRecipeModal(recipeId) {
     
     modal.classList.add('active');
     modal.querySelector('.modal-content').scrollTop = 0;
+    ingredientsPreviewState = [];
+    renderIngredientsPreview();
 }
 
 // Echapper le HTML pour l'affichage des textes libres
@@ -1362,6 +1370,7 @@ async function extractRecipeFromUrl() {
         if (recipe.servings) document.getElementById('recipe-servings').value = recipe.servings;
         if (recipe.ingredients && recipe.ingredients.length > 0) {
             document.getElementById('recipe-ingredients').value = recipe.ingredients.join('\n');
+            renderIngredientsPreview();
         }
         if (recipe.steps) document.getElementById('recipe-steps').value = recipe.steps;
         const imageInput = document.getElementById('recipe-image-url');
@@ -1373,6 +1382,204 @@ async function extractRecipeFromUrl() {
         btn.disabled = false;
         btn.innerHTML = originalLabel;
     }
+}
+
+// ===== Decomposition des ingredients : quantite + unite + nom =====
+
+// Unites reconnaissables dans une ligne d'ingredient.
+// Les cles sont les libelles normalises affiches dans l'apercu ; chaque tableau
+// liste les variantes acceptees (singulier/pluriel, abrege, anglais...).
+const INGREDIENT_UNITS = {
+    'g': ['g', 'gr', 'gramme', 'grammes', 'gram', 'grams'],
+    'kg': ['kg', 'kilo', 'kilos', 'kilogramme', 'kilogrammes'],
+    'mg': ['mg', 'milligramme', 'milligrammes'],
+    'ml': ['ml', 'millilitre', 'millilitres'],
+    'cl': ['cl', 'centilitre', 'centilitres'],
+    'dl': ['dl', 'decilitre', 'decilitres'],
+    'l': ['l', 'litre', 'litres'],
+    'c. à s.': ['c. a s.', 'c. à s.', 'c a s', 'càs', 'cas', 'cs', 'c.s.', 'cuillere a soupe', 'cuillère à soupe', 'cuilleres a soupe', 'cuillères à soupe', 'c. a soupe', 'c. à soupe', 'tbsp', 'tbsps', 'tablespoon', 'tablespoons'],
+    'c. à c.': ['c. a c.', 'c. à c.', 'c a c', 'càc', 'cac', 'cc', 'c.c.', 'cuillere a cafe', 'cuillère à café', 'cuilleres a cafe', 'cuillères à café', 'c. a cafe', 'c. à café', 'tsp', 'tsps', 'teaspoon', 'teaspoons'],
+    'tasse': ['tasse', 'tasses', 'cup', 'cups'],
+    'pincée': ['pincée', 'pincee', 'pincées', 'pincees'],
+    'poignée': ['poignée', 'poignee', 'poignées', 'poignees'],
+    'tranche': ['tranche', 'tranches'],
+    'gousse': ['gousse', 'gousses'],
+    'feuille': ['feuille', 'feuilles'],
+    'botte': ['botte', 'bottes'],
+    'brin': ['brin', 'brins'],
+    'sachet': ['sachet', 'sachets'],
+    'boîte': ['boîte', 'boite', 'boîtes', 'boites'],
+    'barquette': ['barquette', 'barquettes'],
+    'pot': ['pot', 'pots'],
+    'verre': ['verre', 'verres'],
+    'noix': ['noix'],
+    'noisette': ['noisette', 'noisettes'],
+    'oz': ['oz', 'ounce', 'ounces'],
+    'lb': ['lb', 'lbs', 'pound', 'pounds'],
+    'pinte': ['pinte', 'pintes', 'pint', 'pints'],
+};
+
+// Toutes les variantes, triees de la plus longue a la plus courte pour que
+// "cuillere a soupe" soit reconnue avant "c. a s." avant "cs".
+const INGREDIENT_UNIT_VARIANTS = Object.entries(INGREDIENT_UNITS)
+    .flatMap(([canonical, variants]) => variants.map(v => [v, canonical]))
+    .sort((a, b) => b[0].length - a[0].length);
+
+const INGREDIENT_QTY_RE = /^(\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?(?:\s*[-–—]\s*\d+(?:[.,]\d+)?)?|[½¼¾⅓⅔⅛⅕⅖⅗⅘⅙])(?:\s+(.*))?$/;
+
+// Decomposer une ligne d'ingredient en { qty, unit, name } quand c'est possible.
+// Retourne { type: 'group', text } pour un sous-titre de groupe,
+// { type: 'text', text } pour une ligne sans quantite reconnaissable,
+// { type: 'parsed', qty, unit, name } sinon, ou null pour une ligne vide.
+function parseIngredientLine(line) {
+    const trimmed = line.trim();
+    if (!trimmed) return null;
+    if (/.*[:：]\s*$/.test(trimmed)) {
+        return { type: 'group', text: trimmed.replace(/\s*[:：]\s*$/, ' :') };
+    }
+    const qtyMatch = trimmed.match(INGREDIENT_QTY_RE);
+    if (!qtyMatch) {
+        return { type: 'text', text: trimmed };
+    }
+    const qty = qtyMatch[1].trim();
+    const rest = (qtyMatch[2] || '').trim();
+    if (!rest) {
+        return { type: 'text', text: trimmed };
+    }
+    const restLower = rest.toLowerCase();
+    for (const [variant, canonical] of INGREDIENT_UNIT_VARIANTS) {
+        if (restLower.startsWith(variant.toLowerCase() + ' ') || restLower === variant.toLowerCase()) {
+            let name = rest.slice(variant.length).trim();
+            name = name.replace(/^(d'|de\s+)/i, '');
+            return { type: 'parsed', qty, unit: canonical, name: name.trim() };
+        }
+    }
+    // Quantite reconnaissable sans unite connue (ex: "3 oeufs") : quantite + nom
+    return { type: 'parsed', qty, unit: '', name: rest };
+}
+
+// Reconstruire une ligne d'ingredient a partir de qty/unit/name
+function buildIngredientLine(qty, unit, name) {
+    const q = (qty || '').trim();
+    const u = (unit || '').trim();
+    const n = (name || '').trim();
+    if (!q && !u) return n;
+    const qtyIsOne = /^1(?:[.,]0+)?$/.test(q);
+    let unitOut = u;
+    if (!qtyIsOne && /^[a-zéèà]+$/i.test(unitOut) && !/s$/i.test(unitOut) && !['g', 'kg', 'mg', 'ml', 'cl', 'dl', 'l', 'oz', 'lb', 'noix'].includes(unitOut.toLowerCase())) {
+        unitOut += 's';
+    }
+    let line = [q, unitOut].filter(Boolean).join(' ');
+    if (n) {
+        if (u) {
+            line += /^[aàâeéèêëiîïoôuùûhyœ]/i.test(n) ? " d'" : ' de ';
+        } else {
+            line += ' ';
+        }
+        line += n;
+    }
+    return line;
+}
+
+// Etat de l'apercu : une entree par ligne du textarea (index preserving pour resynchroniser)
+let ingredientsPreviewState = [];
+
+// Reconstituer le contenu du textarea depuis l'etat de l'apercu.
+// Les evenements artificiels servent au re-rendu final (hors saisie dans un champ).
+let ingredientsPreviewSyncing = false;
+
+function syncIngredientsTextarea() {
+    const textarea = document.getElementById('recipe-ingredients');
+    ingredientsPreviewSyncing = true;
+    textarea.value = ingredientsPreviewState.map(entry => entry ? entry.line : '').join('\n');
+    ingredientsPreviewState._raw = textarea.value;
+    ingredientsPreviewSyncing = false;
+}
+
+// Afficher l'apercu decompose (quantite | unite | nom) sous le textarea des ingredients.
+// Chaque champ est editable : la modification met a jour la ligne correspondante du textarea.
+function renderIngredientsPreview() {
+    if (ingredientsPreviewSyncing) return;
+    const textarea = document.getElementById('recipe-ingredients');
+    const container = document.getElementById('ingredients-parsed');
+    if (!textarea || !container) return;
+
+    const lines = textarea.value.split(/\r?\n/);
+    // Recharger l'etat uniquement si le contenu a change depuis la derniere saisie dans les champs
+    if (textarea.value !== (ingredientsPreviewState._raw || '')) {
+        ingredientsPreviewState = lines.map(line => {
+            const parsed = parseIngredientLine(line);
+            if (!parsed) return null;
+            return { ...parsed, line: line.trim() };
+        });
+        ingredientsPreviewState._raw = textarea.value;
+    }
+
+    container.innerHTML = '';
+    const hasItems = ingredientsPreviewState.some(Boolean);
+    container.classList.toggle('has-items', hasItems);
+    if (!hasItems) return;
+
+    ingredientsPreviewState.forEach((entry, index) => {
+        if (!entry) return;
+        const row = document.createElement('div');
+        row.className = 'ingredient-parsed-row';
+
+        const updateEntry = (patch) => {
+            Object.assign(entry, patch);
+            if (entry.type === 'parsed') {
+                entry.line = buildIngredientLine(entry.qty, entry.unit, entry.name);
+            } else {
+                entry.line = entry.text;
+            }
+            ingredientsPreviewState._raw = null;
+            syncIngredientsTextarea();
+        };
+
+        if (entry.type === 'group') {
+            row.classList.add('ing-group');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'ing-name';
+            input.value = entry.text;
+            input.setAttribute('aria-label', 'Sous-titre de groupe');
+            input.addEventListener('input', () => updateEntry({ text: input.value }));
+            row.appendChild(input);
+        } else if (entry.type === 'parsed') {
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'text';
+            qtyInput.className = 'ing-qty';
+            qtyInput.value = entry.qty;
+            qtyInput.setAttribute('aria-label', 'Quantité');
+            qtyInput.addEventListener('input', () => updateEntry({ qty: qtyInput.value }));
+            const unitInput = document.createElement('input');
+            unitInput.type = 'text';
+            unitInput.className = 'ing-unit';
+            unitInput.value = entry.unit;
+            unitInput.setAttribute('aria-label', 'Unité');
+            unitInput.addEventListener('input', () => updateEntry({ unit: unitInput.value }));
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'ing-name';
+            nameInput.value = entry.name;
+            nameInput.setAttribute('aria-label', 'Nom de l\u2019ingrédient');
+            nameInput.addEventListener('input', () => updateEntry({ name: nameInput.value }));
+            row.append(qtyInput, unitInput, nameInput);
+        } else {
+            row.classList.add('ing-unparsed');
+            const label = document.createElement('span');
+            label.className = 'ing-unparsed-label';
+            label.textContent = 'texte';
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'ing-name';
+            input.value = entry.text;
+            input.setAttribute('aria-label', 'Ingrédient');
+            input.addEventListener('input', () => updateEntry({ text: input.value }));
+            row.append(label, input);
+        }
+        container.appendChild(row);
+    });
 }
 
 // Fermer une modal

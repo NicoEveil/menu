@@ -1189,3 +1189,65 @@ html, body {
     margin-left: 10px;
     vertical-align: middle;
 }
+
+/* Aperçu des ingredients decomposes (quantite | unite | nom) sous le textarea du formulaire */
+.ingredients-parsed {
+    margin-top: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ingredients-parsed.has-items {
+    display: flex;
+}
+
+.ingredient-parsed-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.ingredient-parsed-row input {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.ingredient-parsed-row input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.ingredient-parsed-row .ing-qty {
+    width: 70px;
+    flex: none;
+}
+
+.ingredient-parsed-row .ing-unit {
+    width: 90px;
+    flex: none;
+}
+
+.ingredient-parsed-row .ing-name {
+    flex: 1;
+    min-width: 0;
+}
+
+.ingredient-parsed-row.ing-group {
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.ingredient-parsed-row.ing-unparsed {
+    opacity: 0.9;
+}
+
+.ingredient-parsed-row .ing-unparsed-label {
+    font-size: 0.75em;
+    opacity: 0.5;
+    white-space: nowrap;
+}

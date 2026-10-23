@@ -1273,8 +1273,27 @@ function buildShoppingList() {
 }
 
 // Nombre de personnes choisi pour chaque recette de la liste de courses
-// (cle : id de recette, valeur : nombre de personnes ; absent = valeur de la recette)
-const shoppingServings = {};
+// (cle : id de recette, valeur : nombre de personnes ; absent = valeur de la recette).
+// Persiste en localStorage : le choix survive aux rechargements et fermetures.
+const SHOPPING_SERVINGS_KEY = 'menuShoppingServings';
+
+function loadShoppingServings() {
+    try {
+        return JSON.parse(localStorage.getItem(SHOPPING_SERVINGS_KEY)) || {};
+    } catch {
+        return {};
+    }
+}
+
+function saveShoppingServings() {
+    try {
+        localStorage.setItem(SHOPPING_SERVINGS_KEY, JSON.stringify(shoppingServings));
+    } catch {
+        // localStorage plein ou indisponible : le choix restera juste non persiste
+    }
+}
+
+const shoppingServings = loadShoppingServings();
 
 // Construire les lignes d'ingredients d'une recette en appliquant le nombre de personnes choisi.
 function scaledIngredients(recipe, chosenServings) {
@@ -1353,6 +1372,7 @@ function renderShoppingList() {
             const current = shoppingServings[recipeId] || parseInt(recipe.servings, 10) || 1;
             const next = btn.dataset.action === 'inc' ? current + 1 : Math.max(1, current - 1);
             shoppingServings[recipeId] = next;
+            saveShoppingServings();
             renderShoppingList();
         });
     });

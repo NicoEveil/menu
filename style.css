@@ -1251,3 +1251,48 @@ html, body {
     opacity: 0.5;
     white-space: nowrap;
 }
+
+/* Ajusteur de portions dans la vue de lecture d'une recette */
+.servings-adjuster {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.servings-btn {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--card-color, #fff);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    padding: 0;
+}
+
+.servings-btn:hover {
+    border-color: var(--primary-color);
+}
+
+.servings-value {
+    min-width: 28px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.ing-qty-scaled {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.ing-unit {
+    font-weight: bold;
+}

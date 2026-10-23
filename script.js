@@ -1718,6 +1718,117 @@ async function retryMissingImages() {
     }
 }
 
+// Afficher les ingredients dans la vue de lecture, avec ajusteur de portions :
+// changer le nombre de personnes recalcule les quantites parseables a la volee
+// (la recette enregistree n'est pas modifiee).
+const viewServingsState = { recipeId: null, servings: null };
+
+const UNICODE_FRACTIONS = { '½': 0.5, '¼': 0.25, '¾': 0.75, '⅓': 1/3, '⅔': 2/3, '⅛': 0.125, '⅕': 0.2, '⅖': 0.4, '⅗': 0.6, '⅘': 0.8, '⅙': 1/6 };
+
+function formatQtyValue(qty, factor, hasUnit) {
+    const value = qty.replace(',', '.');
+    // Plage "2-3" : mettre a l'echelle chaque borne
+    const range = value.match(/^(\d+(?:\.\d+)?)\s*[-–—]\s*(\d+(?:\.\d+)?)$/);
+    if (range) {
+        const low = formatQtyValue(range[1], factor, hasUnit);
+        const high = formatQtyValue(range[2], factor, hasUnit);
+        if (low === null || high === null) return null;
+        return `${low}-${high}`;
+    }
+    let num = null;
+    const frac = value.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
+    if (frac) num = parseFloat(frac[1]) / parseFloat(frac[2]);
+    else if (UNICODE_FRACTIONS[value] !== undefined) num = UNICODE_FRACTIONS[value];
+    else if (/^\d+(\.\d+)?$/.test(value)) num = parseFloat(value);
+    else return null;
+    const scaled = num * factor;
+    // Sans unite (ex: oeufs), arrondir a l'entier le plus proche si la quantite d'origine etait entiere
+    let rounded;
+    if (!hasUnit && Number.isInteger(num) && factor !== 1) {
+        rounded = Math.max(1, Math.round(scaled));
+    } else {
+        rounded = Math.round(scaled * 100) / 100;
+    }
+    return String(rounded).replace('.', ',');
+}
+
+function renderViewIngredients(recipe) {
+    const ingredientsEl = document.getElementById('view-recipe-ingredients');
+    if (viewServingsState.recipeId !== recipe.id) {
+        viewServingsState.recipeId = recipe.id;
+        viewServingsState.servings = parseInt(recipe.servings, 10) || null;
+    }
+    const baseServings = parseInt(recipe.servings, 10);
+    const currentServings = viewServingsState.servings;
+    const canScale = Number.isFinite(baseServings) && baseServings > 0
+        && recipe.ingredients.some(line => {
+            const p = parseIngredientLine(line);
+            return p && p.type === 'parsed' && p.qty && formatQtyValue(p.qty, 1, Boolean(p.unit)) !== null;
+        });
+
+    let headerHtml = '<strong>Ingrédients</strong>';
+    if (canScale) {
+        headerHtml = `
+            <div class="servings-adjuster">
+                <strong>Ingrédients — pour</strong>
+                <button type="button" class="servings-btn" data-action="dec" aria-label="Moins de personnes">−</button>
+                <span class="servings-value">${currentServings}</span>
+                <button type="button" class="servings-btn" data-action="inc" aria-label="Plus de personnes">+</button>
+                <strong>personnes</strong>
+            </div>`;
+    } else if (recipe.servings) {
+        headerHtml = `<strong>Ingrédients — pour ${recipe.servings} personnes</strong>`;
+    }
+
+    const factor = canScale && currentServings ? currentServings / baseServings : 1;
+    const itemsHtml = recipe.ingredients.map(line => {
+        if (!line.trim()) return '<li class="ingredients-sep">&nbsp;</li>';
+        if (line.trim().endsWith(':')) {
+            return `<li class="ingredients-title">${escapeHtml(line)}</li>`;
+        }
+        const parsed = parseIngredientLine(line);
+        if (parsed && parsed.type === 'parsed' && factor !== 1) {
+            const scaled = formatQtyValue(parsed.qty, factor, Boolean(parsed.unit));
+            if (scaled !== null) {
+                const unitOut = parsed.unit
+                    ? (parseFloat(scaled.replace(',', '.')) === 1
+                        ? singularizeUnit(parsed.unit)
+                        : pluralizeUnit(parsed.unit, scaled))
+                    : '';
+                const unitHtml = parsed.unit
+                    ? ` <span class="ing-unit">${escapeHtml(unitOut)}</span> de `
+                    : ' ';
+                return `<li><span class="ing-qty-scaled">${escapeHtml(scaled)}</span>${unitHtml}${escapeHtml(parsed.name)}</li>`;
+            }
+        }
+        return `<li>${escapeHtml(line)}</li>`;
+    }).join('');
+    ingredientsEl.innerHTML = `${headerHtml}<ul>${itemsHtml}</ul>`;
+
+    if (canScale) {
+        ingredientsEl.querySelectorAll('.servings-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                const current = viewServingsState.servings || baseServings;
+                const next = action === 'inc' ? current + 1 : Math.max(1, current - 1);
+                viewServingsState.servings = next;
+                renderViewIngredients(recipe);
+            });
+        });
+    }
+}
+
+function singularizeUnit(unit) {
+    if (/s$/i.test(unit) && !['os','ais'].includes(unit.slice(-2).toLowerCase())) return unit.slice(0, -1);
+    return unit;
+}
+
+function pluralizeUnit(unit, qty) {
+    if (/^(g|kg|mg|ml|cl|dl|l|oz|lb|noix)$/i.test(unit)) return unit;
+    if (!/s$/i.test(unit) && /^[a-zéèà]+$/i.test(unit)) return unit + 's';
+    return unit;
+}
+
 // Afficher une recette dans la modal de visualisation
 function showRecipeDetails(recipeId) {
     window.currentViewedRecipeId = recipeId;
@@ -1764,18 +1875,8 @@ function showRecipeDetails(recipeId) {
     const ingredientsEl = document.getElementById('view-recipe-ingredients');
     const textEl = document.getElementById('view-recipe-text');
     
-    const servingsLabel = recipe.servings ? ` — pour ${recipe.servings} personnes` : '';
     if (recipe.ingredients && recipe.ingredients.length > 0) {
-        // Affichage intelligent : une ligne finissant par " :" est un sous-titre (gras, sans puce),
-        // une ligne vide aere la liste, le reste est un ingredient a puce
-        const itemsHtml = recipe.ingredients.map(line => {
-            if (!line.trim()) return '<li class="ingredients-sep">&nbsp;</li>';
-            if (line.trim().endsWith(':')) {
-                return `<li class="ingredients-title">${line}</li>`;
-            }
-            return `<li>${line}</li>`;
-        }).join('');
-        ingredientsEl.innerHTML = `<strong>Ingrédients${servingsLabel}</strong><ul>${itemsHtml}</ul>`;
+        renderViewIngredients(recipe);
         ingredientsEl.style.display = 'block';
     } else {
         ingredientsEl.style.display = 'none';

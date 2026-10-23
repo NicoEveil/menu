@@ -1425,7 +1425,7 @@ const INGREDIENT_UNIT_VARIANTS = Object.entries(INGREDIENT_UNITS)
     .flatMap(([canonical, variants]) => variants.map(v => [v, canonical]))
     .sort((a, b) => b[0].length - a[0].length);
 
-const INGREDIENT_QTY_RE = /^(\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?(?:\s*[-–—]\s*\d+(?:[.,]\d+)?)?|[½¼¾⅓⅔⅛⅕⅖⅗⅘⅙])(?:\s+(.*))?$/;
+const INGREDIENT_QTY_RE = /^(\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?(?:\s*[-–—]\s*\d+(?:[.,]\d+)?)?|[½¼¾⅓⅔⅛⅕⅖⅗⅘⅙])(?:\s*(.*))?$/;
 
 // Decomposer une ligne d'ingredient en { qty, unit, name } quand c'est possible.
 // Retourne { type: 'group', text } pour un sous-titre de groupe,

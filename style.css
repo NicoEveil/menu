@@ -438,6 +438,16 @@ header .shopping-list-btn .shopping-list-icon {
     color: #ffffff;
 }
 
+#recipe-tags-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#recipe-tags-chips .search-tag-chip {
+    cursor: pointer;
+}
+
 #tags-manage-content {
     padding: 20px;
 }

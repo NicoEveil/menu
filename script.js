@@ -1337,6 +1337,34 @@ function selectRecipeForMenu(recipeId, day, meal) {
     }
 }
 
+let formTagSelection = new Set();
+
+function renderFormTagChips() {
+    const container = document.getElementById('recipe-tags-chips');
+    if (!container) return;
+    const tags = getManagedTags();
+    container.innerHTML = '';
+    if (tags.length === 0) {
+        container.textContent = 'Aucun tag pour le moment — créez-en avec le bouton (+) sous la barre de recherche.';
+        return;
+    }
+    tags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'search-tag-chip' + (formTagSelection.has(tag) ? ' active' : '');
+        chip.textContent = tag;
+        chip.addEventListener('click', () => {
+            if (formTagSelection.has(tag)) {
+                formTagSelection.delete(tag);
+            } else {
+                formTagSelection.add(tag);
+            }
+            renderFormTagChips();
+        });
+        container.appendChild(chip);
+        container.appendChild(document.createTextNode(' '));
+    });
+}
+
 // Afficher la modal d'ajout/modification de recette
 function showRecipeModal(recipeId) {
     const modal = document.getElementById('recipe-modal');
@@ -1353,12 +1381,13 @@ function showRecipeModal(recipeId) {
         document.getElementById('recipe-steps').value = recipe.steps || '';
         document.getElementById('recipe-text').value = recipe.text || '';
         document.getElementById('recipe-image-url').value = recipe.imageUrl || '';
-        document.getElementById('recipe-tags').value = recipe.tags ? recipe.tags.join(', ') : '';
+        formTagSelection = new Set((recipe.tags || []).map(t => t.toLowerCase()));
         
         form.dataset.editingId = recipeId;
     } else {
         document.getElementById('modal-title').textContent = 'Ajouter une recette';
         form.reset();
+        formTagSelection = new Set();
         document.getElementById('recipe-modified').checked = false;
         form.dataset.editingId = '';
     }
@@ -1367,6 +1396,7 @@ function showRecipeModal(recipeId) {
     modal.querySelector('.modal-content').scrollTop = 0;
     ingredientsPreviewState = [];
     renderIngredientsPreview();
+    renderFormTagChips();
 }
 
 // Echapper le HTML pour l'affichage des textes libres
@@ -1859,7 +1889,6 @@ function handleRecipeForm(e) {
     const steps = document.getElementById('recipe-steps').value.trim();
     const text = document.getElementById('recipe-text').value.trim();
     const manualImage = document.getElementById('recipe-image-url').value.trim();
-    const tagsInput = document.getElementById('recipe-tags').value.trim();
     
     if (!name) {
         alert('Le nom de la recette est obligatoire');
@@ -1867,7 +1896,7 @@ function handleRecipeForm(e) {
     }
     
 
-    const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+    const tags = Array.from(formTagSelection);
     
     const finalId = recipeId || Date.now().toString();
     

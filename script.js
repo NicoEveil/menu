@@ -1,6 +1,7 @@
 // Données des recettes et du menu
 let recipes = [];
 let managedTags = null;
+let activeTagFilter = null;
 
 const MANAGED_TAGS_KEY = 'menuManagedTags';
 
@@ -48,7 +49,19 @@ function renderSearchTagsRow() {
     const container = document.getElementById('search-tags-list');
     if (!container) return;
     const tags = getManagedTags();
-    container.innerHTML = tags.map(tag => `<span class="search-tag-chip">${escapeHtml(tag)}</span>`).join(' ');
+    container.innerHTML = '';
+    tags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'search-tag-chip' + (activeTagFilter === tag ? ' active' : '');
+        chip.textContent = tag;
+        chip.addEventListener('click', () => {
+            activeTagFilter = (activeTagFilter === tag) ? null : tag;
+            renderSearchTagsRow();
+            renderRecipes(!!window.currentSelectingDay, window.currentSelectingDay, window.currentSelectingMeal);
+        });
+        container.appendChild(chip);
+        container.appendChild(document.createTextNode(' '));
+    });
 }
 
 function renderTagsManageModal() {
@@ -2161,11 +2174,14 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
                            (recipe.tags && recipe.tags.some(tag => tag.toLowerCase().includes(searchTerm))) ||
                            (recipe.text && recipe.text.toLowerCase().includes(searchTerm));
         
+        const matchesTagFilter = !activeTagFilter ||
+            (recipe.tags && recipe.tags.map(t => t.toLowerCase()).includes(activeTagFilter));
+        
         const matchesFilter = filterType === 'all'
             || (filterType === 'lien' && !!recipe.url)
             || (filterType === 'texte' && !!recipe.text);
         
-        return matchesSearch && matchesFilter;
+        return matchesSearch && matchesTagFilter && matchesFilter;
     });
     
     filteredRecipes.sort((a, b) => a.name.localeCompare(b.name, 'fr'));

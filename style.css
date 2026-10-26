@@ -430,7 +430,12 @@ header .shopping-list-btn .shopping-list-icon {
 }
 
 .search-tags-row .search-tag-chip {
-    margin-left: 8px;
+    cursor: pointer;
+}
+
+.search-tag-chip.active {
+    background-color: var(--primary-color);
+    color: #ffffff;
 }
 
 #tags-manage-content {

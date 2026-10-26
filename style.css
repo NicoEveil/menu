@@ -703,9 +703,6 @@ header .shopping-list-btn .shopping-list-icon {
     font-size: 0.95rem;
 }
 
-#view-recipe-category {
-    font-weight: bold;
-}
 
 #view-recipe-tags {
     display: flex;

@@ -1223,7 +1223,6 @@ function showRecipeModal(recipeId) {
         document.getElementById('recipe-steps').value = recipe.steps || '';
         document.getElementById('recipe-text').value = recipe.text || '';
         document.getElementById('recipe-image-url').value = recipe.imageUrl || '';
-        document.getElementById('recipe-category').value = recipe.category || '';
         document.getElementById('recipe-tags').value = recipe.tags ? recipe.tags.join(', ') : '';
         
         form.dataset.editingId = recipeId;
@@ -1730,7 +1729,6 @@ function handleRecipeForm(e) {
     const steps = document.getElementById('recipe-steps').value.trim();
     const text = document.getElementById('recipe-text').value.trim();
     const manualImage = document.getElementById('recipe-image-url').value.trim();
-    const category = document.getElementById('recipe-category').value.trim();
     const tagsInput = document.getElementById('recipe-tags').value.trim();
     
     if (!name) {
@@ -1755,7 +1753,7 @@ function handleRecipeForm(e) {
         text: text || null,
         steps: steps || null,
         imageUrl: manualImage || (existingRecipe ? existingRecipe.imageUrl : null),
-        category: category || null,
+        category: (recipeId && existingRecipe && existingRecipe.category) || null,
         tags,
         createdAt: recipeId ? recipes.find(r => r.id === recipeId).createdAt : new Date().toISOString(),
         lastModified: new Date().toISOString()
@@ -1975,9 +1973,6 @@ function showRecipeDetails(recipeId) {
         imageEl.style.display = 'none';
     }
     
-    const categoryEl = document.getElementById('view-recipe-category');
-    categoryEl.textContent = recipe.category ? `Catégorie: ${recipe.category}` : '';
-    categoryEl.style.display = recipe.category ? 'block' : 'none';
     
     const tagsEl = document.getElementById('view-recipe-tags');
     if (recipe.tags && recipe.tags.length > 0) {
@@ -2051,7 +2046,6 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
     let filteredRecipes = recipes.filter(recipe => {
         const matchesSearch = recipe.name.toLowerCase().includes(searchTerm) ||
                            (recipe.tags && recipe.tags.some(tag => tag.toLowerCase().includes(searchTerm))) ||
-                           (recipe.category && recipe.category.toLowerCase().includes(searchTerm)) ||
                            (recipe.text && recipe.text.toLowerCase().includes(searchTerm));
         
         const matchesFilter = filterType === 'all'
@@ -2096,7 +2090,6 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
             ${!recipe.imageUrl && !recipe.text && recipe.steps ? `<div class="recipe-notes-preview">${recipe.steps}</div>` : ''}
             ${!recipe.imageUrl && !recipe.text && !recipe.steps && recipe.url ? `<a href="${recipe.url}" target="_blank" rel="noopener noreferrer" class="recipe-link-preview" title="${recipe.url}">${recipe.url}</a>` : ''}
             <div class="recipe-meta">
-                ${recipe.category ? `<span>${recipe.category}</span>` : ''}
                 ${recipe.tags && recipe.tags.length > 0 ? 
                     `<div class="recipe-tags">${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
             </div>

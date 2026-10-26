@@ -850,10 +850,26 @@ function setupMobileTabs() {
     // En mode selection ("Ajouter pour le"), conserver le contexte jour/repas,
     // sinon renderRecipes() sans arguments sortait du mode selection et l'ajout echouait
     const recipeSearch = document.getElementById('recipe-search');
+    const recipeSearchClear = document.getElementById('recipe-search-clear');
     if (recipeSearch) {
+        const updateSearchClearBtn = () => {
+            if (recipeSearchClear) {
+                recipeSearchClear.classList.toggle('visible', recipeSearch.value.length > 0);
+            }
+        };
         recipeSearch.addEventListener('input', () => {
+            updateSearchClearBtn();
             renderRecipes(!!window.currentSelectingDay, window.currentSelectingDay, window.currentSelectingMeal);
         });
+        if (recipeSearchClear) {
+            recipeSearchClear.addEventListener('click', () => {
+                recipeSearch.value = '';
+                updateSearchClearBtn();
+                recipeSearch.focus();
+                renderRecipes(!!window.currentSelectingDay, window.currentSelectingDay, window.currentSelectingMeal);
+            });
+        }
+        updateSearchClearBtn();
     }
 
     // Modal

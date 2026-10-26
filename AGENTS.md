@@ -5,6 +5,8 @@
 - **Rollover automatique du jour introduit entre `stable-v28` et `stable-v29`** (v28.001) : la liste des jours se rafraîchit sans rechargement au changement de date (minuit, sortie de veille, focus de l'onglet). Premier test réel du comportement en sortie de veille profonde encore à confirmer par l'utilisateur.
 - **`stable-v33` (v33.000) est la dernière version stable avant PWA** : à partir de v33.xxx on implémente la PWA (service worker, cache, manifeste). En cas de souci avec la PWA, revenir au tag `stable-v33`.
 
+- **`stable-v50` (v50.000)** : dernière version stable — croix « × » d'effacement dans la barre de recherche (visible seulement si du texte, clic = efface + relance le filtrage + focus).
+
 - **`stable-v34` (v34.000)** : PWA complète (service worker, manifeste, hors ligne), import/export recettes complet (Lien, Image, Notes multi-lignes avec sauts de paragraphe, Tags, Categorie), tag invisible `lastModified` par recette inclus dans l'export/import et utilisé pour la déduplication, mécanisme de mise à jour du service worker fiable (cache-busting synchronisé + rechargement auto).
 
 Quand l'utilisateur demande d'enregistrer une version stable :

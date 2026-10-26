@@ -1,7 +1,7 @@
 // Données des recettes et du menu
 let recipes = [];
 let managedTags = null;
-let activeTagFilter = null;
+let activeTagFilter = new Set();
 
 const MANAGED_TAGS_KEY = 'menuManagedTags';
 
@@ -52,10 +52,14 @@ function renderSearchTagsRow() {
     container.innerHTML = '';
     tags.forEach(tag => {
         const chip = document.createElement('span');
-        chip.className = 'search-tag-chip' + (activeTagFilter === tag ? ' active' : '');
+        chip.className = 'search-tag-chip' + (activeTagFilter.has(tag) ? ' active' : '');
         chip.textContent = tag;
         chip.addEventListener('click', () => {
-            activeTagFilter = (activeTagFilter === tag) ? null : tag;
+            if (activeTagFilter.has(tag)) {
+                activeTagFilter.delete(tag);
+            } else {
+                activeTagFilter.add(tag);
+            }
             renderSearchTagsRow();
             renderRecipes(!!window.currentSelectingDay, window.currentSelectingDay, window.currentSelectingMeal);
         });
@@ -2174,8 +2178,9 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
                            (recipe.tags && recipe.tags.some(tag => tag.toLowerCase().includes(searchTerm))) ||
                            (recipe.text && recipe.text.toLowerCase().includes(searchTerm));
         
-        const matchesTagFilter = !activeTagFilter ||
-            (recipe.tags && recipe.tags.map(t => t.toLowerCase()).includes(activeTagFilter));
+        const matchesTagFilter = activeTagFilter.size === 0 ||
+            (recipe.tags && [...activeTagFilter].every(active =>
+                recipe.tags.map(t => t.toLowerCase()).includes(active)));
         
         const matchesFilter = filterType === 'all'
             || (filterType === 'lien' && !!recipe.url)

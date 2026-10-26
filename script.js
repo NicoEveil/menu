@@ -1,5 +1,82 @@
 // Données des recettes et du menu
 let recipes = [];
+let managedTags = null;
+
+const MANAGED_TAGS_KEY = 'menuManagedTags';
+
+function getManagedTags() {
+    if (managedTags === null) {
+        try {
+            managedTags = JSON.parse(localStorage.getItem(MANAGED_TAGS_KEY) || '[]');
+        } catch (e) {
+            managedTags = [];
+        }
+        if (!Array.isArray(managedTags)) managedTags = [];
+    }
+    return managedTags;
+}
+
+function saveManagedTags() {
+    localStorage.setItem(MANAGED_TAGS_KEY, JSON.stringify(managedTags));
+}
+
+function normalizeTag(tag) {
+    return tag.trim().toLowerCase();
+}
+
+function addManagedTag(tag) {
+    const normalized = normalizeTag(tag);
+    if (!normalized) return false;
+    const tags = getManagedTags();
+    if (tags.includes(normalized)) return false;
+    tags.push(normalized);
+    saveManagedTags();
+    return true;
+}
+
+function removeManagedTag(tag) {
+    const tags = getManagedTags();
+    const index = tags.indexOf(tag);
+    if (index === -1) return;
+    tags.splice(index, 1);
+    saveManagedTags();
+    renderSearchTagsRow();
+    renderTagsManageModal();
+}
+
+function renderSearchTagsRow() {
+    const container = document.getElementById('search-tags-list');
+    if (!container) return;
+    const tags = getManagedTags();
+    container.innerHTML = tags.map(tag => `<span class="search-tag-chip">${escapeHtml(tag)}</span>`).join(' ');
+}
+
+function renderTagsManageModal() {
+    const list = document.getElementById('tags-manage-list');
+    if (!list) return;
+    const tags = getManagedTags();
+    list.innerHTML = '';
+    if (tags.length === 0) {
+        const empty = document.createElement('div');
+        empty.textContent = 'Aucun tag pour le moment.';
+        list.appendChild(empty);
+        return;
+    }
+    tags.forEach(tag => {
+        const item = document.createElement('div');
+        item.className = 'tags-manage-list-item';
+        const label = document.createElement('span');
+        label.textContent = tag;
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'tags-manage-delete';
+        deleteBtn.title = 'Supprimer ce tag';
+        deleteBtn.textContent = '\u{1F5D1}\uFE0F';
+        deleteBtn.addEventListener('click', () => removeManagedTag(tag));
+        item.append(label, deleteBtn);
+        list.appendChild(item);
+    });
+}
 let menu = {};
 let manualEntries = {};
 let draggedRecipe = null;
@@ -871,6 +948,42 @@ function setupMobileTabs() {
         }
         updateSearchClearBtn();
     }
+
+    // Tags : ligne sous la recherche + modal de gestion
+    const searchTagsAdd = document.getElementById('search-tags-add');
+    const tagsManageModal = document.getElementById('tags-manage-modal');
+    if (searchTagsAdd && tagsManageModal) {
+        searchTagsAdd.addEventListener('click', () => {
+            renderTagsManageModal();
+            tagsManageModal.classList.add('active');
+        });
+        const tagsManageClose = document.getElementById('tags-manage-close-btn');
+        if (tagsManageClose) {
+            tagsManageClose.addEventListener('click', () => closeModal(tagsManageModal));
+        }
+        const tagsManageAddBtn = document.getElementById('tags-manage-add-btn');
+        const tagsManageNew = document.getElementById('tags-manage-new');
+        const submitNewTag = () => {
+            if (!tagsManageNew) return;
+            if (addManagedTag(tagsManageNew.value)) {
+                tagsManageNew.value = '';
+                renderSearchTagsRow();
+                renderTagsManageModal();
+            }
+        };
+        if (tagsManageAddBtn) {
+            tagsManageAddBtn.addEventListener('click', submitNewTag);
+        }
+        if (tagsManageNew) {
+            tagsManageNew.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    submitNewTag();
+                }
+            });
+        }
+    }
+    renderSearchTagsRow();
 
     // Modal
     document.querySelectorAll('.btn-close').forEach(btn => {

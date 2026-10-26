@@ -6,13 +6,13 @@
     <title>Ma Cuisine</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=50.002">
+    <link rel="stylesheet" href="style.css?v=50.003">
 </head>
 <body>
     <div class="container">
         <header>
             <div class="header-row">
-                <h1>Ma Cuisine <span class="version">v50.002</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
+                <h1>Ma Cuisine <span class="version">v50.003</span> <span id="sync-status" class="sync-status" title="État de la synchronisation"></span></h1>
                 <button type="button" id="shopping-list-btn" class="btn btn-primary shopping-list-btn" title="Liste de courses (repas affichés)">
                     <span class="shopping-list-label">Liste de courses</span>
                     <svg class="shopping-list-icon" width="20" height="20" viewBox="0 0 64 64" aria-hidden="true">
@@ -63,6 +63,7 @@
                 <div class="search-tags-row">
                     <span class="search-tags-label">Tag :</span>
                     <button type="button" id="search-tags-add" class="search-tags-add-btn" title="Ajouter un tag">(+)</button>
+                    <span id="search-tags-list"></span>
                 </div>
 
                 <div id="recipes-list" class="recipes-grid">
@@ -159,9 +160,29 @@
         </div>
     </div>
 
+    <!-- Modal gestion des tags -->
+    <div id="tags-manage-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gérer les tags</h2>
+                <button class="btn-close">&times;</button>
+            </div>
+            <div id="tags-manage-content">
+                <div class="tags-manage-add">
+                    <input type="text" id="tags-manage-new" placeholder="Nouveau tag...">
+                    <button type="button" class="btn btn-primary" id="tags-manage-add-btn">Ajouter</button>
+                </div>
+                <div id="tags-manage-list"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="tags-manage-close-btn">Fermer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Indicateur de drag (invisible par défaut) -->
     <div id="drag-indicator" class="drag-indicator">Glissez ici pour assigner</div>
 
-    <script src="script.js?v=50.002"></script>
+    <script src="script.js?v=50.003"></script>
 </body>
 </html>

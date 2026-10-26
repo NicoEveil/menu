@@ -2252,10 +2252,6 @@ function renderRecipes(forSelection = false, dayParam = null, mealParam = null) 
             ${!recipe.imageUrl && recipe.text ? `<div class="recipe-notes-preview">${recipe.text}</div>` : ''}
             ${!recipe.imageUrl && !recipe.text && recipe.steps ? `<div class="recipe-notes-preview">${recipe.steps}</div>` : ''}
             ${!recipe.imageUrl && !recipe.text && !recipe.steps && recipe.url ? `<a href="${recipe.url}" target="_blank" rel="noopener noreferrer" class="recipe-link-preview" title="${recipe.url}">${recipe.url}</a>` : ''}
-            <div class="recipe-meta">
-                ${recipe.tags && recipe.tags.length > 0 ? 
-                    `<div class="recipe-tags">${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
-            </div>
         `;
         
         card.querySelector('.delete-recipe').addEventListener('click', (e) => {

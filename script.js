@@ -513,7 +513,7 @@ function importRecipesFromFile(file) {
         text.split(/\r?\n/).forEach(line => {
             const managedTagsMatch = line.match(/^ListeTags: (.*)$/);
             if (managedTagsMatch && !current) {
-                importedManagedTags = managedTagsMatch[1].split(',').map(t => t.trim().toLowerCase()).filter(t => t);
+                importedManagedTags = managedTagsMatch[1].split(',').map(t => normalizeTag(t)).filter(t => t);
                 return;
             }
             const nameMatch = line.match(/^=== (.+) ===$/);
@@ -575,8 +575,9 @@ function importRecipesFromFile(file) {
             const tags = getManagedTags();
             let tagsAdded = 0;
             importedManagedTags.forEach(tag => {
-                if (!tags.includes(tag)) {
-                    tags.push(tag);
+                const normalized = normalizeTag(tag);
+                if (normalized && !tags.includes(normalized)) {
+                    tags.push(normalized);
                     tagsAdded++;
                 }
             });

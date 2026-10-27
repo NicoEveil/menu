@@ -434,6 +434,10 @@ function exportRecipesToFile() {
     const lines = [];
     lines.push('Mes recettes - Ma Cuisine');
     lines.push('Export du ' + new Date().toLocaleDateString('fr-FR'));
+    const exportedManagedTags = getManagedTags();
+    if (exportedManagedTags.length > 0) {
+        lines.push('ListeTags: ' + exportedManagedTags.join(', '));
+    }
     lines.push('');
     
     const sorted = [...recipes].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
@@ -492,6 +496,7 @@ function importRecipesFromFile(file) {
     reader.onload = () => {
         const text = reader.result;
         const imported = [];
+        let importedManagedTags = [];
         let current = null;
         
         // Nettoyer les notes a la fermeture d'une recette :
@@ -506,6 +511,11 @@ function importRecipesFromFile(file) {
         };
         
         text.split(/\r?\n/).forEach(line => {
+            const managedTagsMatch = line.match(/^ListeTags: (.*)$/);
+            if (managedTagsMatch && !current) {
+                importedManagedTags = managedTagsMatch[1].split(',').map(t => t.trim().toLowerCase()).filter(t => t);
+                return;
+            }
             const nameMatch = line.match(/^=== (.+) ===$/);
             if (nameMatch) {
                 if (current && current.name) imported.push(finalizeRecipe(current));
@@ -559,6 +569,29 @@ function importRecipesFromFile(file) {
             alert('Aucune recette trouv\u00e9e dans ce fichier. V\u00e9rifiez qu\u2019il s\u2019agit d\u2019un export "mes-recettes-....txt".');
             return;
         }
+        
+        // Liste des tags gérés : fusionner celle de l'export avec l'existante (l'import enrichit, ne vide jamais)
+        if (importedManagedTags.length > 0) {
+            const tags = getManagedTags();
+            let tagsAdded = 0;
+            importedManagedTags.forEach(tag => {
+                if (!tags.includes(tag)) {
+                    tags.push(tag);
+                    tagsAdded++;
+                }
+            });
+            if (tagsAdded > 0) {
+                saveManagedTags();
+                renderSearchTagsRow();
+            }
+        }
+        
+        // Seuls les tags de la liste gérée (après fusion) comptent : filtrer ceux des recettes importées
+        const validTags = new Set(getManagedTags());
+        const filterRecipeTags = tags => (tags || []).map(t => t.toLowerCase()).filter(t => validTags.has(t));
+        imported.forEach(r => {
+            if (r.tags && r.tags.length > 0) r.tags = filterRecipeTags(r.tags);
+        });
         
         let added = 0;
         let updated = 0;

@@ -24,13 +24,18 @@ function saveManagedTags() {
     }
 }
 
-// Appliquer les tags gérés depuis le cloud (le cloud fait foi, comme pour les recettes)
+// Fusionner les tags gérés locaux avec ceux du cloud (union, jamais de perte :
+// un support qui n'a pas été utilisé depuis longtemps ne peut pas écraser les
+// tags ajoutés ailleurs entre-temps ; l'ordre des tags du cloud fait foi)
 function applyCloudManagedTags(data) {
-    if (!Array.isArray(data.managedTags)) return false;
-    const cloudTags = data.managedTags.filter(t => typeof t === 'string' && t);
+    const cloudTags = Array.isArray(data.managedTags) ? data.managedTags.filter(t => typeof t === 'string' && t) : [];
     const localTags = getManagedTags();
-    if (JSON.stringify(localTags) === JSON.stringify(cloudTags)) return false;
-    managedTags = cloudTags;
+    const merged = [...cloudTags];
+    localTags.forEach(tag => {
+        if (!merged.includes(tag)) merged.push(tag);
+    });
+    if (JSON.stringify(localTags) === JSON.stringify(merged)) return false;
+    managedTags = merged;
     localStorage.setItem(MANAGED_TAGS_KEY, JSON.stringify(managedTags));
     return true;
 }

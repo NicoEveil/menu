@@ -19,6 +19,25 @@ function getManagedTags() {
 
 function saveManagedTags() {
     localStorage.setItem(MANAGED_TAGS_KEY, JSON.stringify(managedTags));
+    if (cloudReady) {
+        saveData();
+    }
+}
+
+// Fusionner les tags gérés locaux avec ceux du cloud (union, jamais de perte :
+// un support qui n'a pas été utilisé depuis longtemps ne peut pas écraser les
+// tags ajoutés ailleurs entre-temps ; l'ordre des tags du cloud fait foi)
+function applyCloudManagedTags(data) {
+    const cloudTags = Array.isArray(data.managedTags) ? data.managedTags.filter(t => typeof t === 'string' && t) : [];
+    const localTags = getManagedTags();
+    const merged = [...cloudTags];
+    localTags.forEach(tag => {
+        if (!merged.includes(tag)) merged.push(tag);
+    });
+    if (JSON.stringify(localTags) === JSON.stringify(merged)) return false;
+    managedTags = merged;
+    localStorage.setItem(MANAGED_TAGS_KEY, JSON.stringify(managedTags));
+    return true;
 }
 
 function normalizeTag(tag) {
@@ -266,6 +285,7 @@ async function loadData() {
             if (data.menu) menu = data.menu;
             if (data.manualEntries) manualEntries = data.manualEntries;
             if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
+            applyCloudManagedTags(data);
         } else if (docSnap.exists() && !pendingFlag) {
             // Le cloud a des données : elles font foi
             const data = docSnap.data();
@@ -273,13 +293,15 @@ async function loadData() {
             if (data.menu) menu = data.menu;
             if (data.manualEntries) manualEntries = data.manualEntries;
             if (data.lastExportMonth) lastExportMonth = data.lastExportMonth;
+            applyCloudManagedTags(data);
         } else if (docSnap.exists() && pendingFlag) {
             // Des modifications hors ligne sont en attente : elles écrasent le cloud
             await setDoc(docRef, {
                 recipes: recipes,
                 menu: menu,
                 manualEntries: manualEntries,
-                lastExportMonth: lastExportMonth
+                lastExportMonth: lastExportMonth,
+                managedTags: getManagedTags()
             });
             localStorage.setItem('menuPendingSync', 'false');
         } else if (savedRecipes || savedMenu || savedManualEntries) {
@@ -287,7 +309,8 @@ async function loadData() {
             await setDoc(docRef, {
                 recipes: recipes,
                 menu: menu,
-                manualEntries: manualEntries
+                manualEntries: manualEntries,
+                managedTags: getManagedTags()
             });
         }
         
@@ -310,7 +333,13 @@ async function loadData() {
                 const data = snap.data();
                 const currentData = JSON.stringify({ recipes, menu, manualEntries });
                 const cloudData = JSON.stringify({ recipes: data.recipes || [], menu: data.menu || {}, manualEntries: data.manualEntries || {} });
-                if (currentData !== cloudData) {
+                const tagsChanged = applyCloudManagedTags(data);
+                if (tagsChanged) {
+                    localStorage.setItem(MANAGED_TAGS_KEY, JSON.stringify(managedTags));
+                    renderSearchTagsRow();
+                    renderTagsManageModal();
+                }
+                if (currentData !== cloudData || tagsChanged) {
                         if (data.recipes) recipes = data.recipes;
                     if (data.menu) menu = data.menu;
                     if (data.manualEntries) manualEntries = data.manualEntries;
@@ -719,7 +748,8 @@ async function saveData() {
                 recipes: recipes,
                 menu: menu,
                 manualEntries: manualEntries,
-                lastExportMonth: lastExportMonth
+                lastExportMonth: lastExportMonth,
+                managedTags: getManagedTags()
             });
             isSaving = false;
             localStorage.setItem('menuPendingSync', 'false');

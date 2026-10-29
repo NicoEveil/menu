@@ -39,6 +39,8 @@ Les correctifs entre versions stables incrémentent le patch (`v24.001`, `v24.00
 
 ## Règles permanentes
 
+- **Tags gérés synchronisés entre supports (v51.002)** : la liste des tags gérés (localStorage `menuManagedTags`) est désormais incluse dans la sync cloud (champ `managedTags` du document Firestore `spaces/default`). Même logique que les recettes : le cloud fait foi au chargement et via `onSnapshot`, le localStorage sert de cache hors ligne, toute modif locale (ajout/suppression de tag) est poussée via `saveData()`. La ligne `ListeTags:` de l'export/import reste inchangée.
+
 - **Realtime Database inutilisée (leçon v51.000)** : le projet `ma-cuisine-37ba4` contient une instance Realtime Database « ma-cuisine-37ba4-default-rtdb » créée par accident et **jamais utilisée par le code** (l'app utilise Firestore + Cloud Functions uniquement). Firebase a averti que ses règles en mode test expiraient (mail « l'accès client expire dans 5 jour(s) ») : décision de **laisser l'instance mourir** (requêtes refusées, sans effet sur l'app). Si l'app a un problème de sync cloud après cette expiration, ce n'est PAS la cause — vérifier Firestore, l'auth anonyme et la Cloud Function.
 
 - Quand l'utilisateur donne une règle (de codage, de nommage, de façon de travailler), lui rappeler de demander son enregistrement dans ce fichier (`AGENTS.md`) si ce n'est pas déjà fait. Une règle non écrite ici est perdue entre les sessions.

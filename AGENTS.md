@@ -1,5 +1,13 @@
 # Règles du projet
 
+## Règles ABSOLUES (leçon v52.000 : des règles écrites plus bas ont été enfreintes faute de relecture)
+
+- **Relire AGENTS.md EN ENTIERTÉ avant chaque commit de version et avant chaque décision de livraison** (branche vs main, numérotation, tag). Ne JAMAIS se fier à la mémoire de session : les règles ci-dessous ne servent à rien si elles ne sont pas relues au moment de décider.
+- **Checklist obligatoire avant tout push de version, exécutée par grep dans la même commande et vérifiée avant de committer** :
+  1. badge `<span class="version">vN.NNN</span>` dans le `<h1>` de `index.html` ;
+  2. `?v=N.NNN` sur `style.css` ET `script.js` dans `index.html` ;
+  3. `CACHE_VERSION` dans `service-worker.js`.
+  Si les trois ne pointent pas sur le même numéro, le push est interdit.
 ## Versions stables
 
 - **Rollover automatique du jour introduit entre `stable-v28` et `stable-v29`** (v28.001) : la liste des jours se rafraîchit sans rechargement au changement de date (minuit, sortie de veille, focus de l'onglet). Premier test réel du comportement en sortie de veille profonde encore à confirmer par l'utilisateur.

@@ -316,6 +316,16 @@ async function loadData() {
         
         cloudReady = true;
         
+        // La liste des tags gérés locale peut être plus récente que celle du cloud
+        // (tags créés avant la sync v51.002, jamais poussés) : la fusion locale/cloud
+        // est déjà faite par applyCloudManagedTags, il faut maintenant pousser le
+        // résultat pour que les autres supports le récupèrent.
+        const cloudSnapAfterLoad = await getDoc(docRef);
+        const cloudTagsAfterLoad = Array.isArray(cloudSnapAfterLoad.data()?.managedTags) ? cloudSnapAfterLoad.data().managedTags : [];
+        if (JSON.stringify(getManagedTags()) !== JSON.stringify(cloudTagsAfterLoad)) {
+            await saveData();
+        }
+        
         if (navigator.onLine) {
             retryMissingImages();
         }
